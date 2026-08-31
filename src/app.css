@@ -1,0 +1,50 @@
+:root {
+	--bg: #f7f6f2;
+	--surface: #ffffff;
+	--ink: #23201c;
+	--muted: #6d6862;
+	--line: #e4e0d8;
+	--accent: #3b7a57;
+	--radius: 14px;
+	color-scheme: light;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--ink);
+	font-family:
+		system-ui,
+		-apple-system,
+		'Hiragino Kaku Gothic ProN',
+		'Noto Sans JP',
+		sans-serif;
+	line-height: 1.75;
+	-webkit-font-smoothing: antialiased;
+}
+
+a {
+	color: var(--accent);
+}
+
+.wrap {
+	max-width: 62rem;
+	margin: 0 auto;
+	padding: 3rem 1.25rem 6rem;
+}
+
+.tag {
+	display: inline-block;
+	padding: 0.1rem 0.55rem;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--surface);
+	color: var(--muted);
+	font-size: 0.75rem;
+	line-height: 1.6;
+	white-space: nowrap;
+}
