@@ -1,7 +1,23 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import WorkCard from '$lib/WorkCard.svelte';
 	import { email, profile } from '$lib/profile';
+	import { preferredMode, rememberMode } from '$lib/mode';
 	import { byCategory, featured } from '$lib/works';
+
+	let worldReady = $state(false);
+
+	onMount(() => {
+		// 一覧を先に描き切ってから Three.js を裏で取りに行く。初期表示を待たせないため。
+		const idle = requestIdleCallback(() => {
+			import('$lib/world/World').then(() => {
+				worldReady = true;
+				if (preferredMode() === 'world' && matchMedia('(pointer: fine)').matches) goto('/world');
+			});
+		});
+		return () => cancelIdleCallback(idle);
+	});
 
 	const sections = [
 		{ title: '学習・実験', works: byCategory('learning').filter((w) => !w.spot) },
@@ -23,6 +39,15 @@
 				<li class="tag">{skill}</li>
 			{/each}
 		</ul>
+
+		<a
+			class="enter"
+			class:ready={worldReady}
+			href="/world"
+			onclick={() => rememberMode('world')}
+		>
+			{worldReady ? '3D で見る' : '3D を読み込み中…'}
+		</a>
 	</header>
 
 	<section>
@@ -69,6 +94,30 @@
 		max-width: 42rem;
 		margin: 0 0 1.25rem;
 		color: var(--muted);
+	}
+
+	.enter {
+		display: inline-block;
+		margin-top: 1.75rem;
+		padding: 0.6rem 1.4rem;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		background: var(--surface);
+		color: var(--muted);
+		font-size: 0.9rem;
+		text-decoration: none;
+		pointer-events: none;
+		transition:
+			background 0.2s ease,
+			color 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.enter.ready {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: #fff;
+		pointer-events: auto;
 	}
 
 	.skills {
