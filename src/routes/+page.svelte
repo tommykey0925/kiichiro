@@ -6,17 +6,23 @@
 	import { preferredMode, rememberMode } from '$lib/mode';
 	import { byCategory, featured } from '$lib/works';
 
-	let worldReady = $state(false);
-
 	onMount(() => {
-		// 一覧を先に描き切ってから Three.js を裏で取りに行く。初期表示を待たせないため。
-		const idle = requestIdleCallback(() => {
+		// 先読みは最適化なので、リンクの有効化には使わない。
+		// 失敗しても /world 側で読み直せる。
+		if (!matchMedia('(pointer: fine)').matches) return;
+
+		let left = false;
+		// requestIdleCallback は iOS Safari 16.4 未満に無い。
+		const schedule = globalThis.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 300));
+		schedule(() => {
+			if (left) return;
 			import('$lib/world/World').then(() => {
-				worldReady = true;
-				if (preferredMode() === 'world' && matchMedia('(pointer: fine)').matches) goto('/world');
+				if (!left && preferredMode() === 'world') goto('/world');
 			});
 		});
-		return () => cancelIdleCallback(idle);
+		return () => {
+			left = true;
+		};
 	});
 
 	const sections = [
@@ -40,14 +46,7 @@
 			{/each}
 		</ul>
 
-		<a
-			class="enter"
-			class:ready={worldReady}
-			href="/world"
-			onclick={() => rememberMode('world')}
-		>
-			{worldReady ? '3D で見る' : '3D を読み込み中…'}
-		</a>
+		<a class="enter" href="/world" onclick={() => rememberMode('world')}>3D で見る</a>
 	</header>
 
 	<section>
@@ -100,24 +99,12 @@
 		display: inline-block;
 		margin-top: 1.75rem;
 		padding: 0.6rem 1.4rem;
-		border: 1px solid var(--line);
+		border: 1px solid var(--accent);
 		border-radius: 999px;
-		background: var(--surface);
-		color: var(--muted);
-		font-size: 0.9rem;
-		text-decoration: none;
-		pointer-events: none;
-		transition:
-			background 0.2s ease,
-			color 0.2s ease,
-			border-color 0.2s ease;
-	}
-
-	.enter.ready {
-		border-color: var(--accent);
 		background: var(--accent);
 		color: #fff;
-		pointer-events: auto;
+		font-size: 0.9rem;
+		text-decoration: none;
 	}
 
 	.skills {

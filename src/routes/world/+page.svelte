@@ -8,6 +8,7 @@
 	let near = $state<Work | null>(null);
 	let stick = $state<{ x: number; y: number } | null>(null);
 	let unsupported = $state(false);
+	let loading = $state(true);
 
 	onMount(() => {
 		if (!document.createElement('canvas').getContext('webgl2')) {
@@ -24,6 +25,7 @@
 			const world = createWorld(canvas, works, (work) => (near = work));
 			setMove = world.setMove;
 			dispose = world.dispose;
+			loading = false;
 		});
 
 		return () => {
@@ -58,6 +60,10 @@
 
 <canvas bind:this={canvas}></canvas>
 
+{#if loading && !unsupported}
+	<p class="loading">3D を読み込み中…</p>
+{/if}
+
 {#if unsupported}
 	<div class="unsupported">
 		<p>この環境では 3D を表示できません (WebGL が無効)。</p>
@@ -67,7 +73,7 @@
 
 <a class="exit" href="/" onclick={() => rememberMode('list')}>← 一覧で見る</a>
 
-{#if !unsupported}
+{#if !unsupported && !loading}
 	<p class="hint">WASD / 矢印キーで移動　ドラッグで視点</p>
 {/if}
 
@@ -202,6 +208,17 @@
 		border-color: var(--accent);
 		background: var(--accent);
 		color: #fff;
+	}
+
+	.loading {
+		position: fixed;
+		inset: 0;
+		display: grid;
+		place-content: center;
+		margin: 0;
+		background: var(--bg);
+		color: var(--muted);
+		font-size: 0.9rem;
 	}
 
 	.unsupported {
