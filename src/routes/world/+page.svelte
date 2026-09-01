@@ -11,9 +11,17 @@
 	let loading = $state(true);
 
 	onMount(() => {
+		// Svelte のコンポーネント CSS はクライアント遷移で剥がれないので、
+		// :global(body) に書くと /world を離れてもスクロールが止まったままになる。
+		const previousOverflow = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
+		const restore = () => {
+			document.body.style.overflow = previousOverflow;
+		};
+
 		if (!document.createElement('canvas').getContext('webgl2')) {
 			unsupported = true;
-			return;
+			return restore;
 		}
 
 		let disposed = false;
@@ -31,6 +39,7 @@
 		return () => {
 			disposed = true;
 			dispose();
+			restore();
 		};
 	});
 
@@ -111,10 +120,6 @@
 </div>
 
 <style>
-	:global(body) {
-		overflow: hidden;
-	}
-
 	canvas {
 		position: fixed;
 		inset: 0;
