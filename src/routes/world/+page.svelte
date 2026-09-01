@@ -199,6 +199,7 @@
 
 	.links {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 0.5rem;
 	}
 
@@ -263,9 +264,10 @@
 		}
 
 		.panel {
-			bottom: 1rem;
-			left: 10rem;
-			margin: 0;
+			bottom: 9.5rem;
+			/* 横画面だと 9.5rem 空けた残りに収まらない端末がある */
+			max-height: calc(100dvh - 11rem);
+			overflow-y: auto;
 		}
 
 		.hint {
