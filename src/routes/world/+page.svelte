@@ -3,6 +3,7 @@
 	import type { Work } from '$lib/works';
 	import { works } from '$lib/works';
 	import { rememberMode } from '$lib/mode';
+	import { profile } from '$lib/profile';
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
@@ -63,7 +64,7 @@
 </script>
 
 <svelte:head>
-	<title>World — Kiichiro Tominaga</title>
+	<title>World — {profile.name}</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

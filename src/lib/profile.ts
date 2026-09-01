@@ -1,5 +1,5 @@
 export const profile = {
-	name: 'Kiichiro Tominaga',
+	name: 'tommy',
 	// TODO: 自己紹介は本人の言葉に差し替える
 	bio: {
 		ja: 'Web アプリと、その下のインフラを両方作るのが好きです。AWS のサーバーレス構成に Svelte や Go、Rust、PHP を載せて、動くところまで持っていったものを並べています。'
