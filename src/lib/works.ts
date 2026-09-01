@@ -45,6 +45,7 @@ export const works = (
 			},
 			"tech": ["Python 3.12", "FastAPI", "Lambda", "DynamoDB", "Bedrock (Claude Vision)", "Cognito", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4"],
 			"repo": "https://github.com/tommykey-apps/receipto",
+			"liveUrl": "https://expense.tommykeyapp.com/",
 			"category": "product",
 			"spot": { "ring": "inner", "index": 1 }
 		},
