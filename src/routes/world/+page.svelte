@@ -97,10 +97,10 @@
 			{/each}
 		</ul>
 		<div class="links">
-			<a href="/works/{near.id}">詳細</a>
-			<a href={near.repo} rel="noreferrer">GitHub</a>
+			<a class="pill" href="/works/{near.id}">詳細</a>
+			<a class="pill" href={near.repo} rel="noreferrer">GitHub</a>
 			{#if near.liveUrl}
-				<a class="primary" href={near.liveUrl} rel="noreferrer">Live</a>
+				<a class="pill pill-primary" href={near.liveUrl} rel="noreferrer">Live</a>
 			{/if}
 		</div>
 	</aside>
@@ -202,18 +202,10 @@
 		gap: 0.5rem;
 	}
 
-	.links a {
+	/* パネルが狭いので、ここだけピルを一段小さくする */
+	.links .pill {
 		padding: 0.35rem 0.85rem;
-		border: 1px solid var(--line);
-		border-radius: 999px;
 		font-size: 0.8rem;
-		text-decoration: none;
-	}
-
-	.links .primary {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: #fff;
 	}
 
 	.loading {

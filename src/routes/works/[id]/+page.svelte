@@ -24,9 +24,9 @@
 	</ul>
 
 	<p class="links">
-		<a href={work.repo} rel="noreferrer">GitHub</a>
+		<a class="pill" href={work.repo} rel="noreferrer">GitHub</a>
 		{#if work.liveUrl}
-			<a class="primary" href={work.liveUrl} rel="noreferrer">Live デモ</a>
+			<a class="pill pill-primary" href={work.liveUrl} rel="noreferrer">Live デモ</a>
 		{/if}
 	</p>
 </div>
@@ -62,20 +62,5 @@
 	.links {
 		display: flex;
 		gap: 0.75rem;
-	}
-
-	.links a {
-		padding: 0.5rem 1.1rem;
-		border: 1px solid var(--line);
-		border-radius: 999px;
-		background: var(--surface);
-		font-size: 0.9rem;
-		text-decoration: none;
-	}
-
-	.links .primary {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: #fff;
 	}
 </style>

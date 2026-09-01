@@ -25,10 +25,6 @@
 		};
 	});
 
-	const sections = [
-		{ title: '学習・実験', works: byCategory('learning').filter((w) => !w.spot) },
-		{ title: 'インフラ', works: byCategory('infra').filter((w) => !w.spot) }
-	];
 </script>
 
 <svelte:head>
@@ -46,7 +42,7 @@
 			{/each}
 		</ul>
 
-		<a class="enter" href="/world" onclick={() => rememberMode('world')}>3D で見る</a>
+		<a class="enter pill pill-primary" href="/world" onclick={() => rememberMode('world')}>3D で見る</a>
 	</header>
 
 	<section>
@@ -58,16 +54,23 @@
 		</div>
 	</section>
 
-	{#each sections as section (section.title)}
-		<section>
-			<h2>{section.title}</h2>
-			<div class="grid">
-				{#each section.works as work (work.id)}
-					<WorkCard {work} />
-				{/each}
-			</div>
-		</section>
-	{/each}
+	<section>
+		<h2>学習・実験</h2>
+		<div class="grid">
+			{#each byCategory('learning') as work (work.id)}
+				<WorkCard {work} />
+			{/each}
+		</div>
+	</section>
+
+	<section>
+		<h2>インフラ</h2>
+		<div class="grid">
+			{#each byCategory('infra') as work (work.id)}
+				<WorkCard {work} />
+			{/each}
+		</div>
+	</section>
 
 	<section>
 		<h2>Contact</h2>
@@ -96,15 +99,7 @@
 	}
 
 	.enter {
-		display: inline-block;
 		margin-top: 1.75rem;
-		padding: 0.6rem 1.4rem;
-		border: 1px solid var(--accent);
-		border-radius: 999px;
-		background: var(--accent);
-		color: #fff;
-		font-size: 0.9rem;
-		text-decoration: none;
 	}
 
 	.skills {

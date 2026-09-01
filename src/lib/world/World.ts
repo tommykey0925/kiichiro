@@ -19,9 +19,9 @@ type Exhibit = {
 	work: Work;
 	position: THREE.Vector3;
 	glow: THREE.MeshStandardMaterial;
+	meshes: THREE.Object3D[];
 };
 
-/** 丘の上に11の展示台を並べ、キャラを歩かせる。近づいた作品を onNear で外に流す。 */
 export function createWorld(
 	canvas: HTMLCanvasElement,
 	works: Work[],
@@ -58,7 +58,7 @@ export function createWorld(
 	scene.add(ground);
 
 	const exhibits = works.filter((w) => w.spot).map(createExhibit);
-	for (const exhibit of exhibits) scene.add(...exhibitMeshes(exhibit));
+	for (const exhibit of exhibits) scene.add(...exhibit.meshes);
 
 	const character = createCharacter();
 	scene.add(character.group);
@@ -174,10 +174,9 @@ export function createWorld(
 			scene.traverse((object) => {
 				if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite)) return;
 				object.geometry?.dispose();
-				for (const material of materialsOf(object)) {
-					material.map?.dispose();
-					material.dispose();
-				}
+				const material = object.material as THREE.Material & { map?: THREE.Texture | null };
+				material.map?.dispose();
+				material.dispose();
 			});
 			renderer.dispose();
 		}
@@ -218,38 +217,30 @@ function findNearest(exhibits: Exhibit[], position: THREE.Vector3) {
 
 function createExhibit(work: Work): Exhibit {
 	const { x, z } = spotPosition(work.spot!);
-	return {
-		work,
-		position: new THREE.Vector3(x, 0, z),
-		glow: new THREE.MeshStandardMaterial({
-			color: 0xf2efe6,
-			emissive: 0x3b7a57,
-			emissiveIntensity: 0.06,
-			roughness: 0.35
-		})
-	};
-}
-
-function exhibitMeshes(exhibit: Exhibit) {
-	const { position, glow, work } = exhibit;
+	const glow = new THREE.MeshStandardMaterial({
+		color: 0xf2efe6,
+		emissive: 0x3b7a57,
+		emissiveIntensity: 0.06,
+		roughness: 0.35
+	});
 
 	const pedestal = new THREE.Mesh(
 		new THREE.CylinderGeometry(1.1, 1.3, 0.9, 24),
 		new THREE.MeshStandardMaterial({ color: 0xe8e3d7, roughness: 0.8 })
 	);
-	pedestal.position.set(position.x, 0.45, position.z);
+	pedestal.position.set(x, 0.45, z);
 	pedestal.castShadow = true;
 	pedestal.receiveShadow = true;
 
 	const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), glow);
-	cube.position.set(position.x, 1.75, position.z);
+	cube.position.set(x, 1.75, z);
 	cube.rotation.set(0.4, 0.6, 0);
 	cube.castShadow = true;
 
 	const label = createLabel(work.title.ja);
-	label.position.set(position.x, 3.1, position.z);
+	label.position.set(x, 3.1, z);
 
-	return [pedestal, cube, label];
+	return { work, position: new THREE.Vector3(x, 0, z), glow, meshes: [pedestal, cube, label] };
 }
 
 function createLabel(text: string) {
@@ -267,7 +258,8 @@ function createLabel(text: string) {
 	context.font = font;
 	context.fillStyle = '#ffffff';
 	context.strokeStyle = 'rgba(35,32,28,0.14)';
-	roundRect(context, 0, 0, width, height, 16 * scale);
+	context.beginPath();
+	context.roundRect(0, 0, width, height, 16 * scale);
 	context.fill();
 	context.stroke();
 	context.fillStyle = '#23201c';
@@ -280,19 +272,6 @@ function createLabel(text: string) {
 	const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
 	sprite.scale.set((width / height) * 0.9, 0.9, 1);
 	return sprite;
-}
-
-function roundRect(
-	context: CanvasRenderingContext2D,
-	x: number,
-	y: number,
-	width: number,
-	height: number,
-	radius: number
-) {
-	context.beginPath();
-	context.roundRect(x, y, width, height, radius);
-	context.closePath();
 }
 
 /**
@@ -326,11 +305,4 @@ function createCharacter() {
 			group.position.y = moving ? Math.abs(Math.sin(time * 9)) * 0.12 : 0;
 		}
 	};
-}
-
-function materialsOf(object: THREE.Mesh | THREE.Sprite) {
-	const material = object.material;
-	return (Array.isArray(material) ? material : [material]) as Array<
-		THREE.Material & { map?: THREE.Texture | null }
-	>;
 }

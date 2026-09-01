@@ -1,7 +1,6 @@
 {
 	"name": "kiichiro",
 	"compatibility_date": "2026-09-02",
-	// main を書かない = アセットのみの Worker。スクリプトが存在しないので
-	// リクエストで Worker が起動せず、静的配信は無料枠を消費しない。
+	// main を書かない = アセットのみの Worker。Worker が起動しないので課金されない。
 	"assets": { "directory": "./build" }
 }

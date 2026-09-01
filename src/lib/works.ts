@@ -8,7 +8,7 @@ export type Work = {
 	repo: string;
 	liveUrl?: string;
 	category: 'product' | 'learning' | 'infra';
-	/** 3D の丘に展示台を置く位置。無い作品はノーマルモードにのみ載る。 */
+	/** 無い作品は 3D に現れず、一覧にのみ載る。 */
 	spot?: { ring: 'center' | 'inner' | 'outer'; index: number };
 };
 
