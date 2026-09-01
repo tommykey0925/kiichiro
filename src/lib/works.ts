@@ -23,7 +23,7 @@ export const works = (
 			"tech": ["Java 21", "Spring Boot 3.4", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Cognito", "PostgreSQL (RDS)", "Redis (ElastiCache)", "AWS"],
 			"repo": "https://github.com/tommykey-apps/chat",
 			"category": "product",
-			"spot": { "ring": "center", "index": 0 }
+			"spot": { "ring": "inner", "index": 2 }
 		},
 		{
 			"id": "url-shortener",
@@ -59,7 +59,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/burnnote",
 			"liveUrl": "https://burnnote.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "ring": "inner", "index": 2 }
+			"spot": { "ring": "center", "index": 0 }
 		},
 		{
 			"id": "gakushu",
@@ -159,16 +159,6 @@ export const works = (
 			},
 			"tech": ["Python", "NumPy"],
 			"repo": "https://github.com/tommykey0925/myownllm",
-			"category": "learning"
-		},
-		{
-			"id": "rawminilm",
-			"title": { "ja": "rawminilm" },
-			"summary": {
-				"ja": "「AI は次の文字を当てるゲームをしている」ところから始める tiny.py の解説実装。フレームワークを使わず素で書いて中身を見せる。"
-			},
-			"tech": ["Python"],
-			"repo": "https://github.com/tommykey0925/rawminilm",
 			"category": "learning"
 		},
 		{
