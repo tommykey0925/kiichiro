@@ -20,3 +20,12 @@ export function clampToGround(x: number, z: number) {
 	if (distance <= limit) return { x, z };
 	return { x: (x * limit) / distance, z: (z * limit) / distance };
 }
+
+/**
+ * 入力をカメラ基準の進行方位に変換する。画面の奥が前、画面の右が右。
+ * カメラは (sin yaw, cos yaw) 方向を向くので、画面の右は world 上では
+ * (-cos yaw, sin yaw)。x をそのまま足すと左右が鏡になる。
+ */
+export function moveHeading(input: { x: number; y: number }, yaw: number) {
+	return Math.atan2(-input.x, input.y) + yaw;
+}

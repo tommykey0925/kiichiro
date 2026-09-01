@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Work } from '$lib/works';
-import { GROUND_RADIUS, clampToGround, spotPosition } from './layout';
+import { GROUND_RADIUS, clampToGround, moveHeading, spotPosition } from './layout';
 
 const NEAR_DISTANCE = 3.4;
 const WALK_SPEED = 5.5;
@@ -124,8 +124,7 @@ export function createWorld(
 		const input = readInput(keys, move);
 		const moving = input.lengthSq() > 0;
 		if (moving) {
-			// 入力はカメラの向き基準。画面の「奥」がキャラの前になるようにする。
-			const heading = Math.atan2(input.x, input.y) + yaw;
+			const heading = moveHeading(input, yaw);
 			character.group.position.x += Math.sin(heading) * WALK_SPEED * delta;
 			character.group.position.z += Math.cos(heading) * WALK_SPEED * delta;
 			character.group.rotation.y = heading;

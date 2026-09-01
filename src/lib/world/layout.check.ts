@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { GROUND_RADIUS, clampToGround, spotPosition, type Spot } from './layout.ts';
+import { GROUND_RADIUS, clampToGround, moveHeading, spotPosition, type Spot } from './layout.ts';
 
 const spots: Spot[] = [
 	{ ring: 'center', index: 0 },
@@ -26,5 +26,19 @@ assert.deepEqual(clampToGround(3, -4), { x: 3, z: -4 });
 const pushed = clampToGround(100, 0);
 assert.ok(Math.abs(Math.hypot(pushed.x, pushed.z) - (GROUND_RADIUS - 1.5)) < 1e-9);
 assert.ok(pushed.x > 0 && pushed.z === 0, '押し戻しで向きが変わっている');
+
+// どの視点角でも、入力方向が画面の見た目どおりに動くこと
+const direction = (heading: number) => ({ x: Math.sin(heading), z: Math.cos(heading) });
+const dot = (a: { x: number; z: number }, b: { x: number; z: number }) => a.x * b.x + a.z * b.z;
+
+for (const yaw of [0, 0.7, -2.1, Math.PI, 4.2]) {
+	const forward = { x: Math.sin(yaw), z: Math.cos(yaw) };
+	const right = { x: -Math.cos(yaw), z: Math.sin(yaw) };
+
+	assert.ok(dot(direction(moveHeading({ x: 0, y: 1 }, yaw)), forward) > 0.999, 'W が前でない');
+	assert.ok(dot(direction(moveHeading({ x: 0, y: -1 }, yaw)), forward) < -0.999, 'S が後ろでない');
+	assert.ok(dot(direction(moveHeading({ x: 1, y: 0 }, yaw)), right) > 0.999, 'D が画面の右でない');
+	assert.ok(dot(direction(moveHeading({ x: -1, y: 0 }, yaw)), right) < -0.999, 'A が画面の左でない');
+}
 
 console.log('layout ok:', points.length, 'spots');
