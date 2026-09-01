@@ -16,8 +16,6 @@ jobs:
 
       # setup-node の cache: pnpm より先に pnpm を入れる必要がある。
       - uses: pnpm/action-setup@v6
-        with:
-          version: 10
 
       - uses: actions/setup-node@v7
         with:
