@@ -296,12 +296,17 @@ function createLabel(text: string) {
  * 止まっていても浮いていないと落ちて見えるため、揺れは常時かける。
  */
 async function createCharacter() {
-	const gltf = await new GLTFLoader().loadAsync('/bee.glb');
-	const group = gltf.scene;
-	group.scale.setScalar(BEE_SCALE);
-	group.traverse((object) => {
+	const model = await new GLTFLoader().loadAsync('/bee.glb');
+	model.scene.scale.setScalar(BEE_SCALE);
+	// モデルは -Z を向いている。進行方向は毎フレーム group に入るので、
+	// モデル自身の向き直しは内側の 1 枚に持たせて上書きされないようにする。
+	model.scene.rotation.y = Math.PI;
+	model.scene.traverse((object) => {
 		if (object instanceof THREE.Mesh) object.castShadow = true;
 	});
+
+	const group = new THREE.Group();
+	group.add(model.scene);
 
 	return {
 		group,
