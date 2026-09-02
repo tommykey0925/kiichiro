@@ -29,6 +29,12 @@ const LABEL_HEIGHT = 3.5;
 /** 花びらのマテリアル名。ここだけ複製して作品ごとの色にする。 */
 const PETAL_MATERIAL = 'mat21';
 
+const IDLE_GLOW = 0.06;
+const NEAR_GLOW = 0.55;
+/** 公開中の作品は近づく前から脈打つ。一覧の「サイトに遷移」の点滅と同じ合図。 */
+const LIVE_GLOW = 0.22;
+const LIVE_GLOW_SWING = 0.12;
+
 export type MoveInput = { x: number; y: number };
 
 export type World = {
@@ -173,8 +179,10 @@ export async function createWorld(
 			nearId = near?.work.id ?? null;
 			onNear(near?.work ?? null);
 		}
+		const pulse = LIVE_GLOW + Math.sin(clock.elapsedTime * 2.4) * LIVE_GLOW_SWING;
 		for (const exhibit of exhibits) {
-			const lit = exhibit.work.id === nearId ? 0.55 : 0.06;
+			const idle = exhibit.work.liveUrl ? pulse : IDLE_GLOW;
+			const lit = exhibit.work.id === nearId ? NEAR_GLOW : idle;
 			exhibit.glow.emissiveIntensity += (lit - exhibit.glow.emissiveIntensity) * 0.15;
 		}
 
@@ -270,7 +278,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 		const petal = object.material.clone() as THREE.MeshStandardMaterial;
 		petal.color.set(color);
 		petal.emissive.set(color);
-		petal.emissiveIntensity = 0.06;
+		petal.emissiveIntensity = IDLE_GLOW;
 		object.material = petal;
 		glow = petal;
 	});
