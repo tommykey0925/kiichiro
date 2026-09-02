@@ -24,3 +24,9 @@ vite.config.ts.timestamp-*
 
 # Playwright MCP
 .playwright-mcp
+
+# リポジトリ直下に置かれたスクリーンショット (静的アセットは static/ に置く)
+/*.png
+/*.PNG
+/*.jpg
+/*.jpeg
