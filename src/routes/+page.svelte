@@ -80,7 +80,7 @@
 
 <style>
 	header {
-		margin-bottom: 3.5rem;
+		margin-bottom: 3rem;
 	}
 
 	h1 {
@@ -99,12 +99,66 @@
 		display: block;
 		width: 4.5rem;
 		height: 4.5rem;
-		margin-top: 1.5rem;
+		margin: 2.75rem auto 0;
 		transition: transform 0.2s ease;
 	}
 
 	.enter:hover {
 		transform: translateY(-3px) scale(1.06);
+	}
+
+	/* 飛行は svg 側に持たせる。link 側の transform と取り合わないようにするため。 */
+	.enter :global(svg) {
+		animation: bee-flight 7s ease-in-out infinite;
+	}
+
+	@keyframes bee-flight {
+		0%,
+		60.00% {
+			transform: translate(-0.0px, -0.0px);
+		}
+		63.33% {
+			transform: translate(-17.0px, -14.7px);
+		}
+		66.67% {
+			transform: translate(-29.4px, -14.7px);
+		}
+		70.00% {
+			transform: translate(-34.0px, -0.0px);
+		}
+		73.33% {
+			transform: translate(-29.4px, 14.7px);
+		}
+		76.67% {
+			transform: translate(-17.0px, 14.7px);
+		}
+		80.00% {
+			transform: translate(-0.0px, 0.0px);
+		}
+		83.33% {
+			transform: translate(17.0px, -14.7px);
+		}
+		86.67% {
+			transform: translate(29.4px, -14.7px);
+		}
+		90.00% {
+			transform: translate(34.0px, -0.0px);
+		}
+		93.33% {
+			transform: translate(29.4px, 14.7px);
+		}
+		96.67% {
+			transform: translate(17.0px, 14.7px);
+		}
+		100.00% {
+			transform: translate(0.0px, 0.0px);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.enter :global(svg) {
+			animation: none;
+		}
 	}
 
 	h2 {
