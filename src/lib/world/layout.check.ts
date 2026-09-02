@@ -9,7 +9,11 @@ import {
 	spotPosition
 } from './layout.ts';
 
-const points = [...Array(11)].map((_, index) => spotPosition({ index }));
+import { featured } from '../works.ts';
+
+// featured は宣言順なので、道に並ぶ順に直してから見る
+const spots = [...featured].sort((a, b) => a.spot!.index - b.spot!.index).map((work) => work.spot!);
+const points = spots.map(spotPosition);
 
 // 展示台は道の上に収まり、左右交互に並ぶこと
 for (const [i, { x, z }] of points.entries()) {
@@ -25,6 +29,10 @@ for (let a = 0; a < points.length; a++) {
 		assert.ok(gap > NEAR_DISTANCE * 2, `展示台 ${a} と ${b} が近すぎる (${gap.toFixed(2)})`);
 	}
 }
+
+// 花の色が作品ごとに違うこと
+const colors = new Set(featured.map((work) => work.spot!.color));
+assert.equal(colors.size, featured.length, '花の色が重複している');
 
 // 開始位置がどの展示台とも重ならないこと
 for (const [i, { x, z }] of points.entries()) {

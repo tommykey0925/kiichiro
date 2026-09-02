@@ -1,6 +1,6 @@
 /** 道の幅と長さ。端は霧に溶けるので、見える範囲より少し広く取る。 */
 export const ROAD_HALF_WIDTH = 9;
-export const ROAD_HALF_LENGTH = 42;
+export const ROAD_HALF_LENGTH = 44;
 
 export const NEAR_DISTANCE = 3.4;
 
@@ -8,7 +8,7 @@ const SPOT_OFFSET_X = 5;
 const SPOT_SPACING = 5;
 
 /** 手前の展示台より後ろ。カメラが地面の外に出ない位置でもある。 */
-export const START_POSITION = { x: 0, z: -31 };
+export const START_POSITION = { x: 0, z: -33.5 };
 
 export type Spot = { index: number };
 
@@ -16,7 +16,7 @@ export type Spot = { index: number };
 export function spotPosition({ index }: Spot) {
 	return {
 		x: index % 2 === 0 ? -SPOT_OFFSET_X : SPOT_OFFSET_X,
-		z: index * SPOT_SPACING - 25
+		z: index * SPOT_SPACING - 27.5
 	};
 }
 
