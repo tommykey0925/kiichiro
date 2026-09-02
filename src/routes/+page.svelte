@@ -79,11 +79,6 @@
 			<a href={profile.github} rel="me">GitHub</a>
 		</p>
 	</section>
-
-	<footer>
-		3D モデルのライセンス表記: Bee by jeremy [CC-BY] via
-		<a href="https://poly.pizza/m/evjB26aGfTh" rel="noreferrer">Poly Pizza</a>
-	</footer>
 </div>
 
 <style>
@@ -123,13 +118,6 @@
 
 	section {
 		margin-bottom: 3.25rem;
-	}
-
-	footer {
-		padding-top: 1.5rem;
-		border-top: 1px solid var(--line);
-		color: var(--muted);
-		font-size: 0.75rem;
 	}
 
 	.grid {

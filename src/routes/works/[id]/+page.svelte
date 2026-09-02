@@ -23,6 +23,17 @@
 		{/each}
 	</ul>
 
+	{#if work.credits}
+		<aside class="credits">
+			<h2>使用素材</h2>
+			<ul>
+				{#each work.credits as credit (credit)}
+					<li>{credit}</li>
+				{/each}
+			</ul>
+		</aside>
+	{/if}
+
 	<p class="links">
 		<a class="pill" href={work.repo} rel="noreferrer">GitHub</a>
 		{#if work.liveUrl}
@@ -57,6 +68,27 @@
 		margin: 0 0 2rem;
 		padding: 0;
 		list-style: none;
+	}
+
+	.credits {
+		margin-bottom: 2rem;
+		padding: 1rem 1.2rem;
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		background: var(--surface);
+		color: var(--muted);
+		font-size: 0.8rem;
+	}
+
+	.credits h2 {
+		margin: 0 0 0.5rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+	}
+
+	.credits ul {
+		margin: 0;
+		padding-left: 1.1rem;
 	}
 
 	.links {

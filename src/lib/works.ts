@@ -8,12 +8,37 @@ export type Work = {
 	repo: string;
 	liveUrl?: string;
 	category: 'product' | 'learning' | 'infra';
+	/** 素材のライセンス表記。持つのはこのサイト自身のエントリだけ。 */
+	credits?: string[];
 	/** 無い作品は 3D に現れず、一覧にのみ載る。 */
-	spot?: { index: number };
+	spot?: { index: number; color: string };
 };
 
 export const works = (
 	[
+		{
+			"id": "kiichiro",
+			"title": { "ja": "kiichi.ro" },
+			"summary": {
+				"ja": "このサイト自体。作品を一覧で読むか、蜂になって道を歩き、花に近づいて読むかを選べる。作品データは 1 本の TypeScript ファイルだけを正とし、一覧・個別ページ・3D がすべてそこを読む。"
+			},
+			"tech": [
+				"SvelteKit 2",
+				"Svelte 5",
+				"Three.js",
+				"adapter-static",
+				"Cloudflare Workers",
+				"GitHub Actions"
+			],
+			"repo": "https://github.com/tommykey0925/kiichiro",
+			"liveUrl": "https://kiichi.ro/",
+			"category": "product",
+			"credits": [
+				"Bee by jeremy [CC-BY] via Poly Pizza",
+				"Flower by Zoe XR [CC-BY] via Poly Pizza"
+			],
+			"spot": { "index": 0, "color": "#d95f5f" }
+		},
 		{
 			"id": "chat",
 			"title": { "ja": "chatto" },
@@ -23,7 +48,7 @@ export const works = (
 			"tech": ["Java 21", "Spring Boot 3.4", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Cognito", "PostgreSQL (RDS)", "Redis (ElastiCache)", "AWS"],
 			"repo": "https://github.com/tommykey-apps/chat",
 			"category": "product",
-			"spot": { "index": 3 }
+			"spot": { "index": 4, "color": "#5fbcd9" }
 		},
 		{
 			"id": "url-shortener",
@@ -35,7 +60,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/url-shortener",
 			"liveUrl": "https://url.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "index": 1 }
+			"spot": { "index": 2, "color": "#d9b25f" }
 		},
 		{
 			"id": "receipto",
@@ -47,7 +72,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/receipto",
 			"liveUrl": "https://expense.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "index": 2 }
+			"spot": { "index": 3, "color": "#5fd9cf" }
 		},
 		{
 			"id": "burnnote",
@@ -59,7 +84,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/burnnote",
 			"liveUrl": "https://burnnote.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "index": 0 }
+			"spot": { "index": 1, "color": "#d9855f" }
 		},
 		{
 			"id": "gakushu",
@@ -70,7 +95,7 @@ export const works = (
 			"tech": ["TypeScript", "H3/Nitro", "Lambda", "Nuxt 4", "Nuxt UI", "Tailwind CSS v4", "DynamoDB", "Bedrock (Claude)", "Cognito"],
 			"repo": "https://github.com/tommykey-apps/gakushu",
 			"category": "product",
-			"spot": { "index": 5 }
+			"spot": { "index": 6, "color": "#5f6ed9" }
 		},
 		{
 			"id": "resource-planner",
@@ -81,7 +106,7 @@ export const works = (
 			"tech": ["SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Auth.js (Magic Link)", "DynamoDB (Single Table)", "Lambda (ARM64 container)", "API Gateway", "CloudFront"],
 			"repo": "https://github.com/tommykey-apps/resource-planner",
 			"category": "product",
-			"spot": { "index": 6 }
+			"spot": { "index": 7, "color": "#7a5fd9" }
 		},
 		{
 			"id": "ui-components",
@@ -92,7 +117,7 @@ export const works = (
 			"tech": ["Svelte 5", "svelte-package", "Vite 8", "Storybook 10", "Changesets", "date-fns", "flox"],
 			"repo": "https://github.com/tommykey-apps/ui-components",
 			"category": "product",
-			"spot": { "index": 7 }
+			"spot": { "index": 8, "color": "#a15fd9" }
 		},
 		{
 			"id": "pasu",
@@ -104,7 +129,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/pasu",
 			"liveUrl": "https://pasu.tommykey0925.workers.dev",
 			"category": "product",
-			"spot": { "index": 4 }
+			"spot": { "index": 5, "color": "#5f95d9" }
 		},
 		{
 			"id": "vigil",
@@ -115,7 +140,7 @@ export const works = (
 			"tech": ["SvelteKit 2", "Svelte 5", "Lambda Web Adapter", "Node.js 24 (arm64)", "DynamoDB", "GitHub OAuth", "EventBridge Scheduler", "SES", "Terraform"],
 			"repo": "https://github.com/tommykey-apps/vigil",
 			"category": "product",
-			"spot": { "index": 9 }
+			"spot": { "index": 10, "color": "#d95fa5" }
 		},
 		{
 			"id": "dropfast",
@@ -126,7 +151,7 @@ export const works = (
 			"tech": ["Rust", "axum", "Lambda (arm64)", "cargo-lambda", "S3 (presigned URL)", "DynamoDB (TTL)", "SvelteKit 2", "WebCrypto API", "Terraform"],
 			"repo": "https://github.com/tommykey-apps/dropfast",
 			"category": "product",
-			"spot": { "index": 10 }
+			"spot": { "index": 11, "color": "#d95f79" }
 		},
 		{
 			"id": "axiowiz",
@@ -138,7 +163,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/axiowiz",
 			"liveUrl": "https://tommykey0925.github.io/checkWizards/",
 			"category": "product",
-			"spot": { "index": 8 }
+			"spot": { "index": 9, "color": "#d95fd0" }
 		},
 	
 		{

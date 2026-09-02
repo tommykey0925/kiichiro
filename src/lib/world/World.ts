@@ -21,6 +21,14 @@ const SKY = 0xdfe9f2;
 const BEE_SCALE = 0.16;
 const HOVER_HEIGHT = 0.9;
 
+// 花は高さ 3.6、原点は茎の途中 (下端 y=-1.09)。台座の上面は y=0.9。
+const FLOWER_SCALE = 0.5;
+const FLOWER_BOTTOM = -1.09;
+const PEDESTAL_TOP = 0.9;
+const LABEL_HEIGHT = 3.5;
+/** 花びらのマテリアル名。ここだけ複製して作品ごとの色にする。 */
+const PETAL_MATERIAL = 'mat21';
+
 export type MoveInput = { x: number; y: number };
 
 export type World = {
@@ -71,10 +79,11 @@ export async function createWorld(
 	ground.receiveShadow = true;
 	scene.add(ground);
 
-	const exhibits = works.filter((w) => w.spot).map(createExhibit);
+	const [character, flower] = await Promise.all([createCharacter(), loadFlower()]);
+
+	const exhibits = works.filter((w) => w.spot).map((work) => createExhibit(work, flower));
 	for (const exhibit of exhibits) scene.add(...exhibit.meshes);
 
-	const character = await createCharacter();
 	character.group.position.set(START_POSITION.x, HOVER_HEIGHT, START_POSITION.z);
 	scene.add(character.group);
 
@@ -232,14 +241,15 @@ function findNearest(exhibits: Exhibit[], position: THREE.Vector3) {
 	return best;
 }
 
-function createExhibit(work: Work): Exhibit {
+async function loadFlower() {
+	const gltf = await new GLTFLoader().loadAsync('/flower.glb');
+	gltf.scene.scale.setScalar(FLOWER_SCALE);
+	return gltf.scene;
+}
+
+function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
+	const { index, color } = work.spot!;
 	const { x, z } = spotPosition(work.spot!);
-	const glow = new THREE.MeshStandardMaterial({
-		color: 0xf2efe6,
-		emissive: 0x3b7a57,
-		emissiveIntensity: 0.06,
-		roughness: 0.35
-	});
 
 	const pedestal = new THREE.Mesh(
 		new THREE.CylinderGeometry(1.1, 1.3, 0.9, 24),
@@ -249,15 +259,31 @@ function createExhibit(work: Work): Exhibit {
 	pedestal.castShadow = true;
 	pedestal.receiveShadow = true;
 
-	const cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), glow);
-	cube.position.set(x, 1.75, z);
-	cube.rotation.set(0.4, 0.6, 0);
-	cube.castShadow = true;
+	// clone はマテリアルを共有するので、色を変える花びらだけ複製する。
+	// 茎と中心は共有のままにして、描画時の状態変更を減らす。
+	const model = flower.clone();
+	let glow: THREE.MeshStandardMaterial | undefined;
+	model.traverse((object) => {
+		if (!(object instanceof THREE.Mesh)) return;
+		object.castShadow = true;
+		if (object.material.name !== PETAL_MATERIAL) return;
+		const petal = object.material.clone() as THREE.MeshStandardMaterial;
+		petal.color.set(color);
+		petal.emissive.set(color);
+		petal.emissiveIntensity = 0.06;
+		object.material = petal;
+		glow = petal;
+	});
+	if (!glow) throw new Error(`花びらのマテリアル ${PETAL_MATERIAL} が見つからない`);
+
+	model.position.set(x, PEDESTAL_TOP - FLOWER_BOTTOM * FLOWER_SCALE, z);
+	// 全部同じ向きだと並びが機械的に見えるので、少しずつ回す。
+	model.rotation.y = index * 1.1;
 
 	const label = createLabel(work.title.ja);
-	label.position.set(x, 3.1, z);
+	label.position.set(x, LABEL_HEIGHT, z);
 
-	return { work, position: new THREE.Vector3(x, 0, z), glow, meshes: [pedestal, cube, label] };
+	return { work, position: new THREE.Vector3(x, 0, z), glow, meshes: [pedestal, model, label] };
 }
 
 function createLabel(text: string) {
