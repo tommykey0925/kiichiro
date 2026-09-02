@@ -3,9 +3,13 @@ import {
 	NEAR_DISTANCE,
 	ROAD_HALF_LENGTH,
 	ROAD_HALF_WIDTH,
+	SPARKLE_COUNT,
+	SPARKLE_HEIGHT,
+	SPARKLE_RADIUS,
 	START_POSITION,
 	clampToGround,
 	moveHeading,
+	sparkleOffsets,
 	spotPosition
 } from './layout.ts';
 
@@ -65,5 +69,26 @@ for (const yaw of [0, 0.7, -2.1, Math.PI, 4.2]) {
 	assert.ok(dot(direction(moveHeading({ x: 1, y: 0 }, yaw)), right) > 0.999, 'D が画面の右でない');
 	assert.ok(dot(direction(moveHeading({ x: -1, y: 0 }, yaw)), right) < -0.999, 'A が画面の左でない');
 }
+
+// キラキラが花の頭を囲む輪の中に収まること
+const sparkles = sparkleOffsets();
+assert.equal(sparkles.length, SPARKLE_COUNT, 'キラキラの数が合わない');
+for (const sparkle of sparkles) {
+	const radius = Math.hypot(sparkle.x, sparkle.z);
+	assert.ok(
+		radius >= SPARKLE_RADIUS.min && radius <= SPARKLE_RADIUS.max,
+		`キラキラが輪から外れている (${radius.toFixed(2)})`
+	);
+	assert.ok(
+		sparkle.y >= SPARKLE_HEIGHT.min && sparkle.y <= SPARKLE_HEIGHT.max,
+		'キラキラの高さが花の頭から外れている'
+	);
+}
+
+// 花を囲むこと。片側に固まっていたら囲めていない
+const quadrants = new Set(
+	sparkles.map((s) => Math.floor((Math.atan2(s.z, s.x) + Math.PI) / (Math.PI / 2)))
+);
+assert.ok(quadrants.size >= 3, 'キラキラが片側に寄っている');
 
 console.log('layout ok:', points.length, 'spots');

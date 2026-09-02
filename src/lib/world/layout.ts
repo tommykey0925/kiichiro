@@ -36,3 +36,21 @@ export function clampToGround(x: number, z: number) {
 export function moveHeading(input: { x: number; y: number }, yaw: number) {
 	return Math.atan2(-input.x, input.y) + yaw;
 }
+
+export const SPARKLE_COUNT = 10;
+export const SPARKLE_RADIUS = { min: 0.55, max: 1.2 };
+export const SPARKLE_HEIGHT = { min: 1.6, max: 2.9 };
+
+/** 花の頭を取り巻く輪。角度は等分を基準にして、乱数が偏っても片側に寄らないようにする。 */
+export function sparkleOffsets(random = Math.random) {
+	return Array.from({ length: SPARKLE_COUNT }, (_, i) => {
+		const angle = ((i + random() * 0.6) / SPARKLE_COUNT) * Math.PI * 2;
+		const radius = SPARKLE_RADIUS.min + random() * (SPARKLE_RADIUS.max - SPARKLE_RADIUS.min);
+		return {
+			x: Math.cos(angle) * radius,
+			y: SPARKLE_HEIGHT.min + random() * (SPARKLE_HEIGHT.max - SPARKLE_HEIGHT.min),
+			z: Math.sin(angle) * radius,
+			phase: random() * Math.PI * 2
+		};
+	});
+}
