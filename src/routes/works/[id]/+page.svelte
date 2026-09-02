@@ -1,4 +1,6 @@
 <script lang="ts">
+	import GithubIcon from '$lib/GithubIcon.svelte';
+
 	let { data } = $props();
 	const work = $derived(data.work);
 </script>
@@ -35,9 +37,13 @@
 	{/if}
 
 	<p class="links">
-		<a class="pill" href={work.repo} rel="noreferrer">GitHub</a>
+		<a class="pill icon" href={work.repo} rel="noreferrer" aria-label="GitHub">
+			<GithubIcon />
+		</a>
 		{#if work.liveUrl}
-			<a class="pill pill-primary" href={work.liveUrl} rel="noreferrer">Live デモ</a>
+			<a class="pill pill-primary" href={work.liveUrl} rel="noreferrer">
+				<span class="beacon"></span>サイトに遷移
+			</a>
 		{/if}
 	</p>
 </div>

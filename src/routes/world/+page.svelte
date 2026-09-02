@@ -4,6 +4,7 @@
 	import { works } from '$lib/works';
 	import { rememberMode } from '$lib/mode';
 	import { profile } from '$lib/profile';
+	import GithubIcon from '$lib/GithubIcon.svelte';
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
@@ -102,9 +103,13 @@
 		</ul>
 		<div class="links">
 			<a class="pill" href="/works/{near.id}">詳細</a>
-			<a class="pill" href={near.repo} rel="noreferrer">GitHub</a>
+			<a class="pill" href={near.repo} rel="noreferrer" aria-label="GitHub">
+				<GithubIcon />
+			</a>
 			{#if near.liveUrl}
-				<a class="pill pill-primary" href={near.liveUrl} rel="noreferrer">Live</a>
+				<a class="pill pill-primary" href={near.liveUrl} rel="noreferrer">
+					<span class="beacon"></span>サイトに遷移
+				</a>
 			{/if}
 		</div>
 	</aside>

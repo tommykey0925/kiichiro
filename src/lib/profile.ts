@@ -1,11 +1,7 @@
 export const profile = {
-	name: 'tommy',
-	bio: {
-		ja: 'Web アプリと、その下のインフラを両方作るのが好きです。AWS のサーバーレス構成に Svelte や Go、Rust、PHP を載せて、動くところまで持っていったものを並べています。'
-	},
+	name: 'kiichi.ro',
+	bio: { ja: 'ホームページ' },
 	github: 'https://github.com/tommykey0925',
-	// スパム収集を少しだけ面倒にするため、実行時に組み立てる
-	emailParts: ['tommykey0925', 'gmail.com'],
 	skills: [
 		'SvelteKit / Svelte 5',
 		'TypeScript',
@@ -19,5 +15,3 @@ export const profile = {
 		'GitHub Actions'
 	]
 } as const;
-
-export const email = () => profile.emailParts.join('@');
