@@ -8,7 +8,7 @@
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
 	let stick = $state<{ x: number; y: number } | null>(null);
-	let unsupported = $state(false);
+	let error = $state<string | null>(null);
 	let loading = $state(true);
 
 	onMount(() => {
@@ -21,7 +21,7 @@
 		};
 
 		if (!document.createElement('canvas').getContext('webgl2')) {
-			unsupported = true;
+			error = 'この環境では 3D を表示できません (WebGL が無効)。';
 			return restore;
 		}
 
@@ -29,13 +29,17 @@
 		let dispose = () => {};
 
 		// Three.js は 3D モードに入って初めて読む。/ の初期表示に載せないため。
-		import('$lib/world/World').then(({ createWorld }) => {
-			if (disposed) return;
-			const world = createWorld(canvas, works, (work) => (near = work));
-			setMove = world.setMove;
-			dispose = world.dispose;
-			loading = false;
-		});
+		import('$lib/world/World')
+			.then(async ({ createWorld }) => {
+				const world = await createWorld(canvas, works, (work) => (near = work));
+				if (disposed) return world.dispose();
+				setMove = world.setMove;
+				dispose = world.dispose;
+				loading = false;
+			})
+			.catch(() => {
+				error = '3D の読み込みに失敗しました。';
+			});
 
 		return () => {
 			disposed = true;
@@ -70,20 +74,20 @@
 
 <canvas bind:this={canvas}></canvas>
 
-{#if loading && !unsupported}
+{#if loading && !error}
 	<p class="loading">3D を読み込み中…</p>
 {/if}
 
-{#if unsupported}
+{#if error}
 	<div class="unsupported">
-		<p>この環境では 3D を表示できません (WebGL が無効)。</p>
+		<p>{error}</p>
 		<a href="/">一覧で見る →</a>
 	</div>
 {/if}
 
 <a class="exit" href="/" onclick={() => rememberMode('list')}>← 一覧で見る</a>
 
-{#if !unsupported && !loading}
+{#if !error && !loading}
 	<p class="hint">WASD / 矢印キーで移動　ドラッグで視点</p>
 {/if}
 

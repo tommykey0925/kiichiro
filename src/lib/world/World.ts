@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { Work } from '$lib/works';
 import {
 	NEAR_DISTANCE,
@@ -15,6 +16,11 @@ const CAMERA_DISTANCE = 7.5;
 const CAMERA_HEIGHT = 3.4;
 const SKY = 0xdfe9f2;
 
+// モデルの単位が実寸と揃っていないので、見た目で合わせるための調整値。
+// 元は全長 11.2 / 高さ 6.3。0.16 倍で全長 1.8 ほどになる。
+const BEE_SCALE = 0.16;
+const HOVER_HEIGHT = 0.9;
+
 export type MoveInput = { x: number; y: number };
 
 export type World = {
@@ -29,11 +35,11 @@ type Exhibit = {
 	meshes: THREE.Object3D[];
 };
 
-export function createWorld(
+export async function createWorld(
 	canvas: HTMLCanvasElement,
 	works: Work[],
 	onNear: (work: Work | null) => void
-): World {
+): Promise<World> {
 	const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 	renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 	renderer.shadowMap.enabled = true;
@@ -68,8 +74,8 @@ export function createWorld(
 	const exhibits = works.filter((w) => w.spot).map(createExhibit);
 	for (const exhibit of exhibits) scene.add(...exhibit.meshes);
 
-	const character = createCharacter();
-	character.group.position.set(START_POSITION.x, 0, START_POSITION.z);
+	const character = await createCharacter();
+	character.group.position.set(START_POSITION.x, HOVER_HEIGHT, START_POSITION.z);
 	scene.add(character.group);
 
 	const move: MoveInput = { x: 0, y: 0 };
@@ -286,34 +292,23 @@ function createLabel(text: string) {
 }
 
 /**
- * ponytail: プリミティブ製の仮キャラ。歩行は上下の揺れで代用している。
- * CC0 の GLB (Quaternius) を static/ に置いたら、GLTFLoader + AnimationMixer で
- * idle / walk に差し替える。差し替え点はここ 1 箇所。
+ * 蜂はアニメーションを持たないので、上下の揺れで羽ばたきを代用する。
+ * 止まっていても浮いていないと落ちて見えるため、揺れは常時かける。
  */
-function createCharacter() {
-	const group = new THREE.Group();
-	const material = new THREE.MeshStandardMaterial({ color: 0xe4572e, roughness: 0.5 });
-
-	const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 0.7, 8, 16), material);
-	body.position.y = 0.87;
-	body.castShadow = true;
-
-	const head = new THREE.Mesh(new THREE.SphereGeometry(0.27, 20, 16), material);
-	head.position.y = 1.6;
-	head.castShadow = true;
-
-	const nose = new THREE.Mesh(
-		new THREE.ConeGeometry(0.09, 0.24, 12).rotateX(Math.PI / 2),
-		new THREE.MeshStandardMaterial({ color: 0x23201c, roughness: 0.6 })
-	);
-	nose.position.set(0, 1.6, 0.26);
-
-	group.add(body, head, nose);
+async function createCharacter() {
+	const gltf = await new GLTFLoader().loadAsync('/bee.glb');
+	const group = gltf.scene;
+	group.scale.setScalar(BEE_SCALE);
+	group.traverse((object) => {
+		if (object instanceof THREE.Mesh) object.castShadow = true;
+	});
 
 	return {
 		group,
 		animate(time: number, moving: boolean) {
-			group.position.y = moving ? Math.abs(Math.sin(time * 9)) * 0.12 : 0;
+			const beat = moving ? 14 : 6;
+			const amplitude = moving ? 0.14 : 0.07;
+			group.position.y = HOVER_HEIGHT + Math.sin(time * beat) * amplitude;
 		}
 	};
 }
