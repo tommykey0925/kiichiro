@@ -80,7 +80,7 @@
 
 <style>
 	header {
-		margin-bottom: 3rem;
+		margin-bottom: 2.5rem;
 	}
 
 	h1 {
@@ -100,7 +100,7 @@
 		display: block;
 		width: 4.5rem;
 		height: 4.5rem;
-		margin: 2.75rem auto 0;
+		margin: 2rem auto 0;
 		transition: transform 0.2s ease;
 	}
 
@@ -116,7 +116,13 @@
 	.enter :global(svg) {
 		position: absolute;
 		inset: 0;
-		offset-path: path('M36,36 C45,21 70,21 70,36 C70,51 45,51 36,36 C27,21 2,21 2,36 C2,51 27,51 36,36');
+		/*
+		 * 始点と終点の制御点を真上・真下に置いて、出入りの接線を垂直にしている。
+		 * 斜めに出るパスだと offset-rotate がそこに合わせ、静止時の蜂が傾く。
+		 */
+		offset-path: path(
+			'M36,36 C36,10 92,10 92,36 C92,62 36,62 36,36 C36,10 -20,10 -20,36 C-20,62 36,62 36,36'
+		);
 		/* Twemoji の蜂は上を向いているので、接線から 90 度ずらす */
 		offset-rotate: auto 90deg;
 		animation: bee-flight 7s infinite;
