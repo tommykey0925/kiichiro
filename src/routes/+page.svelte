@@ -96,6 +96,7 @@
 	}
 
 	.enter {
+		position: relative;
 		display: block;
 		width: 4.5rem;
 		height: 4.5rem;
@@ -107,67 +108,36 @@
 		transform: translateY(-3px) scale(1.06);
 	}
 
-	/* 飛行は svg 側に持たせる。link 側の transform と取り合わないようにするため。 */
+	/*
+	 * 飛行は svg 側に持たせる。link 側の transform と取り合うと hover が効かない。
+	 * キーフレームで座標を刻むと区間ごとに緩急が付いて動きが跳ねるので、
+	 * ベジェ曲線を 1 本辿らせる。進行方向への向き直しも offset-rotate に任せる。
+	 */
 	.enter :global(svg) {
-		animation: bee-flight 7s ease-in-out infinite;
+		position: absolute;
+		inset: 0;
+		offset-path: path('M36,36 C45,21 70,21 70,36 C70,51 45,51 36,36 C27,21 2,21 2,36 C2,51 27,51 36,36');
+		/* Twemoji の蜂は上を向いているので、接線から 90 度ずらす */
+		offset-rotate: auto 90deg;
+		animation: bee-flight 7s infinite;
 	}
 
 	@keyframes bee-flight {
 		0%,
-		60.00% {
-			transform: translate(-0.0px, -0.0px);
+		60% {
+			offset-distance: 0%;
+			animation-timing-function: ease-in-out;
 		}
-		63.33% {
-			transform: translate(-17.0px, -14.7px);
-		}
-		66.67% {
-			transform: translate(-29.4px, -14.7px);
-		}
-		70.00% {
-			transform: translate(-34.0px, -0.0px);
-		}
-		73.33% {
-			transform: translate(-29.4px, 14.7px);
-		}
-		76.67% {
-			transform: translate(-17.0px, 14.7px);
-		}
-		80.00% {
-			transform: translate(-0.0px, 0.0px);
-		}
-		83.33% {
-			transform: translate(17.0px, -14.7px);
-		}
-		86.67% {
-			transform: translate(29.4px, -14.7px);
-		}
-		90.00% {
-			transform: translate(34.0px, -0.0px);
-		}
-		93.33% {
-			transform: translate(29.4px, 14.7px);
-		}
-		96.67% {
-			transform: translate(17.0px, 14.7px);
-		}
-		100.00% {
-			transform: translate(0.0px, 0.0px);
+		100% {
+			offset-distance: 100%;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.enter :global(svg) {
+			offset-path: none;
 			animation: none;
 		}
-	}
-
-	h2 {
-		margin: 0 0 1.1rem;
-		font-size: 1.15rem;
-	}
-
-	section {
-		margin-bottom: 3.25rem;
 	}
 
 	.github {
