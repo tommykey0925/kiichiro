@@ -41,7 +41,7 @@ a {
 	display: inline-block;
 	padding: 0.1rem 0.55rem;
 	border: 1px solid var(--line);
-	border-radius: 999px;
+	border-radius: 5px;
 	background: var(--surface);
 	color: var(--muted);
 	font-size: 0.75rem;
@@ -50,10 +50,12 @@ a {
 }
 
 .pill {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
 	padding: 0.5rem 1.1rem;
 	border: 1px solid var(--line);
-	border-radius: 999px;
+	border-radius: 8px;
 	background: var(--surface);
 	color: inherit;
 	font-size: 0.9rem;
@@ -64,4 +66,28 @@ a {
 	border-color: var(--accent);
 	background: var(--accent);
 	color: #fff;
+}
+
+.beacon {
+	width: 0.45rem;
+	height: 0.45rem;
+	border-radius: 50%;
+	background: currentColor;
+	animation: beacon 1.4s ease-in-out infinite;
+}
+
+@keyframes beacon {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.15;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.beacon {
+		animation: none;
+	}
 }
