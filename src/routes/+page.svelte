@@ -38,12 +38,6 @@
 	<header>
 		<h1>{profile.name}</h1>
 		<p class="bio">{profile.bio.ja}</p>
-		<ul class="skills">
-			{#each profile.skills as skill (skill)}
-				<li class="tag">{skill}</li>
-			{/each}
-		</ul>
-
 		<a class="enter" href="/world" onclick={() => rememberMode('world')} aria-label="3D で見る">
 			<BeeIcon />
 		</a>
@@ -111,15 +105,6 @@
 
 	.enter:hover {
 		transform: translateY(-3px) scale(1.06);
-	}
-
-	.skills {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-		margin: 0;
-		padding: 0;
-		list-style: none;
 	}
 
 	h2 {
