@@ -1,8 +1,15 @@
 import * as THREE from 'three';
 import type { Work } from '$lib/works';
-import { GROUND_RADIUS, clampToGround, moveHeading, spotPosition } from './layout';
+import {
+	NEAR_DISTANCE,
+	ROAD_HALF_LENGTH,
+	ROAD_HALF_WIDTH,
+	START_POSITION,
+	clampToGround,
+	moveHeading,
+	spotPosition
+} from './layout';
 
-const NEAR_DISTANCE = 3.4;
 const WALK_SPEED = 5.5;
 const CAMERA_DISTANCE = 7.5;
 const CAMERA_HEIGHT = 3.4;
@@ -34,24 +41,25 @@ export function createWorld(
 
 	const scene = new THREE.Scene();
 	scene.background = new THREE.Color(SKY);
-	// 台地の縁を霧で溶かして「丘の頂上」に見せる。裾の地形モデルを作らずに済ませるため。
-	scene.fog = new THREE.Fog(SKY, GROUND_RADIUS * 0.55, GROUND_RADIUS * 1.5);
+	// 道の先と地面の端を霧に溶かす。終端の地形を作らずに済ませるため。
+	scene.fog = new THREE.Fog(SKY, 24, 62);
 
 	const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
 
 	scene.add(new THREE.HemisphereLight(0xffffff, 0x8fa88c, 2.1));
 	const sun = new THREE.DirectionalLight(0xfff4e2, 2.4);
-	sun.position.set(12, 20, 8);
 	sun.castShadow = true;
 	sun.shadow.mapSize.set(2048, 2048);
-	sun.shadow.camera.left = -GROUND_RADIUS;
-	sun.shadow.camera.right = GROUND_RADIUS;
-	sun.shadow.camera.top = GROUND_RADIUS;
-	sun.shadow.camera.bottom = -GROUND_RADIUS;
-	scene.add(sun);
+	// 影の範囲は道全体ではなくキャラの周りだけ。道は 84 あるので、
+	// 全体を 1 枚の shadow map で覆うと影が潰れる。
+	sun.shadow.camera.left = -22;
+	sun.shadow.camera.right = 22;
+	sun.shadow.camera.top = 22;
+	sun.shadow.camera.bottom = -22;
+	scene.add(sun, sun.target);
 
 	const ground = new THREE.Mesh(
-		new THREE.CircleGeometry(GROUND_RADIUS, 96).rotateX(-Math.PI / 2),
+		new THREE.PlaneGeometry(ROAD_HALF_WIDTH * 2, ROAD_HALF_LENGTH * 2).rotateX(-Math.PI / 2),
 		new THREE.MeshStandardMaterial({ color: 0x9dbf8e, roughness: 1 })
 	);
 	ground.receiveShadow = true;
@@ -61,6 +69,7 @@ export function createWorld(
 	for (const exhibit of exhibits) scene.add(...exhibit.meshes);
 
 	const character = createCharacter();
+	character.group.position.set(START_POSITION.x, 0, START_POSITION.z);
 	scene.add(character.group);
 
 	const move: MoveInput = { x: 0, y: 0 };
@@ -135,6 +144,8 @@ export function createWorld(
 		character.animate(clock.elapsedTime, moving);
 
 		const target = character.group.position;
+		sun.position.set(target.x + 12, 20, target.z + 8);
+		sun.target.position.copy(target);
 		camera.position.set(
 			target.x - Math.sin(yaw) * CAMERA_DISTANCE,
 			CAMERA_HEIGHT,

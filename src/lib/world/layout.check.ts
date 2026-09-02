@@ -1,31 +1,48 @@
 import assert from 'node:assert/strict';
-import { GROUND_RADIUS, clampToGround, moveHeading, spotPosition, type Spot } from './layout.ts';
+import {
+	NEAR_DISTANCE,
+	ROAD_HALF_LENGTH,
+	ROAD_HALF_WIDTH,
+	START_POSITION,
+	clampToGround,
+	moveHeading,
+	spotPosition
+} from './layout.ts';
 
-const spots: Spot[] = [
-	{ ring: 'center', index: 0 },
-	...[0, 1, 2, 3, 4].map((index) => ({ ring: 'inner' as const, index })),
-	...[0, 1, 2, 3, 4].map((index) => ({ ring: 'outer' as const, index }))
-];
+const points = [...Array(11)].map((_, index) => spotPosition({ index }));
 
-// 11の展示台は、台地の中に収まり、互いに離れていること
-const points = spots.map(spotPosition);
-for (const { x, z } of points) {
-	assert.ok(Math.hypot(x, z) < GROUND_RADIUS - 2, '展示台が台地からはみ出している');
+// 展示台は道の上に収まり、左右交互に並ぶこと
+for (const [i, { x, z }] of points.entries()) {
+	assert.ok(Math.abs(x) < ROAD_HALF_WIDTH, `展示台 ${i} が道からはみ出している`);
+	assert.ok(Math.abs(z) < ROAD_HALF_LENGTH, `展示台 ${i} が道の端を越えている`);
+	assert.equal(x < 0, i % 2 === 0, `展示台 ${i} が交互になっていない`);
 }
+
+// 隣り合う展示台のパネルが同時に開かないこと
 for (let a = 0; a < points.length; a++) {
 	for (let b = a + 1; b < points.length; b++) {
 		const gap = Math.hypot(points[a].x - points[b].x, points[a].z - points[b].z);
-		assert.ok(gap > 4, `展示台 ${a} と ${b} が近すぎる (${gap.toFixed(2)})`);
+		assert.ok(gap > NEAR_DISTANCE * 2, `展示台 ${a} と ${b} が近すぎる (${gap.toFixed(2)})`);
 	}
 }
 
-// 台地の中にいる間は座標が変わらないこと
+// 開始位置がどの展示台とも重ならないこと
+for (const [i, { x, z }] of points.entries()) {
+	const gap = Math.hypot(x - START_POSITION.x, z - START_POSITION.z);
+	assert.ok(gap > NEAR_DISTANCE, `開始位置が展示台 ${i} に近すぎる (${gap.toFixed(2)})`);
+}
+
+// 開始位置の背後にあるカメラも道の上に乗っていること
+assert.ok(START_POSITION.z - 7.5 > -ROAD_HALF_LENGTH, 'カメラが道の外から始まっている');
+
+// 道の中にいる間は座標が変わらないこと
 assert.deepEqual(clampToGround(3, -4), { x: 3, z: -4 });
 
-// 台地の外に出ようとしたら、向きを保ったまま縁に押し戻されること
-const pushed = clampToGround(100, 0);
-assert.ok(Math.abs(Math.hypot(pushed.x, pushed.z) - (GROUND_RADIUS - 1.5)) < 1e-9);
-assert.ok(pushed.x > 0 && pushed.z === 0, '押し戻しで向きが変わっている');
+// 道の外に出ようとしたら縁で止まること
+assert.deepEqual(clampToGround(100, 100), {
+	x: ROAD_HALF_WIDTH - 1.5,
+	z: ROAD_HALF_LENGTH - 1.5
+});
 
 // どの視点角でも、入力方向が画面の見た目どおりに動くこと
 const direction = (heading: number) => ({ x: Math.sin(heading), z: Math.cos(heading) });
