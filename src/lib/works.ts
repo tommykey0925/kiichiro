@@ -33,7 +33,8 @@ export const works = (
 			"category": "product",
 			"credits": [
 				"Bee by jeremy [CC-BY] via Poly Pizza",
-				"Flower by Zoe XR [CC-BY] via Poly Pizza"
+				"Flower by Zoe XR [CC-BY] via Poly Pizza",
+				"Honeybee by Twitter (Twemoji) [CC-BY 4.0]"
 			],
 			"spot": { "index": 0, "color": "#d95f5f" }
 		},
