@@ -1,24 +1,32 @@
-export const GROUND_RADIUS = 26;
+/** 道の幅と長さ。端は霧に溶けるので、見える範囲より少し広く取る。 */
+export const ROAD_HALF_WIDTH = 9;
+export const ROAD_HALF_LENGTH = 42;
 
-const RING_RADIUS = { center: 0, inner: 9, outer: 17 } as const;
-const RING_COUNT = { center: 1, inner: 5, outer: 5 } as const;
+export const NEAR_DISTANCE = 3.4;
 
-export type Spot = { ring: keyof typeof RING_RADIUS; index: number };
+const SPOT_OFFSET_X = 5;
+const SPOT_SPACING = 5;
 
-/** 外周は内周と角度をずらす。真横から見たとき展示台が重なるため。 */
-export function spotPosition({ ring, index }: Spot) {
-	const radius = RING_RADIUS[ring];
-	const offset = ring === 'outer' ? Math.PI / RING_COUNT.outer : 0;
-	const angle = (index / RING_COUNT[ring]) * Math.PI * 2 + offset;
-	return { x: Math.sin(angle) * radius, z: Math.cos(angle) * radius };
+/** 手前の展示台より後ろ。カメラが地面の外に出ない位置でもある。 */
+export const START_POSITION = { x: 0, z: -31 };
+
+export type Spot = { index: number };
+
+/** 道の左右に交互。偶数が左、奇数が右。 */
+export function spotPosition({ index }: Spot) {
+	return {
+		x: index % 2 === 0 ? -SPOT_OFFSET_X : SPOT_OFFSET_X,
+		z: index * SPOT_SPACING - 25
+	};
 }
 
-/** 霧で見えなくなる手前で押し戻す。縁に立たれると台地が円盤だと分かってしまうため。 */
+/** 道の外に出さない。縁に立たれると地面がただの板だと分かってしまうため。 */
 export function clampToGround(x: number, z: number) {
-	const limit = GROUND_RADIUS - 1.5;
-	const distance = Math.hypot(x, z);
-	if (distance <= limit) return { x, z };
-	return { x: (x * limit) / distance, z: (z * limit) / distance };
+	const margin = 1.5;
+	return {
+		x: Math.max(-ROAD_HALF_WIDTH + margin, Math.min(ROAD_HALF_WIDTH - margin, x)),
+		z: Math.max(-ROAD_HALF_LENGTH + margin, Math.min(ROAD_HALF_LENGTH - margin, z))
+	};
 }
 
 /**

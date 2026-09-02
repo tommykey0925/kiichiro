@@ -9,7 +9,7 @@ export type Work = {
 	liveUrl?: string;
 	category: 'product' | 'learning' | 'infra';
 	/** 無い作品は 3D に現れず、一覧にのみ載る。 */
-	spot?: { ring: 'center' | 'inner' | 'outer'; index: number };
+	spot?: { index: number };
 };
 
 export const works = (
@@ -23,7 +23,7 @@ export const works = (
 			"tech": ["Java 21", "Spring Boot 3.4", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Cognito", "PostgreSQL (RDS)", "Redis (ElastiCache)", "AWS"],
 			"repo": "https://github.com/tommykey-apps/chat",
 			"category": "product",
-			"spot": { "ring": "inner", "index": 2 }
+			"spot": { "index": 3 }
 		},
 		{
 			"id": "url-shortener",
@@ -35,7 +35,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/url-shortener",
 			"liveUrl": "https://url.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "ring": "inner", "index": 0 }
+			"spot": { "index": 1 }
 		},
 		{
 			"id": "receipto",
@@ -47,7 +47,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/receipto",
 			"liveUrl": "https://expense.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "ring": "inner", "index": 1 }
+			"spot": { "index": 2 }
 		},
 		{
 			"id": "burnnote",
@@ -59,7 +59,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/burnnote",
 			"liveUrl": "https://burnnote.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "ring": "center", "index": 0 }
+			"spot": { "index": 0 }
 		},
 		{
 			"id": "gakushu",
@@ -70,7 +70,7 @@ export const works = (
 			"tech": ["TypeScript", "H3/Nitro", "Lambda", "Nuxt 4", "Nuxt UI", "Tailwind CSS v4", "DynamoDB", "Bedrock (Claude)", "Cognito"],
 			"repo": "https://github.com/tommykey-apps/gakushu",
 			"category": "product",
-			"spot": { "ring": "inner", "index": 3 }
+			"spot": { "index": 5 }
 		},
 		{
 			"id": "resource-planner",
@@ -81,7 +81,7 @@ export const works = (
 			"tech": ["SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Auth.js (Magic Link)", "DynamoDB (Single Table)", "Lambda (ARM64 container)", "API Gateway", "CloudFront"],
 			"repo": "https://github.com/tommykey-apps/resource-planner",
 			"category": "product",
-			"spot": { "ring": "inner", "index": 4 }
+			"spot": { "index": 6 }
 		},
 		{
 			"id": "ui-components",
@@ -92,7 +92,7 @@ export const works = (
 			"tech": ["Svelte 5", "svelte-package", "Vite 8", "Storybook 10", "Changesets", "date-fns", "flox"],
 			"repo": "https://github.com/tommykey-apps/ui-components",
 			"category": "product",
-			"spot": { "ring": "outer", "index": 0 }
+			"spot": { "index": 7 }
 		},
 		{
 			"id": "pasu",
@@ -104,7 +104,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/pasu",
 			"liveUrl": "https://pasu.tommykey0925.workers.dev",
 			"category": "product",
-			"spot": { "ring": "outer", "index": 1 }
+			"spot": { "index": 4 }
 		},
 		{
 			"id": "vigil",
@@ -115,7 +115,7 @@ export const works = (
 			"tech": ["SvelteKit 2", "Svelte 5", "Lambda Web Adapter", "Node.js 24 (arm64)", "DynamoDB", "GitHub OAuth", "EventBridge Scheduler", "SES", "Terraform"],
 			"repo": "https://github.com/tommykey-apps/vigil",
 			"category": "product",
-			"spot": { "ring": "outer", "index": 2 }
+			"spot": { "index": 9 }
 		},
 		{
 			"id": "dropfast",
@@ -126,7 +126,7 @@ export const works = (
 			"tech": ["Rust", "axum", "Lambda (arm64)", "cargo-lambda", "S3 (presigned URL)", "DynamoDB (TTL)", "SvelteKit 2", "WebCrypto API", "Terraform"],
 			"repo": "https://github.com/tommykey-apps/dropfast",
 			"category": "product",
-			"spot": { "ring": "outer", "index": 3 }
+			"spot": { "index": 10 }
 		},
 		{
 			"id": "axiowiz",
@@ -138,7 +138,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/axiowiz",
 			"liveUrl": "https://tommykey0925.github.io/checkWizards/",
 			"category": "product",
-			"spot": { "ring": "outer", "index": 4 }
+			"spot": { "index": 8 }
 		},
 	
 		{
