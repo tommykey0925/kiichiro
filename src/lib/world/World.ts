@@ -220,6 +220,10 @@ export async function createWorld(
 				material.map?.dispose();
 				material.dispose();
 			});
+			// dispose は GPU 上のデータを捨てるだけで WebGL context は手放さない。
+			// canvas は /world に入るたび作り直されるので、明示的に失わせないと
+			// 往復のたびに context が積み、ブラウザの同時保持数の上限に触れる。
+			renderer.forceContextLoss();
 			renderer.dispose();
 		}
 	};
