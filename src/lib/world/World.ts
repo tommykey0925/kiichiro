@@ -8,6 +8,7 @@ import {
 	START_POSITION,
 	clampToGround,
 	moveHeading,
+	sparkleOffsets,
 	spotPosition
 } from './layout';
 
@@ -31,9 +32,10 @@ const PETAL_MATERIAL = 'mat21';
 
 const IDLE_GLOW = 0.06;
 const NEAR_GLOW = 0.55;
-/** 公開中の作品は近づく前から脈打つ。一覧の「サイトに遷移」の点滅と同じ合図。 */
-const LIVE_GLOW = 0.22;
-const LIVE_GLOW_SWING = 0.12;
+
+const SPARKLE_SIZE = 0.16;
+const SPARKLE_SPIN = 0.3;
+const SPARKLE_TWINKLE = 3.2;
 
 export type MoveInput = { x: number; y: number };
 
@@ -46,6 +48,7 @@ type Exhibit = {
 	work: Work;
 	position: THREE.Vector3;
 	glow: THREE.MeshStandardMaterial;
+	sparkles?: Sparkles;
 	meshes: THREE.Object3D[];
 };
 
@@ -179,11 +182,10 @@ export async function createWorld(
 			nearId = near?.work.id ?? null;
 			onNear(near?.work ?? null);
 		}
-		const pulse = LIVE_GLOW + Math.sin(clock.elapsedTime * 2.4) * LIVE_GLOW_SWING;
 		for (const exhibit of exhibits) {
-			const idle = exhibit.work.liveUrl ? pulse : IDLE_GLOW;
-			const lit = exhibit.work.id === nearId ? NEAR_GLOW : idle;
+			const lit = exhibit.work.id === nearId ? NEAR_GLOW : IDLE_GLOW;
 			exhibit.glow.emissiveIntensity += (lit - exhibit.glow.emissiveIntensity) * 0.15;
+			exhibit.sparkles?.twinkle(clock.elapsedTime);
 		}
 
 		renderer.render(scene, camera);
@@ -206,7 +208,14 @@ export async function createWorld(
 			canvas.removeEventListener('pointerup', pointerUp);
 			canvas.removeEventListener('pointercancel', pointerUp);
 			scene.traverse((object) => {
-				if (!(object instanceof THREE.Mesh || object instanceof THREE.Sprite)) return;
+				if (
+				!(
+					object instanceof THREE.Mesh ||
+					object instanceof THREE.Sprite ||
+					object instanceof THREE.Points
+				)
+			)
+				return;
 				object.geometry?.dispose();
 				const material = object.material as THREE.Material & { map?: THREE.Texture | null };
 				material.map?.dispose();
@@ -291,7 +300,75 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	const label = createLabel(work.title.ja);
 	label.position.set(x, LABEL_HEIGHT, z);
 
-	return { work, position: new THREE.Vector3(x, 0, z), glow, meshes: [pedestal, model, label] };
+	const sparkles = work.liveUrl ? createSparkles(x, z, color) : undefined;
+
+	return {
+		work,
+		position: new THREE.Vector3(x, 0, z),
+		glow,
+		sparkles,
+		meshes: sparkles ? [pedestal, model, label, sparkles.points] : [pedestal, model, label]
+	};
+}
+
+type Sparkles = ReturnType<typeof createSparkles>;
+
+/**
+ * 公開中の作品の目印。emissive を上げても昼のシーンでは花びらが白飛びしていて
+ * 差が出ないので、輝度ではなく粒の動きで示す。
+ */
+function createSparkles(x: number, z: number, color: string) {
+	const offsets = sparkleOffsets();
+	const positions = new Float32Array(offsets.length * 3);
+	offsets.forEach((offset, i) => positions.set([offset.x, offset.y, offset.z], i * 3));
+
+	const geometry = new THREE.BufferGeometry();
+	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+	geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(offsets.length * 3), 3));
+
+	const points = new THREE.Points(
+		geometry,
+		new THREE.PointsMaterial({
+			size: SPARKLE_SIZE,
+			map: sparkleTexture(),
+			vertexColors: true,
+			transparent: true,
+			depthWrite: false,
+			blending: THREE.AdditiveBlending
+		})
+	);
+	points.position.set(x, 0, z);
+
+	// 加算合成は暗い色を足しても何も起きないので、作品の色を白に寄せて明るい側に振る。
+	const tint = new THREE.Color(color).lerp(new THREE.Color(0xffffff), 0.45);
+	const colors = geometry.attributes.color as THREE.BufferAttribute;
+
+	return {
+		points,
+		twinkle(time: number) {
+			points.rotation.y = time * SPARKLE_SPIN;
+			offsets.forEach((offset, i) => {
+				const brightness = 0.5 + 0.5 * Math.sin(time * SPARKLE_TWINKLE + offset.phase);
+				colors.setXYZ(i, tint.r * brightness, tint.g * brightness, tint.b * brightness);
+			});
+			colors.needsUpdate = true;
+		}
+	};
+}
+
+function sparkleTexture() {
+	const size = 64;
+	const canvas = document.createElement('canvas');
+	canvas.width = size;
+	canvas.height = size;
+	const context = canvas.getContext('2d')!;
+	const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+	gradient.addColorStop(0, 'rgba(255,255,255,1)');
+	gradient.addColorStop(0.35, 'rgba(255,255,255,0.5)');
+	gradient.addColorStop(1, 'rgba(255,255,255,0)');
+	context.fillStyle = gradient;
+	context.fillRect(0, 0, size, size);
+	return new THREE.CanvasTexture(canvas);
 }
 
 function createLabel(text: string) {
