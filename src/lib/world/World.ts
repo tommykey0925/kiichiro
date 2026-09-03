@@ -22,18 +22,17 @@ const SKY = 0xdfe9f2;
 const BEE_SCALE = 0.16;
 const HOVER_HEIGHT = 0.9;
 
-// 花は高さ 3.6、原点は茎の途中 (下端 y=-1.09)。台座の上面は y=0.9。
+// 花は高さ 3.6、原点は茎の途中 (下端 y=-1.09)。地面に生やすので下端を y=0 に合わせる。
 const FLOWER_SCALE = 0.5;
 const FLOWER_BOTTOM = -1.09;
-const PEDESTAL_TOP = 0.9;
-const LABEL_HEIGHT = 3.5;
+const LABEL_HEIGHT = 2.6;
 /** 花びらのマテリアル名。ここだけ複製して作品ごとの色にする。 */
 const PETAL_MATERIAL = 'mat21';
 
 const IDLE_GLOW = 0.06;
 const NEAR_GLOW = 0.55;
 
-const SPARKLE_SIZE = 0.16;
+const SPARKLE_SIZE = 0.34;
 const SPARKLE_SPIN = 0.3;
 const SPARKLE_TWINKLE = 3.2;
 
@@ -268,14 +267,6 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	const { index, color } = work.spot!;
 	const { x, z } = spotPosition(work.spot!);
 
-	const pedestal = new THREE.Mesh(
-		new THREE.CylinderGeometry(1.1, 1.3, 0.9, 24),
-		new THREE.MeshStandardMaterial({ color: 0xe8e3d7, roughness: 0.8 })
-	);
-	pedestal.position.set(x, 0.45, z);
-	pedestal.castShadow = true;
-	pedestal.receiveShadow = true;
-
 	// clone はマテリアルを共有するので、色を変える花びらだけ複製する。
 	// 茎と中心は共有のままにして、描画時の状態変更を減らす。
 	const model = flower.clone();
@@ -293,7 +284,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	});
 	if (!glow) throw new Error(`花びらのマテリアル ${PETAL_MATERIAL} が見つからない`);
 
-	model.position.set(x, PEDESTAL_TOP - FLOWER_BOTTOM * FLOWER_SCALE, z);
+	model.position.set(x, -FLOWER_BOTTOM * FLOWER_SCALE, z);
 	// 全部同じ向きだと並びが機械的に見えるので、少しずつ回す。
 	model.rotation.y = index * 1.1;
 
@@ -307,7 +298,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 		position: new THREE.Vector3(x, 0, z),
 		glow,
 		sparkles,
-		meshes: sparkles ? [pedestal, model, label, sparkles.points] : [pedestal, model, label]
+		meshes: sparkles ? [model, label, sparkles.points] : [model, label]
 	};
 }
 
@@ -340,7 +331,7 @@ function createSparkles(x: number, z: number, color: string) {
 	points.position.set(x, 0, z);
 
 	// 加算合成は暗い色を足しても何も起きないので、作品の色を白に寄せて明るい側に振る。
-	const tint = new THREE.Color(color).lerp(new THREE.Color(0xffffff), 0.45);
+	const tint = new THREE.Color(color).lerp(new THREE.Color(0xffffff), 0.65);
 	const colors = geometry.attributes.color as THREE.BufferAttribute;
 
 	return {
@@ -348,7 +339,7 @@ function createSparkles(x: number, z: number, color: string) {
 		twinkle(time: number) {
 			points.rotation.y = time * SPARKLE_SPIN;
 			offsets.forEach((offset, i) => {
-				const brightness = 0.5 + 0.5 * Math.sin(time * SPARKLE_TWINKLE + offset.phase);
+				const brightness = 0.65 + 0.35 * Math.sin(time * SPARKLE_TWINKLE + offset.phase);
 				colors.setXYZ(i, tint.r * brightness, tint.g * brightness, tint.b * brightness);
 			});
 			colors.needsUpdate = true;
