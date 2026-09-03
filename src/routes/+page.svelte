@@ -95,52 +95,63 @@
 		color: var(--muted);
 	}
 
+	/*
+	 * 画面いっぱいを飛ばすため、蜂自身を fixed にする。offset-path の % は
+	 * containing block に対して解決されるので、fixed = ビューポート基準になり、
+	 * 幅を問わず同じ図形を描く。中の svg に持たせると % が 4.5rem 基準になる。
+	 */
 	.enter {
-		position: relative;
+		/* 左右の折り返し位置。% だと狭い画面で蜂が端からはみ出すので、
+		   蜂の半分 (2.25rem) より広い固定値を画面幅から引く。 */
+		--edge: 3rem;
+
+		position: fixed;
+		z-index: 1;
 		display: block;
 		width: 4.5rem;
 		height: 4.5rem;
-		margin: 2rem auto 0;
-		transition: transform 0.2s ease;
-	}
-
-	.enter:hover {
-		transform: translateY(-3px) scale(1.06);
-	}
-
-	/*
-	 * 飛行は svg 側に持たせる。link 側の transform と取り合うと hover が効かない。
-	 * キーフレームで座標を刻むと区間ごとに緩急が付いて動きが跳ねるので、
-	 * ベジェ曲線を 1 本辿らせる。進行方向への向き直しも offset-rotate に任せる。
-	 */
-	.enter :global(svg) {
-		position: absolute;
-		inset: 0;
+		/* shape() 非対応ブラウザはこちらが残る。∞ ではなくなるが飛びはする */
+		offset-path: ellipse(42% 37%);
 		/*
-		 * 始点と終点の制御点を真上・真下に置いて、出入りの接線を垂直にしている。
-		 * 斜めに出るパスだと offset-rotate がそこに合わせ、静止時の蜂が傾く。
+		 * 制御点を 0% / 100% に置いているのは、3 次ベジェが制御点まで届かないため。
+		 * 曲線が実際に届く高さは (100 + 6 * 制御点) / 8 で、0% / 100% のとき
+		 * 12.5% / 87.5%。見た目の縦幅を画面の 3/4 にするための値。
 		 */
-		offset-path: path(
-			'M36,36 C36,10 92,10 92,36 C92,62 36,62 36,36 C36,10 -20,10 -20,36 C-20,62 36,62 36,36'
+		offset-path: shape(
+			from 50% 50%,
+			curve to calc(100% - var(--edge)) 50% with 50% 0% / calc(100% - var(--edge)) 0%,
+			curve to 50% 50% with calc(100% - var(--edge)) 100% / 50% 100%,
+			curve to var(--edge) 50% with 50% 0% / var(--edge) 0%,
+			curve to 50% 50% with var(--edge) 100% / 50% 100%
 		);
 		/* Twemoji の蜂は上を向いているので、接線から 90 度ずらす */
 		offset-rotate: auto 90deg;
-		animation: bee-flight 7s infinite;
+		animation: bee-flight 60s linear infinite;
+		/*
+		 * hover は transform ではなく scale で当てる。transform は offset-path が
+		 * 組み立てる変換と同じ枠を取り合うが、scale は別に合成されるので共存する。
+		 */
+		transition: scale 0.2s ease;
+	}
+
+	.enter:hover {
+		scale: 1.12;
 	}
 
 	@keyframes bee-flight {
-		0%,
-		60% {
+		from {
 			offset-distance: 0%;
-			animation-timing-function: ease-in-out;
 		}
-		100% {
+		to {
 			offset-distance: 100%;
 		}
 	}
 
+	/* 動きを止める人には、飛ばさず元どおりヘッダーの中に置く */
 	@media (prefers-reduced-motion: reduce) {
-		.enter :global(svg) {
+		.enter {
+			position: static;
+			margin: 2rem auto 0;
 			offset-path: none;
 			animation: none;
 		}
