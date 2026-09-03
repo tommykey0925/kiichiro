@@ -21,8 +21,15 @@
 			document.body.style.overflow = previousOverflow;
 		};
 
+		// 3D を出せないと分かった時点で希望モードを畳む。エラー画面のリンク側に
+		// 任せると、押されなかったときに / から何度も同じ画面へ送り返してしまう。
+		const fail = (message: string) => {
+			error = message;
+			rememberMode('list');
+		};
+
 		if (!document.createElement('canvas').getContext('webgl2')) {
-			error = 'この環境では 3D を表示できません (WebGL が無効)。';
+			fail('この環境では 3D を表示できません (WebGL が無効)。');
 			return restore;
 		}
 
@@ -39,7 +46,7 @@
 				loading = false;
 			})
 			.catch(() => {
-				error = '3D の読み込みに失敗しました。';
+				fail('3D の読み込みに失敗しました。');
 			});
 
 		return () => {
