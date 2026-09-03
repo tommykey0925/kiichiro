@@ -101,8 +101,8 @@
 
 {#if near}
 	<aside class="panel">
-		<h2>{near.title.ja}</h2>
-		<p>{near.summary.ja}</p>
+		<h2>{near.title}</h2>
+		<p>{near.summary}</p>
 		<ul>
 			{#each near.tech.slice(0, 6) as t (t)}
 				<li>{t}</li>

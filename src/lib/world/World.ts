@@ -292,7 +292,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	// 全部同じ向きだと並びが機械的に見えるので、少しずつ回す。
 	model.rotation.y = index * 1.1;
 
-	const label = createLabel(work.title.ja);
+	const label = createLabel(work.title);
 	label.position.set(x, LABEL_HEIGHT, z);
 
 	const sparkles = work.liveUrl ? createSparkles(x, z, color) : undefined;

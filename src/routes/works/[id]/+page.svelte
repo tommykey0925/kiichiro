@@ -6,18 +6,18 @@
 </script>
 
 <svelte:head>
-	<title>{work.title.ja} — Works</title>
-	<meta name="description" content={work.summary.ja} />
-	<meta property="og:title" content={work.title.ja} />
-	<meta property="og:description" content={work.summary.ja} />
+	<title>{work.title} — Works</title>
+	<meta name="description" content={work.summary} />
+	<meta property="og:title" content={work.title} />
+	<meta property="og:description" content={work.summary} />
 	<meta property="og:type" content="website" />
 </svelte:head>
 
 <div class="wrap">
 	<a class="back" href="/">← Works</a>
 
-	<h1>{work.title.ja}</h1>
-	<p class="summary">{work.summary.ja}</p>
+	<h1>{work.title}</h1>
+	<p class="summary">{work.summary}</p>
 
 	<ul class="tech">
 		{#each work.tech as t (t)}

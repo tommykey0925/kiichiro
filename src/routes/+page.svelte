@@ -31,13 +31,13 @@
 
 <svelte:head>
 	<title>{profile.name} — Works</title>
-	<meta name="description" content={profile.bio.ja} />
+	<meta name="description" content={profile.bio} />
 </svelte:head>
 
 <div class="wrap">
 	<header>
 		<h1>{profile.name}</h1>
-		<p class="bio">{profile.bio.ja}</p>
+		<p class="bio">{profile.bio}</p>
 		<a class="enter" href="/world" onclick={() => rememberMode('world')} aria-label="3D で見る">
 			<BeeIcon />
 		</a>
