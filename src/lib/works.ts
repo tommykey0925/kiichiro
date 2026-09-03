@@ -1,4 +1,4 @@
-export type Localized = { ja: string; en?: string };
+export type Localized = { ja: string };
 
 export type Work = {
 	id: string;
