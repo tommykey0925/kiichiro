@@ -6,7 +6,7 @@
 	import GithubIcon from '$lib/GithubIcon.svelte';
 	import { profile } from '$lib/profile';
 	import { preferredMode, rememberMode } from '$lib/mode';
-	import { byCategory, featured } from '$lib/works';
+	import { byCategory } from '$lib/works';
 
 	onMount(() => {
 		// 先読みは最適化なので、リンクの有効化には使わない。
@@ -46,7 +46,7 @@
 	<section>
 		<h2>Works</h2>
 		<div class="grid">
-			{#each featured as work (work.id)}
+			{#each byCategory('product') as work (work.id)}
 				<WorkCard {work} />
 			{/each}
 		</div>
