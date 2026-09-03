@@ -220,6 +220,10 @@ export async function createWorld(
 				material.map?.dispose();
 				material.dispose();
 			});
+			// dispose は GPU 上のデータを捨てるだけで WebGL context は手放さない。
+			// canvas は /world に入るたび作り直されるので、明示的に失わせないと
+			// 往復のたびに context が積み、ブラウザの同時保持数の上限に触れる。
+			renderer.forceContextLoss();
 			renderer.dispose();
 		}
 	};
@@ -288,7 +292,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	// 全部同じ向きだと並びが機械的に見えるので、少しずつ回す。
 	model.rotation.y = index * 1.1;
 
-	const label = createLabel(work.title.ja);
+	const label = createLabel(work.title);
 	label.position.set(x, LABEL_HEIGHT, z);
 
 	const sparkles = work.liveUrl ? createSparkles(x, z, color) : undefined;

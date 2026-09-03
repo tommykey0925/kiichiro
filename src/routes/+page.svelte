@@ -6,7 +6,7 @@
 	import GithubIcon from '$lib/GithubIcon.svelte';
 	import { profile } from '$lib/profile';
 	import { preferredMode, rememberMode } from '$lib/mode';
-	import { byCategory, featured } from '$lib/works';
+	import { byCategory } from '$lib/works';
 
 	onMount(() => {
 		// 先読みは最適化なので、リンクの有効化には使わない。
@@ -31,13 +31,13 @@
 
 <svelte:head>
 	<title>{profile.name} — Works</title>
-	<meta name="description" content={profile.bio.ja} />
+	<meta name="description" content={profile.bio} />
 </svelte:head>
 
 <div class="wrap">
 	<header>
 		<h1>{profile.name}</h1>
-		<p class="bio">{profile.bio.ja}</p>
+		<p class="bio">{profile.bio}</p>
 		<a class="enter" href="/world" onclick={() => rememberMode('world')} aria-label="3D で見る">
 			<BeeIcon />
 		</a>
@@ -46,7 +46,7 @@
 	<section>
 		<h2>Works</h2>
 		<div class="grid">
-			{#each featured as work (work.id)}
+			{#each byCategory('product') as work (work.id)}
 				<WorkCard {work} />
 			{/each}
 		</div>

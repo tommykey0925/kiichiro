@@ -11,7 +11,8 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			adapter: adapter()
+			// 全ルートは prerender 済みなので、fallback は未一致 URL にしか使われない。
+			adapter: adapter({ fallback: '404.html' })
 		})
 	]
 });

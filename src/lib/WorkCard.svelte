@@ -5,8 +5,8 @@
 </script>
 
 <a class="card" href="/works/{work.id}">
-	<h3>{work.title.ja}</h3>
-	<p>{work.summary.ja}</p>
+	<h3>{work.title}</h3>
+	<p>{work.summary}</p>
 	<ul class="tech">
 		{#each work.tech.slice(0, 5) as t (t)}
 			<li class="tag">{t}</li>
