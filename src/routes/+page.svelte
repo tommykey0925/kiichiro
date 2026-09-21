@@ -1,5 +1,6 @@
 <script lang="ts">
 	import WorkCard from '$lib/WorkCard.svelte';
+	import WorkTable from '$lib/WorkTable.svelte';
 	import BeeIcon from '$lib/BeeIcon.svelte';
 	import GithubIcon from '$lib/GithubIcon.svelte';
 	import { profile } from '$lib/profile';
@@ -31,20 +32,12 @@
 
 	<section>
 		<h2>学習・実験</h2>
-		<div class="grid">
-			{#each byCategory('learning') as work (work.id)}
-				<WorkCard {work} />
-			{/each}
-		</div>
+		<WorkTable works={byCategory('learning')} />
 	</section>
 
 	<section>
 		<h2>インフラ</h2>
-		<div class="grid">
-			{#each byCategory('infra') as work (work.id)}
-				<WorkCard {work} />
-			{/each}
-		</div>
+		<WorkTable works={byCategory('infra')} />
 	</section>
 
 	<section>
