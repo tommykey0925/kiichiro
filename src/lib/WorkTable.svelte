@@ -50,6 +50,7 @@
 		min-width: 40rem;
 	}
 
+	th,
 	.title,
 	.repo {
 		white-space: nowrap;
