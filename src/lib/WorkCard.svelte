@@ -63,7 +63,7 @@
 		position: absolute;
 		top: 1.25rem;
 		right: 1.35rem;
-		color: var(--color-semantic-success-2);
+		color: var(--color-key-900);
 		font-size: var(--font-size-14);
 		font-weight: var(--font-weight-700);
 		letter-spacing: 0.06em;
