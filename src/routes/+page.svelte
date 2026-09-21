@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-	<title>{profile.name} — Works</title>
+	<title>{profile.name} — 制作物</title>
 	<meta name="description" content={profile.bio} />
 </svelte:head>
 
@@ -21,7 +21,7 @@
 	</header>
 
 	<section>
-		<h2>Works</h2>
+		<h2>制作物</h2>
 		<div class="grid">
 			{#each byCategory('product') as work (work.id)}
 				<WorkCard {work} />
@@ -48,7 +48,7 @@
 	</section>
 
 	<section>
-		<h2>Contact</h2>
+		<h2>連絡先</h2>
 		<a class="github" href={profile.github} rel="me" aria-label="GitHub">
 			<GithubIcon />
 		</a>

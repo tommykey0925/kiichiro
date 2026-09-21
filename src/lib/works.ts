@@ -160,7 +160,7 @@ export const works = (
 		{
 			"id": "tinyllm",
 			"title": "tinyllm",
-			"summary": "本当に最小の言語モデル",
+			"summary": "最小構成の言語モデル",
 			"tech": ["Python"],
 			"repo": "https://github.com/tommykey0925/tinyllm",
 			"category": "learning"
@@ -185,7 +185,7 @@ export const works = (
 		{
 			"id": "cutting-edge-webui",
 			"title": "Cutting-Edge WebUI",
-			"summary": "新しめの HTML / CSS 集",
+			"summary": "新しい HTML / CSS の実験",
 			"tech": ["HTML", "CSS", "GitHub Pages"],
 			"repo": "https://github.com/tommykey0925/cutting-edge-webui",
 			"liveUrl": "https://tommykey0925.github.io/cutting-edge-webui/",
@@ -259,7 +259,7 @@ export const works = (
 		{
 			"id": "infra-global",
 			"title": "infra-global",
-			"summary": "リージョンを跨ぐ共通インフラ",
+			"summary": "リージョンをまたぐ共通インフラ",
 			"tech": ["Terraform", "AWS", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/infra-global",
 			"category": "infra"

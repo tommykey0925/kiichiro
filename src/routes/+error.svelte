@@ -11,7 +11,7 @@
 <div class="wrap">
 	<h1>{page.status}</h1>
 	<p>{page.status === 404 ? 'そのページはありません。' : page.error?.message}</p>
-	<a href="/">← Works</a>
+	<a href="/">← 一覧に戻る</a>
 </div>
 
 <style>

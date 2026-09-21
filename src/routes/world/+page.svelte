@@ -105,13 +105,13 @@
 			{/each}
 		</ul>
 		<div class="links">
-			<a class="pill" href="/works/{near.id}">詳細</a>
+			<a class="pill" href="/works/{near.id}">詳細を見る</a>
 			<a class="pill" href={near.repo} rel="noreferrer" aria-label="GitHub">
 				<GithubIcon />
 			</a>
 			{#if near.liveUrl}
 				<a class="pill pill-primary" href={near.liveUrl} rel="noreferrer">
-					<span class="beacon"></span>サイトに遷移
+					<span class="beacon"></span>サイトを開く
 				</a>
 			{/if}
 		</div>

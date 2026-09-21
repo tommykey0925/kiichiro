@@ -16,7 +16,7 @@
 		{/if}
 	</ul>
 	{#if work.liveUrl}
-		<span class="live">Live</span>
+		<span class="live">公開中</span>
 	{/if}
 </a>
 
@@ -66,6 +66,5 @@
 		color: var(--color-key-900);
 		font-size: var(--font-size-14);
 		font-weight: var(--font-weight-700);
-		letter-spacing: 0.06em;
 	}
 </style>

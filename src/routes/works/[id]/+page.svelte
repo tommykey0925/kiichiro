@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>{work.title} — Works</title>
+	<title>{work.title} — 制作物</title>
 	<meta name="description" content={work.summary} />
 	<meta property="og:title" content={work.title} />
 	<meta property="og:description" content={work.summary} />
@@ -14,7 +14,7 @@
 </svelte:head>
 
 <div class="wrap">
-	<a class="back" href="/">← Works</a>
+	<a class="back" href="/">← 一覧に戻る</a>
 
 	<h1>{work.title}</h1>
 	<p class="summary">{work.summary}</p>
@@ -42,7 +42,7 @@
 		</a>
 		{#if work.liveUrl}
 			<a class="pill pill-primary" href={work.liveUrl} rel="noreferrer">
-				<span class="beacon"></span>サイトに遷移
+				<span class="beacon"></span>サイトを開く
 			</a>
 		{/if}
 	</p>
