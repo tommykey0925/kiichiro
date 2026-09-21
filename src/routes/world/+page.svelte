@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import type { Work } from '$lib/works';
 	import { works } from '$lib/works';
-	import { rememberMode } from '$lib/mode';
 	import { profile } from '$lib/profile';
 	import GithubIcon from '$lib/GithubIcon.svelte';
 
@@ -21,11 +20,8 @@
 			document.body.style.overflow = previousOverflow;
 		};
 
-		// 3D を出せないと分かった時点で希望モードを畳む。エラー画面のリンク側に
-		// 任せると、押されなかったときに / から何度も同じ画面へ送り返してしまう。
 		const fail = (message: string) => {
 			error = message;
-			rememberMode('list');
 		};
 
 		if (!document.createElement('canvas').getContext('webgl2')) {
@@ -93,7 +89,7 @@
 	</div>
 {/if}
 
-<a class="exit" href="/" onclick={() => rememberMode('list')}>← 一覧で見る</a>
+<a class="exit" href="/">← 一覧で見る</a>
 
 {#if !error && !loading}
 	<p class="hint">WASD / 矢印キーで移動　ドラッグで視点</p>

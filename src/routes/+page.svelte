@@ -1,32 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import WorkCard from '$lib/WorkCard.svelte';
 	import BeeIcon from '$lib/BeeIcon.svelte';
 	import GithubIcon from '$lib/GithubIcon.svelte';
 	import { profile } from '$lib/profile';
-	import { preferredMode, rememberMode } from '$lib/mode';
 	import { byCategory } from '$lib/works';
-
-	onMount(() => {
-		// 先読みは最適化なので、リンクの有効化には使わない。
-		// 失敗しても /world 側で読み直せる。
-		if (!matchMedia('(pointer: fine)').matches) return;
-
-		let left = false;
-		// requestIdleCallback は iOS Safari 16.4 未満に無い。
-		const schedule = globalThis.requestIdleCallback ?? ((run: () => void) => setTimeout(run, 300));
-		schedule(() => {
-			if (left) return;
-			import('$lib/world/World').then(() => {
-				if (!left && preferredMode() === 'world') goto('/world');
-			});
-		});
-		return () => {
-			left = true;
-		};
-	});
-
 </script>
 
 <svelte:head>
@@ -38,7 +15,7 @@
 	<header>
 		<h1>{profile.name}</h1>
 		<p class="bio">{profile.bio}</p>
-		<a class="enter" href="/world" onclick={() => rememberMode('world')} aria-label="3D で見る">
+		<a class="enter" href="/world" aria-label="3D で見る">
 			<BeeIcon />
 		</a>
 	</header>
