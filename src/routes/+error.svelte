@@ -17,7 +17,8 @@
 <style>
 	h1 {
 		margin: 0 0 0.5rem;
-		font-size: clamp(1.8rem, 5vw, 2.6rem);
+		font-size: clamp(var(--font-size-28), 5vw, var(--font-size-36));
+		line-height: var(--line-height-130);
 	}
 
 	p {

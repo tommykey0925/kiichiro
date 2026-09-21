@@ -101,7 +101,7 @@
 		<p>{near.summary}</p>
 		<ul>
 			{#each near.tech.slice(0, 6) as t (t)}
-				<li>{t}</li>
+				<li class="tag">{t}</li>
 			{/each}
 		</ul>
 		<div class="links">
@@ -142,14 +142,15 @@
 		touch-action: none;
 	}
 
+	/* トークンに透過色は無いので、白トークンから相対色で派生させる */
 	.exit,
 	.hint {
 		position: fixed;
 		z-index: 1;
 		padding: 0.45rem 0.9rem;
-		border-radius: 999px;
-		background: rgb(255 255 255 / 0.85);
-		font-size: 0.8rem;
+		border-radius: var(--border-radius-8);
+		background: rgb(from var(--color-neutral-white) r g b / 0.85);
+		font-size: var(--font-size-14);
 		text-decoration: none;
 	}
 
@@ -175,21 +176,22 @@
 		max-width: 30rem;
 		margin: 0 auto;
 		padding: 1.1rem 1.3rem;
-		border-radius: var(--radius);
-		background: rgb(255 255 255 / 0.94);
-		box-shadow: 0 10px 30px rgb(35 32 28 / 0.16);
+		border-radius: var(--border-radius-12);
+		background: rgb(from var(--color-neutral-white) r g b / 0.94);
+		box-shadow: var(--elevation-4);
 	}
 
 	.panel h2 {
 		margin: 0 0 0.4rem;
-		font-size: 1.05rem;
+		font-size: var(--font-size-18);
+		line-height: var(--line-height-150);
 	}
 
 	.panel p {
 		margin: 0 0 0.7rem;
 		color: var(--muted);
-		font-size: 0.85rem;
-		line-height: 1.65;
+		font-size: var(--font-size-14);
+		line-height: var(--line-height-160);
 	}
 
 	.panel ul {
@@ -201,14 +203,6 @@
 		list-style: none;
 	}
 
-	.panel li {
-		padding: 0.05rem 0.5rem;
-		border: 1px solid var(--line);
-		border-radius: 999px;
-		color: var(--muted);
-		font-size: 0.7rem;
-	}
-
 	.links {
 		display: flex;
 		flex-wrap: wrap;
@@ -218,7 +212,7 @@
 	/* パネルが狭いので、ここだけピルを一段小さくする */
 	.links .pill {
 		padding: 0.35rem 0.85rem;
-		font-size: 0.8rem;
+		font-size: var(--font-size-14);
 	}
 
 	.loading {
@@ -229,7 +223,6 @@
 		margin: 0;
 		background: var(--bg);
 		color: var(--muted);
-		font-size: 0.9rem;
 	}
 
 	.unsupported {
@@ -258,7 +251,7 @@
 		width: 7rem;
 		height: 7rem;
 		border-radius: 50%;
-		background: rgb(255 255 255 / 0.5);
+		background: rgb(from var(--color-neutral-white) r g b / 0.5);
 		touch-action: none;
 	}
 
@@ -266,8 +259,8 @@
 		width: 2.6rem;
 		height: 2.6rem;
 		border-radius: 50%;
-		background: rgb(255 255 255 / 0.95);
-		box-shadow: 0 2px 8px rgb(35 32 28 / 0.2);
+		background: rgb(from var(--color-neutral-white) r g b / 0.95);
+		box-shadow: var(--elevation-1);
 	}
 
 	@media (pointer: coarse) {

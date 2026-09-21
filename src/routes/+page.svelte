@@ -62,8 +62,14 @@
 
 	h1 {
 		margin: 0 0 0.5rem;
-		font-size: clamp(1.8rem, 5vw, 2.6rem);
+		font-size: clamp(var(--font-size-28), 5vw, var(--font-size-36));
+		line-height: var(--line-height-130);
 		letter-spacing: -0.01em;
+	}
+
+	h2 {
+		font-size: var(--font-size-24);
+		line-height: var(--line-height-150);
 	}
 
 	.bio {
@@ -142,7 +148,7 @@
 		display: inline-flex;
 		padding: 0.55rem;
 		border: 1px solid var(--line);
-		border-radius: 8px;
+		border-radius: var(--border-radius-8);
 		background: var(--surface);
 		color: var(--ink);
 	}

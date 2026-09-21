@@ -53,13 +53,14 @@
 		display: inline-block;
 		margin-bottom: 2rem;
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: var(--font-size-14);
 		text-decoration: none;
 	}
 
 	h1 {
 		margin: 0 0 0.75rem;
-		font-size: clamp(1.6rem, 4vw, 2.2rem);
+		font-size: clamp(var(--font-size-26), 4vw, var(--font-size-32));
+		line-height: var(--line-height-130);
 	}
 
 	.summary {
@@ -80,16 +81,16 @@
 		margin-bottom: 2rem;
 		padding: 1rem 1.2rem;
 		border: 1px solid var(--line);
-		border-radius: var(--radius);
+		border-radius: var(--border-radius-12);
 		background: var(--surface);
 		color: var(--muted);
-		font-size: 0.8rem;
+		font-size: var(--font-size-14);
 	}
 
 	.credits h2 {
 		margin: 0 0 0.5rem;
-		font-size: 0.8rem;
-		font-weight: 600;
+		font-size: var(--font-size-16);
+		font-weight: var(--font-weight-700);
 	}
 
 	.credits ul {

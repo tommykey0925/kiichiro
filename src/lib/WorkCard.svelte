@@ -26,30 +26,28 @@
 		display: block;
 		padding: 1.25rem 1.35rem;
 		border: 1px solid var(--line);
-		border-radius: var(--radius);
+		border-radius: var(--border-radius-12);
 		background: var(--surface);
 		color: inherit;
 		text-decoration: none;
-		transition:
-			transform 0.15s ease,
-			box-shadow 0.15s ease;
+		transition: border-color 0.15s ease;
 	}
 
 	.card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 24px rgb(35 32 28 / 0.08);
+		border-color: var(--color-neutral-solid-gray-400);
 	}
 
 	h3 {
 		margin: 0 0 0.4rem;
-		font-size: 1.05rem;
+		font-size: var(--font-size-18);
+		line-height: var(--line-height-150);
 	}
 
 	p {
 		margin: 0 0 0.85rem;
 		color: var(--muted);
-		font-size: 0.9rem;
-		line-height: 1.7;
+		font-size: var(--font-size-16);
+		line-height: var(--line-height-170);
 	}
 
 	.tech {
@@ -65,9 +63,9 @@
 		position: absolute;
 		top: 1.25rem;
 		right: 1.35rem;
-		color: var(--accent);
-		font-size: 0.7rem;
-		font-weight: 700;
+		color: var(--color-semantic-success-2);
+		font-size: var(--font-size-14);
+		font-weight: var(--font-weight-700);
 		letter-spacing: 0.06em;
 	}
 </style>

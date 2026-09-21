@@ -19,6 +19,7 @@
 |---|---|
 | フレームワーク | SvelteKit 2 + Svelte 5 (runes) |
 | ビルド | `@sveltejs/adapter-static` — 全ページ prerender |
+| 見た目 | 色・書体・角丸・影は `@digital-go-jp/design-tokens` のトークンだけを使う。書体は `@fontsource/noto-sans-jp` で自前配信 |
 | 3D | Three.js (素で使う。Threlte / 物理エンジンは使わない) |
 | 3D アセット | CC-BY (Poly Pizza / Twemoji)。表記は `works.ts` の credits に持ち、`/works/kiichiro` に出す |
 | ホスティング | Cloudflare Workers (アセットのみ)。デプロイは Workers Builds |
