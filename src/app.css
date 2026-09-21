@@ -1,11 +1,13 @@
+/*
+ * 色・書体・角丸・影はデジタル庁デザイントークン (@digital-go-jp/design-tokens) だけを使う。
+ * 読み込み順は +layout.svelte で tokens.css → 書体 → この file。
+ */
 :root {
-	--bg: #f7f6f2;
-	--surface: #ffffff;
-	--ink: #23201c;
-	--muted: #6d6862;
-	--line: #e4e0d8;
-	--accent: #3b7a57;
-	--radius: 14px;
+	--bg: var(--color-neutral-solid-gray-50);
+	--surface: var(--color-neutral-white);
+	--ink: var(--color-neutral-solid-gray-900);
+	--muted: var(--color-neutral-solid-gray-600);
+	--line: var(--color-neutral-solid-gray-100);
 	color-scheme: light;
 }
 
@@ -17,18 +19,14 @@ body {
 	margin: 0;
 	background: var(--bg);
 	color: var(--ink);
-	font-family:
-		system-ui,
-		-apple-system,
-		'Hiragino Kaku Gothic ProN',
-		'Noto Sans JP',
-		sans-serif;
-	line-height: 1.75;
+	font-family: var(--font-family-sans);
+	font-size: var(--font-size-16);
+	line-height: var(--line-height-175);
 	-webkit-font-smoothing: antialiased;
 }
 
 a {
-	color: var(--accent);
+	color: var(--color-key-900);
 }
 
 .wrap {
@@ -41,11 +39,11 @@ a {
 	display: inline-block;
 	padding: 0.1rem 0.55rem;
 	border: 1px solid var(--line);
-	border-radius: 5px;
+	border-radius: var(--border-radius-4);
 	background: var(--surface);
 	color: var(--muted);
-	font-size: 0.75rem;
-	line-height: 1.6;
+	font-size: var(--font-size-14);
+	line-height: var(--line-height-160);
 	white-space: nowrap;
 }
 
@@ -55,17 +53,17 @@ a {
 	gap: 0.45rem;
 	padding: 0.5rem 1.1rem;
 	border: 1px solid var(--line);
-	border-radius: 8px;
+	border-radius: var(--border-radius-8);
 	background: var(--surface);
 	color: inherit;
-	font-size: 0.9rem;
+	font-size: var(--font-size-16);
 	text-decoration: none;
 }
 
 .pill-primary {
-	border-color: var(--accent);
-	background: var(--accent);
-	color: #fff;
+	border-color: var(--color-key-600);
+	background: var(--color-key-600);
+	color: var(--color-neutral-white);
 }
 
 .beacon {

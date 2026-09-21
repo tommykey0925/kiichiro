@@ -1,5 +1,6 @@
 <script lang="ts">
 	import WorkCard from '$lib/WorkCard.svelte';
+	import WorkTable from '$lib/WorkTable.svelte';
 	import BeeIcon from '$lib/BeeIcon.svelte';
 	import GithubIcon from '$lib/GithubIcon.svelte';
 	import { profile } from '$lib/profile';
@@ -7,7 +8,7 @@
 </script>
 
 <svelte:head>
-	<title>{profile.name} — Works</title>
+	<title>{profile.name} — 制作物</title>
 	<meta name="description" content={profile.bio} />
 </svelte:head>
 
@@ -21,7 +22,7 @@
 	</header>
 
 	<section>
-		<h2>Works</h2>
+		<h2>制作物</h2>
 		<div class="grid">
 			{#each byCategory('product') as work (work.id)}
 				<WorkCard {work} />
@@ -31,24 +32,16 @@
 
 	<section>
 		<h2>学習・実験</h2>
-		<div class="grid">
-			{#each byCategory('learning') as work (work.id)}
-				<WorkCard {work} />
-			{/each}
-		</div>
+		<WorkTable works={byCategory('learning')} />
 	</section>
 
 	<section>
 		<h2>インフラ</h2>
-		<div class="grid">
-			{#each byCategory('infra') as work (work.id)}
-				<WorkCard {work} />
-			{/each}
-		</div>
+		<WorkTable works={byCategory('infra')} />
 	</section>
 
 	<section>
-		<h2>Contact</h2>
+		<h2>連絡先</h2>
 		<a class="github" href={profile.github} rel="me" aria-label="GitHub">
 			<GithubIcon />
 		</a>
@@ -62,8 +55,14 @@
 
 	h1 {
 		margin: 0 0 0.5rem;
-		font-size: clamp(1.8rem, 5vw, 2.6rem);
+		font-size: clamp(var(--font-size-28), 5vw, var(--font-size-36));
+		line-height: var(--line-height-130);
 		letter-spacing: -0.01em;
+	}
+
+	h2 {
+		font-size: var(--font-size-24);
+		line-height: var(--line-height-150);
 	}
 
 	.bio {
@@ -142,7 +141,7 @@
 		display: inline-flex;
 		padding: 0.55rem;
 		border: 1px solid var(--line);
-		border-radius: 8px;
+		border-radius: var(--border-radius-8);
 		background: var(--surface);
 		color: var(--ink);
 	}
