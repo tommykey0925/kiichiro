@@ -127,14 +127,18 @@
 		/* Twemoji の蜂は上を向いているので、接線から 90 度ずらす */
 		offset-rotate: auto 90deg;
 		animation: bee-flight 60s linear infinite;
-		/*
-		 * hover は transform ではなく scale で当てる。transform は offset-path が
-		 * 組み立てる変換と同じ枠を取り合うが、scale は別に合成されるので共存する。
-		 */
+	}
+
+	/*
+	 * hover の拡大はリンク本体ではなく中の svg に当てる。個別プロパティの scale は
+	 * offset (経路上への移動) より先に合成されるため、リンク本体に付けると移動量まで
+	 * 1.12 倍され、蜂が経路から 100px ほど滑る。
+	 */
+	.enter :global(svg) {
 		transition: scale 0.2s ease;
 	}
 
-	.enter:hover {
+	.enter:hover :global(svg) {
 		scale: 1.12;
 	}
 
