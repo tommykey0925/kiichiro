@@ -46,12 +46,12 @@ export const works = (
 			"spot": { "index": 4, "color": "#5fbcd9" }
 		},
 		{
-			"id": "url-shortener",
-			"title": "URL Shortener",
+			"id": "brevia",
+			"title": "brevia",
 			"summary": "URL 短縮とクリック計測",
-			"tech": ["Go", "AWS SDK v2", "Lambda", "DynamoDB", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Groq API (Llama 3.3 70B)", "Terraform", "GitHub Actions", "CloudFront"],
+			"tech": ["Go", "AWS SDK v2", "Lambda", "DynamoDB", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "デジタル庁デザインシステム", "Groq API (Llama 3.3 70B)", "Google Safe Browsing API", "Terraform", "GitHub Actions", "CloudFront"],
 			"repo": "https://github.com/tommykey-apps/url-shortener",
-			"liveUrl": "https://url.tommykeyapp.com/",
+			"liveUrl": "https://brevia.tommykeyapp.com/",
 			"category": "product",
 			"spot": { "index": 2, "color": "#d9b25f" }
 		},
@@ -66,12 +66,12 @@ export const works = (
 			"spot": { "index": 3, "color": "#5fd9cf" }
 		},
 		{
-			"id": "burnnote",
-			"title": "burnnote",
-			"summary": "1 回読んだら消えるメモ",
-			"tech": ["PHP 8.4", "Laravel 13", "Bref v3", "Lambda (arm64)", "DynamoDB", "SvelteKit 2", "Svelte 5", "WebCrypto API", "Terraform", "GitHub Actions", "CloudFront"],
-			"repo": "https://github.com/tommykey-apps/burnnote",
-			"liveUrl": "https://burnnote.tommykeyapp.com/",
+			"id": "cinis",
+			"title": "cinis",
+			"summary": "1 回読んだら消える秘密共有",
+			"tech": ["PHP 8.4", "Laravel 13", "Bref v3", "Lambda (arm64)", "DynamoDB", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "デジタル庁デザインシステム", "WebCrypto API", "Terraform", "GitHub Actions", "Playwright", "CloudFront"],
+			"repo": "https://github.com/tommykey-apps/cinis",
+			"liveUrl": "https://cinis.tommykeyapp.com/",
 			"category": "product",
 			"spot": { "index": 1, "color": "#d9855f" }
 		},
