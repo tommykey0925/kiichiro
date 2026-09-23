@@ -37,13 +37,22 @@ export const works = (
 			"spot": { "index": 0, "color": "#d95f5f" }
 		},
 		{
+			"id": "ahab",
+			"title": "ahab",
+			"summary": "Docker を一望する常駐ダッシュボード",
+			"tech": ["Go 1.27 (標準ライブラリのみ)", "Docker Engine API", "Server-Sent Events", "Vanilla JS", "Mermaid", "デジタル庁デザインシステム", "Docker (scratch)", "GHCR", "GitHub Actions"],
+			"repo": "https://github.com/tommykey-apps/ahab",
+			"category": "product",
+			"spot": { "index": 1, "color": "#8fd95f" }
+		},
+		{
 			"id": "chat",
 			"title": "chatto",
 			"summary": "リアルタイムチャット",
 			"tech": ["Java 21", "Spring Boot 3.4", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Cognito", "PostgreSQL (RDS)", "Redis (ElastiCache)", "AWS", "Terraform", "GitHub Actions", "EKS", "CloudFront"],
 			"repo": "https://github.com/tommykey-apps/chat",
 			"category": "product",
-			"spot": { "index": 4, "color": "#5fbcd9" }
+			"spot": { "index": 5, "color": "#5fbcd9" }
 		},
 		{
 			"id": "brevia",
@@ -53,7 +62,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/url-shortener",
 			"liveUrl": "https://brevia.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "index": 2, "color": "#d9b25f" }
+			"spot": { "index": 3, "color": "#d9b25f" }
 		},
 		{
 			"id": "receipto",
@@ -63,7 +72,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/receipto",
 			"liveUrl": "https://expense.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "index": 3, "color": "#5fd9cf" }
+			"spot": { "index": 4, "color": "#5fd9cf" }
 		},
 		{
 			"id": "cinis",
@@ -73,7 +82,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/cinis",
 			"liveUrl": "https://cinis.tommykeyapp.com/",
 			"category": "product",
-			"spot": { "index": 1, "color": "#d9855f" }
+			"spot": { "index": 2, "color": "#d9855f" }
 		},
 		{
 			"id": "gakushu",
@@ -82,7 +91,7 @@ export const works = (
 			"tech": ["TypeScript", "H3/Nitro", "Lambda", "Nuxt 4", "Nuxt UI", "Tailwind CSS v4", "DynamoDB", "Bedrock (Claude)", "Cognito", "Terraform", "GitHub Actions", "CloudFront"],
 			"repo": "https://github.com/tommykey-apps/gakushu",
 			"category": "product",
-			"spot": { "index": 6, "color": "#5f6ed9" }
+			"spot": { "index": 7, "color": "#5f6ed9" }
 		},
 		{
 			"id": "resource-planner",
@@ -91,7 +100,7 @@ export const works = (
 			"tech": ["SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Auth.js (Magic Link)", "DynamoDB (Single Table)", "Lambda (ARM64 container)", "API Gateway", "CloudFront", "Terraform", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/resource-planner",
 			"category": "product",
-			"spot": { "index": 7, "color": "#7a5fd9" }
+			"spot": { "index": 8, "color": "#7a5fd9" }
 		},
 		{
 			"id": "ui-components",
@@ -100,7 +109,7 @@ export const works = (
 			"tech": ["Svelte 5", "svelte-package", "Vite 8", "Storybook 10", "Changesets", "date-fns", "flox", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/ui-components",
 			"category": "product",
-			"spot": { "index": 8, "color": "#a15fd9" }
+			"spot": { "index": 9, "color": "#a15fd9" }
 		},
 		{
 			"id": "pasu",
@@ -110,7 +119,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/pasu",
 			"liveUrl": "https://pasu.tommykey0925.workers.dev",
 			"category": "product",
-			"spot": { "index": 5, "color": "#5f95d9" }
+			"spot": { "index": 6, "color": "#5f95d9" }
 		},
 		{
 			"id": "vigil",
@@ -119,7 +128,7 @@ export const works = (
 			"tech": ["SvelteKit 2", "Svelte 5", "Lambda Web Adapter", "Node.js 24 (arm64)", "DynamoDB", "GitHub OAuth", "EventBridge Scheduler", "SES", "Terraform"],
 			"repo": "https://github.com/tommykey-apps/vigil",
 			"category": "product",
-			"spot": { "index": 10, "color": "#d95fa5" }
+			"spot": { "index": 11, "color": "#d95fa5" }
 		},
 		{
 			"id": "dropfast",
@@ -128,7 +137,7 @@ export const works = (
 			"tech": ["Rust", "axum", "Lambda (arm64)", "cargo-lambda", "S3 (presigned URL)", "DynamoDB (TTL)", "SvelteKit 2", "WebCrypto API", "Terraform"],
 			"repo": "https://github.com/tommykey-apps/dropfast",
 			"category": "product",
-			"spot": { "index": 11, "color": "#d95f79" }
+			"spot": { "index": 12, "color": "#d95f79" }
 		},
 		{
 			"id": "axiowiz",
@@ -138,7 +147,7 @@ export const works = (
 			"repo": "https://github.com/tommykey-apps/axiowiz",
 			"liveUrl": "https://tommykey0925.github.io/checkWizards/",
 			"category": "product",
-			"spot": { "index": 9, "color": "#d95fd0" }
+			"spot": { "index": 10, "color": "#d95fd0" }
 		},
 	
 		{
