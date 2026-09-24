@@ -3,6 +3,7 @@
 	import WorkTable from '$lib/WorkTable.svelte';
 	import BeeIcon from '$lib/BeeIcon.svelte';
 	import GithubIcon from '$lib/GithubIcon.svelte';
+	import XIcon from '$lib/XIcon.svelte';
 	import { profile } from '$lib/profile';
 	import { byCategory } from '$lib/works';
 </script>
@@ -42,9 +43,14 @@
 
 	<section>
 		<h2>連絡先</h2>
-		<a class="github" href={profile.github} rel="me" aria-label="GitHub">
-			<GithubIcon />
-		</a>
+		<div class="contacts">
+			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
+				<GithubIcon />
+			</a>
+			<a class="contact" href={profile.x} rel="me" aria-label="X (@grdevtom2gramp1)">
+				<XIcon />
+			</a>
+		</div>
 	</section>
 </div>
 
@@ -137,7 +143,12 @@
 		}
 	}
 
-	.github {
+	.contacts {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.contact {
 		display: inline-flex;
 		padding: 0.55rem;
 		border: 1px solid var(--line);

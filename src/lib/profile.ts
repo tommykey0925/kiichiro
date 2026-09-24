@@ -1,5 +1,6 @@
 export const profile = {
 	name: 'kiichi.ro',
 	bio: 'Web アプリを個人で作って公開しています',
-	github: 'https://github.com/tommykey0925'
+	github: 'https://github.com/tommykey0925',
+	x: 'https://x.com/grdevtom2gramp1'
 } as const;
