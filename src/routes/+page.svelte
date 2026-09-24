@@ -4,6 +4,7 @@
 	import BeeIcon from '$lib/BeeIcon.svelte';
 	import GithubIcon from '$lib/GithubIcon.svelte';
 	import XIcon from '$lib/XIcon.svelte';
+	import MailIcon from '$lib/MailIcon.svelte';
 	import { profile } from '$lib/profile';
 	import { byCategory } from '$lib/works';
 </script>
@@ -49,6 +50,9 @@
 			</a>
 			<a class="contact" href={profile.x} rel="me" aria-label="X (@grdevtom2gramp1)">
 				<XIcon />
+			</a>
+			<a class="contact" href="mailto:{profile.email}" aria-label="メール ({profile.email})">
+				<MailIcon />
 			</a>
 		</div>
 	</section>
