@@ -44,7 +44,7 @@
 	</section>
 
 	<section>
-		<h2>連絡先</h2>
+		<h2>Contact</h2>
 		<div class="contacts">
 			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
 				<GithubIcon />
