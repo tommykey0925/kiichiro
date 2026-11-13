@@ -10,9 +10,6 @@
 		<li class="item">
 			<p class="name">
 				<a class="dads-link" href="/works/{work.id}">{work.title}</a>
-				{#if work.liveUrl}
-					<span class="live">公開中</span>
-				{/if}
 			</p>
 			<p class="summary">{work.summary}</p>
 			<p class="tech">{work.tech.join(' / ')}</p>
@@ -46,11 +43,6 @@
 		overflow-wrap: anywhere;
 	}
 
-	.live {
-		display: block;
-		color: var(--color-key-900);
-		font-size: var(--font-size-14);
-	}
 
 	.tech {
 		color: var(--muted);
@@ -65,11 +57,6 @@
 
 		.name {
 			grid-row: auto;
-		}
-
-		.live {
-			display: inline;
-			margin-left: 0.5rem;
 		}
 	}
 </style>
