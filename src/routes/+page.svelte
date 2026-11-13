@@ -6,9 +6,9 @@
 	import MailIcon from '$lib/MailIcon.svelte';
 	import { profile } from '$lib/profile';
 	import '$lib/dads/link.css';
-	import { byCategory, showcase } from '$lib/works';
+	import { showcase, works } from '$lib/works';
 
-	const products = byCategory('product').filter((w) => !w.pitch);
+	const products = works.filter((w) => !w.pitch);
 </script>
 
 <svelte:head>
@@ -44,16 +44,6 @@
 	</section>
 
 	<section>
-		<h2>勉強で書いたもの</h2>
-		<WorkList works={byCategory('learning')} />
-	</section>
-
-	<section>
-		<h2>インフラ</h2>
-		<WorkList works={byCategory('infra')} />
-	</section>
-
-	<section>
 		<h2>連絡先</h2>
 		<div class="contacts">
 			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
@@ -67,6 +57,15 @@
 			</a>
 		</div>
 	</section>
+
+	<footer class="credits">
+		<p>3D の素材</p>
+		<ul>
+			<li>Bee by jeremy [CC-BY] via Poly Pizza</li>
+			<li>Flower by Zoe XR [CC-BY] via Poly Pizza</li>
+			<li>Honeybee by Twitter (Twemoji) [CC-BY 4.0]</li>
+		</ul>
+	</footer>
 </div>
 
 <style>
@@ -156,6 +155,21 @@
 			offset-path: none;
 			animation: none;
 		}
+	}
+
+	.credits {
+		margin-top: 4rem;
+		color: var(--muted);
+		font-size: var(--font-size-14);
+	}
+
+	.credits p {
+		margin: 0;
+	}
+
+	.credits ul {
+		margin: 0;
+		padding-left: 1.1rem;
 	}
 
 	.contacts {

@@ -5,10 +5,7 @@ export type Work = {
 	tech: string[];
 	repo: string;
 	liveUrl?: string;
-	category: 'product' | 'learning' | 'infra';
-	/** 素材のライセンス表記。持つのはこのサイト自身のエントリだけ。 */
-	credits?: string[];
-	/** 代表作だけが持つ数行の紹介。持つ作品はトップの「代表作」に宣言順で並ぶ。 */
+	/** 一覧の 1 行より詳しい紹介。持つ作品はトップの先頭に宣言順で並ぶ。 */
 	pitch?: string;
 	/** 無い作品は 3D に現れず、一覧にのみ載る。 */
 	spot?: { index: number; color: string };
@@ -17,37 +14,14 @@ export type Work = {
 export const works = (
 	[
 		{
-			"id": "kiichiro",
-			"title": "kiichi.ro",
-			"summary": "歩いて見るポートフォリオ",
-			"tech": [
-				"SvelteKit 2",
-				"Svelte 5",
-				"Three.js",
-				"adapter-static",
-				"Cloudflare Workers",
-				"GitHub Actions"
-			],
-			"repo": "https://github.com/tommykey0925/kiichiro",
-			"liveUrl": "https://kiichi.ro/",
-			"category": "product",
-			"credits": [
-				"Bee by jeremy [CC-BY] via Poly Pizza",
-				"Flower by Zoe XR [CC-BY] via Poly Pizza",
-				"Honeybee by Twitter (Twemoji) [CC-BY 4.0]"
-			],
-			"spot": { "index": 0, "color": "#d95f5f" }
-		},
-		{
 			"id": "hapax",
 			"title": "hapax",
 			"summary": "暗号化して送る一時ファイル共有",
 			"tech": ["TypeScript", "React", "デジタル庁デザインシステム", "Hono", "Lambda", "DynamoDB", "S3", "EventBridge Scheduler", "Web Crypto API", "Terraform", "GitHub Actions", "Vitest", "Playwright"],
 			"repo": "https://github.com/gakushu-lab/hapax",
 			"liveUrl": "https://hapax.tom.gakushu.now/",
-			"category": "product",
 			"pitch": "ファイルをブラウザで暗号化してから送る一時共有サービス。復号の鍵は URL の # 以降に入れるので、サーバーはファイルの中身も名前も読めない。決めた回数か期限に達すると削除する。",
-			"spot": { "index": 12, "color": "#d95f79" }
+			"spot": { "index": 0, "color": "#d95f79" }
 		},
 		{
 			"id": "ahab",
@@ -55,7 +29,6 @@ export const works = (
 			"summary": "Docker を一望する常駐ダッシュボード",
 			"tech": ["Go 1.27 (標準ライブラリのみ)", "Docker Engine API", "Server-Sent Events", "Vanilla JS", "Mermaid", "デジタル庁デザインシステム", "Docker (scratch)", "GHCR", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/ahab",
-			"category": "product",
 			"pitch": "Docker の状態とコンテナ同士のつながりを、ブラウザで一望する常駐ダッシュボード。コンテナの操作、ログの追従、ネットワーク構成図を備える。Go の標準ライブラリだけで書き、scratch の 1 イメージで動く。",
 			"spot": { "index": 1, "color": "#8fd95f" }
 		},
@@ -65,9 +38,8 @@ export const works = (
 			"summary": "ホストのネットワークを VPN ごと図にする CLI",
 			"tech": ["Go 1.27", "hynt", "Mermaid", "GoReleaser", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/sanjal",
-			"category": "product",
 			"pitch": "ホストが繋がっているネットワークを、仮想プライベートネットワーク (Virtual Private Network, VPN) を含めて Mermaid の図にする CLI。情報の収集は自作の hynt に任せ、sanjal は描くことだけを受け持つ。",
-			"spot": { "index": 7, "color": "#5f6ed9" }
+			"spot": { "index": 2, "color": "#5f6ed9" }
 		},
 		{
 			"id": "hynt",
@@ -75,36 +47,7 @@ export const works = (
 			"summary": "ホストのネットワークを VPN ごと表にする CLI と Go ライブラリ",
 			"tech": ["Go 1.27", "iproute2", "nftables", "GoReleaser", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/hynt",
-			"category": "product"
-		},
-		{
-			"id": "chat",
-			"title": "chatto",
-			"summary": "リアルタイムチャット",
-			"tech": ["Java 21", "Spring Boot 3.4", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Cognito", "PostgreSQL (RDS)", "Redis (ElastiCache)", "AWS", "Terraform", "GitHub Actions", "EKS", "CloudFront"],
-			"repo": "https://github.com/tommykey-apps/chat",
-			"category": "product",
-			"spot": { "index": 5, "color": "#5fbcd9" }
-		},
-		{
-			"id": "brevia",
-			"title": "brevia",
-			"summary": "URL 短縮とクリック計測",
-			"tech": ["Go", "AWS SDK v2", "Lambda", "DynamoDB", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "デジタル庁デザインシステム", "Groq API (Llama 3.3 70B)", "Google Safe Browsing API", "Terraform", "GitHub Actions", "CloudFront"],
-			"repo": "https://github.com/tommykey-apps/url-shortener",
-			"liveUrl": "https://brevia.tommykeyapp.com/",
-			"category": "product",
-			"spot": { "index": 3, "color": "#d9b25f" }
-		},
-		{
-			"id": "receipto",
-			"title": "Receipto",
-			"summary": "レシートを撮るだけの家計簿",
-			"tech": ["Python 3.12", "FastAPI", "Lambda", "DynamoDB", "Bedrock (Claude Vision)", "Cognito", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Terraform", "GitHub Actions", "CloudFront"],
-			"repo": "https://github.com/tommykey-apps/receipto",
-			"liveUrl": "https://expense.tommykeyapp.com/",
-			"category": "product",
-			"spot": { "index": 4, "color": "#5fd9cf" }
+			"spot": { "index": 3, "color": "#5fbcd9" }
 		},
 		{
 			"id": "cinis",
@@ -113,17 +56,7 @@ export const works = (
 			"tech": ["PHP 8.4", "Laravel 13", "Bref v3", "Lambda (arm64)", "DynamoDB", "SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "デジタル庁デザインシステム", "WebCrypto API", "Terraform", "GitHub Actions", "Playwright", "CloudFront"],
 			"repo": "https://github.com/tommykey-apps/cinis",
 			"liveUrl": "https://cinis.tommykeyapp.com/",
-			"category": "product",
-			"spot": { "index": 2, "color": "#d9855f" }
-		},
-		{
-			"id": "resource-planner",
-			"title": "Resource Planner",
-			"summary": "要員計画アプリ",
-			"tech": ["SvelteKit 2", "Svelte 5", "Tailwind CSS v4", "Auth.js (Magic Link)", "DynamoDB (Single Table)", "Lambda (ARM64 container)", "API Gateway", "CloudFront", "Terraform", "GitHub Actions"],
-			"repo": "https://github.com/tommykey-apps/resource-planner",
-			"category": "product",
-			"spot": { "index": 8, "color": "#7a5fd9" }
+			"spot": { "index": 4, "color": "#d9855f" }
 		},
 		{
 			"id": "ui-components",
@@ -131,169 +64,7 @@ export const works = (
 			"summary": "Svelte 5 コンポーネント集",
 			"tech": ["Svelte 5", "svelte-package", "Vite 8", "Storybook 10", "Changesets", "date-fns", "flox", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/ui-components",
-			"category": "product",
-			"spot": { "index": 9, "color": "#a15fd9" }
-		},
-		{
-			"id": "pasu",
-			"title": "pasu",
-			"summary": "パスキー認証のサンプル",
-			"tech": ["SvelteKit 2", "Svelte 5", "SimpleWebAuthn", "Cloudflare Workers", "D1", "Playwright", "Vitest", "GitHub Actions"],
-			"repo": "https://github.com/tommykey-apps/pasu",
-			"liveUrl": "https://pasu.tommykey0925.workers.dev",
-			"category": "product",
-			"spot": { "index": 6, "color": "#5f95d9" }
-		},
-		{
-			"id": "vigil",
-			"title": "vigil",
-			"summary": "ドメインと AWS の期限監視",
-			"tech": ["SvelteKit 2", "Svelte 5", "Lambda Web Adapter", "Node.js 24 (arm64)", "DynamoDB", "GitHub OAuth", "EventBridge Scheduler", "SES", "Terraform"],
-			"repo": "https://github.com/tommykey-apps/vigil",
-			"category": "product",
-			"spot": { "index": 11, "color": "#d95fa5" }
-		},
-		{
-			"id": "axiowiz",
-			"title": "Check Wizards",
-			"summary": "Vue 3 と Angular 17 の比較",
-			"tech": ["Vue 3", "Angular 17", "TypeScript", "GitHub Pages", "GitHub Actions"],
-			"repo": "https://github.com/tommykey-apps/axiowiz",
-			"liveUrl": "https://tommykey0925.github.io/checkWizards/",
-			"category": "product",
-			"spot": { "index": 10, "color": "#d95fd0" }
-		},
-	
-		{
-			"id": "with",
-			"title": "with",
-			"summary": "130 行のコーディングエージェント",
-			"tech": ["TypeScript", "Claude Agent SDK", "Node.js"],
-			"repo": "https://github.com/tommykey-apps/with",
-			"category": "learning"
-		},
-		{
-			"id": "myownllm",
-			"title": "myownllm",
-			"summary": "言語モデルを 1 から実装",
-			"tech": ["Python", "NumPy"],
-			"repo": "https://github.com/tommykey0925/myownllm",
-			"category": "learning"
-		},
-		{
-			"id": "tinyllm",
-			"title": "tinyllm",
-			"summary": "最小構成の言語モデル",
-			"tech": ["Python"],
-			"repo": "https://github.com/tommykey0925/tinyllm",
-			"category": "learning"
-		},
-		{
-			"id": "rag",
-			"title": "rag",
-			"summary": "pgvector で RAG を体験",
-			"tech": ["Python", "PostgreSQL", "pgvector"],
-			"repo": "https://github.com/kiichiro-tominaga/rag",
-			"category": "learning"
-		},
-		{
-			"id": "lism-playground",
-			"title": "Lism Playground",
-			"summary": "Lism CSS のサンプル集",
-			"tech": ["Astro", "Lism CSS", "GitHub Pages", "GitHub Actions"],
-			"repo": "https://github.com/tommykey0925/lism-playground",
-			"liveUrl": "https://tommykey0925.github.io/lism-playground/",
-			"category": "learning"
-		},
-		{
-			"id": "cutting-edge-webui",
-			"title": "Cutting-Edge WebUI",
-			"summary": "新しい HTML / CSS の実験",
-			"tech": ["HTML", "CSS", "GitHub Pages"],
-			"repo": "https://github.com/tommykey0925/cutting-edge-webui",
-			"liveUrl": "https://tommykey0925.github.io/cutting-edge-webui/",
-			"category": "learning"
-		},
-		{
-			"id": "elixir",
-			"title": "Elixir & Phoenix 学習アプリ",
-			"summary": "Elixir + Phoenix の学習アプリ",
-			"tech": ["Elixir", "Phoenix", "HTMX"],
-			"repo": "https://github.com/tommykey0925/elixir",
-			"category": "learning"
-		},
-		{
-			"id": "ddd",
-			"title": "ddd-reservation",
-			"summary": "予約ドメインで DDD",
-			"tech": ["Java"],
-			"repo": "https://github.com/tommykey0925/ddd",
-			"category": "learning"
-		},
-		{
-			"id": "rustnative",
-			"title": "rustnative",
-			"summary": "Rust でネイティブアプリ",
-			"tech": ["Rust"],
-			"repo": "https://github.com/tommykey0925/rustnative",
-			"category": "learning"
-		},
-		{
-			"id": "tauri",
-			"title": "tauri",
-			"summary": "Tauri でデスクトップアプリ",
-			"tech": ["Tauri", "Rust"],
-			"repo": "https://github.com/tommykey0925/tauri",
-			"category": "learning"
-		},
-		{
-			"id": "electron",
-			"title": "electron",
-			"summary": "Electron でデスクトップアプリ",
-			"tech": ["Electron", "JavaScript"],
-			"repo": "https://github.com/tommykey0925/electron",
-			"category": "learning"
-		},
-		{
-			"id": "ios-sample",
-			"title": "ios-sample",
-			"summary": "Expo でモバイルアプリ",
-			"tech": ["Expo", "React Native", "TypeScript", "GitHub Actions"],
-			"repo": "https://github.com/tommykey0925/ios-sample",
-			"category": "learning"
-		},
-		{
-			"id": "java-fundamental",
-			"title": "java-fundamental",
-			"summary": "Java の基礎",
-			"tech": ["Java"],
-			"repo": "https://github.com/tommykey0925/java-fundamental",
-			"category": "learning"
-		},
-	
-		{
-			"id": "infra-shared",
-			"title": "infra-shared",
-			"summary": "共有インフラ (VPC / EKS / DNS)",
-			"tech": ["Terraform", "AWS", "EKS", "GitHub Actions", "flox"],
-			"repo": "https://github.com/tommykey-apps/infra-shared",
-			"category": "infra"
-		},
-		{
-			"id": "infra-global",
-			"title": "infra-global",
-			"summary": "リージョンをまたぐ共通インフラ",
-			"tech": ["Terraform", "AWS", "GitHub Actions"],
-			"repo": "https://github.com/tommykey-apps/infra-global",
-			"category": "infra"
-		},
-		{
-			"id": "vmcontainerarchi",
-			"title": "vmcontainerarchi",
-			"summary": "VM とコンテナの違い",
-			"tech": ["Linux", "Container"],
-			"repo": "https://github.com/kiichiro-tominaga/vmcontainerarchi",
-			"category": "infra"
+			"spot": { "index": 5, "color": "#a15fd9" }
 		}
 	]
 ) satisfies Work[];
@@ -301,5 +72,3 @@ export const works = (
 export const featured = works.filter((w) => w.spot);
 
 export const showcase = works.filter((w) => w.pitch);
-
-export const byCategory = (category: Work['category']) => works.filter((w) => w.category === category);
