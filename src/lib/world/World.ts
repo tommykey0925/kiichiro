@@ -309,7 +309,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 type Sparkles = ReturnType<typeof createSparkles>;
 
 /**
- * 公開中の作品の目印。emissive を上げても昼のシーンでは花びらが白飛びしていて
+ * Web サイトのある作品の目印。emissive を上げても昼のシーンでは花びらが白飛びしていて
  * 差が出ないので、輝度ではなく粒の動きで示す。
  */
 function createSparkles(x: number, z: number, color: string) {
