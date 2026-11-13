@@ -65,6 +65,15 @@ export const works = (
 			"tech": ["Svelte 5", "svelte-package", "Vite 8", "Storybook 10", "Changesets", "date-fns", "flox", "GitHub Actions"],
 			"repo": "https://github.com/tommykey-apps/ui-components",
 			"spot": { "index": 5, "color": "#a15fd9" }
+		},
+		{
+			"id": "kiichiro",
+			"title": "kiichi.ro",
+			"summary": "歩いて見るポートフォリオ",
+			"tech": ["SvelteKit 2", "Svelte 5", "Three.js", "adapter-static", "Cloudflare Workers", "GitHub Actions"],
+			"repo": "https://github.com/tommykey0925/kiichiro",
+			"liveUrl": "https://kiichi.ro/",
+			"spot": { "index": 6, "color": "#d95f5f" }
 		}
 	]
 ) satisfies Work[];
