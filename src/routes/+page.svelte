@@ -26,7 +26,7 @@
 	</header>
 
 	<section>
-		<h2>代表作</h2>
+		<h2>作ったもの</h2>
 		{#each showcase as work (work.id)}
 			<article class="pick">
 				<h3><a class="dads-link" href="/works/{work.id}">{work.title}</a></h3>
@@ -40,15 +40,11 @@
 				</p>
 			</article>
 		{/each}
-	</section>
-
-	<section>
-		<h2>制作物</h2>
 		<WorkList works={products} />
 	</section>
 
 	<section>
-		<h2>学習・実験</h2>
+		<h2>勉強で書いたもの</h2>
 		<WorkList works={byCategory('learning')} />
 	</section>
 
@@ -183,6 +179,10 @@
 
 	.pick:first-of-type {
 		border-top: 1px solid var(--line);
+	}
+
+	.pick + :global(.list) {
+		border-top: none;
 	}
 
 	.pick h3 {
