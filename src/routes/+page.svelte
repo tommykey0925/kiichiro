@@ -57,15 +57,6 @@
 			</a>
 		</div>
 	</section>
-
-	<footer class="credits">
-		<p>3D の素材</p>
-		<ul>
-			<li>Bee by jeremy [CC-BY] via Poly Pizza</li>
-			<li>Flower by Zoe XR [CC-BY] via Poly Pizza</li>
-			<li>Honeybee by Twitter (Twemoji) [CC-BY 4.0]</li>
-		</ul>
-	</footer>
 </div>
 
 <style>
@@ -155,21 +146,6 @@
 			offset-path: none;
 			animation: none;
 		}
-	}
-
-	.credits {
-		margin-top: 4rem;
-		color: var(--muted);
-		font-size: var(--font-size-14);
-	}
-
-	.credits p {
-		margin: 0;
-	}
-
-	.credits ul {
-		margin: 0;
-		padding-left: 1.1rem;
 	}
 
 	.contacts {

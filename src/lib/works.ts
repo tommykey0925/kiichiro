@@ -5,6 +5,8 @@ export type Work = {
 	tech: string[];
 	repo: string;
 	liveUrl?: string;
+	/** 素材のライセンス表記。持つのはこのサイト自身のエントリだけ。 */
+	credits?: string[];
 	/** 一覧の 1 行より詳しい紹介。持つ作品はトップの先頭に宣言順で並ぶ。 */
 	pitch?: string;
 	/** 無い作品は 3D に現れず、一覧にのみ載る。 */
@@ -73,6 +75,11 @@ export const works = (
 			"tech": ["SvelteKit 2", "Svelte 5", "Three.js", "adapter-static", "Cloudflare Workers", "GitHub Actions"],
 			"repo": "https://github.com/tommykey0925/kiichiro",
 			"liveUrl": "https://kiichi.ro/",
+			"credits": [
+				"Bee by jeremy [CC-BY] via Poly Pizza",
+				"Flower by Zoe XR [CC-BY] via Poly Pizza",
+				"Honeybee by Twitter (Twemoji) [CC-BY 4.0]"
+			],
 			"spot": { "index": 6, "color": "#d95f5f" }
 		}
 	]
