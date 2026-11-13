@@ -26,7 +26,7 @@
 	</header>
 
 	<section>
-		<h2>作ったもの</h2>
+		<h2>安いよ安いよ〜</h2>
 		{#each showcase as work (work.id)}
 			<article class="pick">
 				<h3><a class="dads-link" href="/works/{work.id}">{work.title}</a></h3>
