@@ -300,7 +300,6 @@ export const works = (
 
 export const featured = works.filter((w) => w.spot);
 
-/** 代表作。トップの先頭に宣言順で並ぶ。 */
 export const showcase = works.filter((w) => w.pitch);
 
 export const byCategory = (category: Work['category']) => works.filter((w) => w.category === category);

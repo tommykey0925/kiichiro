@@ -8,7 +8,6 @@
 	import '$lib/dads/link.css';
 	import { byCategory, showcase } from '$lib/works';
 
-	// 代表作は上で詳しく出すので、制作物の一覧からは外す
 	const products = byCategory('product').filter((w) => !w.pitch);
 </script>
 
@@ -192,7 +191,6 @@
 		line-height: var(--line-height-150);
 	}
 
-	/* 罫線は一覧と同じ幅に揃え、文だけ読みやすい長さで折り返す */
 	.pick p {
 		max-width: 42rem;
 		margin: 0 0 0.5rem;

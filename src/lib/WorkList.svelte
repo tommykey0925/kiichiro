@@ -5,10 +5,6 @@
 	let { works }: { works: Work[] } = $props();
 </script>
 
-<!--
-	同じ形の項目が並ぶので、カードではなく 1 列の一覧にする。
-	狭い画面でも横にはみ出さず、名前・概要・技術の順に縦へ積むだけで済む。
--->
 <ul class="list">
 	{#each works as work (work.id)}
 		<li class="item">
