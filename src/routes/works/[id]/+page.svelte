@@ -17,7 +17,7 @@
 	<a class="back" href="/">← 一覧に戻る</a>
 
 	<h1>{work.title}</h1>
-	<p class="summary">{work.summary}</p>
+	<p class="summary">{work.pitch ?? work.summary}</p>
 
 	<ul class="tech">
 		{#each work.tech as t (t)}

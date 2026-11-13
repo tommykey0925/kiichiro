@@ -1,12 +1,14 @@
 <script lang="ts">
-	import WorkCard from '$lib/WorkCard.svelte';
-	import WorkTable from '$lib/WorkTable.svelte';
+	import WorkList from '$lib/WorkList.svelte';
 	import BeeIcon from '$lib/BeeIcon.svelte';
 	import GithubIcon from '$lib/GithubIcon.svelte';
 	import XIcon from '$lib/XIcon.svelte';
 	import MailIcon from '$lib/MailIcon.svelte';
 	import { profile } from '$lib/profile';
-	import { byCategory } from '$lib/works';
+	import '$lib/dads/link.css';
+	import { showcase, works } from '$lib/works';
+
+	const products = works.filter((w) => !w.pitch);
 </script>
 
 <svelte:head>
@@ -24,26 +26,25 @@
 	</header>
 
 	<section>
-		<h2>制作物</h2>
-		<div class="grid">
-			{#each byCategory('product') as work (work.id)}
-				<WorkCard {work} />
-			{/each}
-		</div>
+		<h2>安いよ安いよ〜</h2>
+		{#each showcase as work (work.id)}
+			<article class="pick">
+				<h3><a class="dads-link" href="/works/{work.id}">{work.title}</a></h3>
+				<p>{work.pitch}</p>
+				<p class="tech">{work.tech.join(' / ')}</p>
+				<p class="links">
+					{#if work.liveUrl}
+						<a class="dads-link" href={work.liveUrl} rel="noreferrer">サイトを開く</a>
+					{/if}
+					<a class="dads-link" href={work.repo} rel="noreferrer">GitHub</a>
+				</p>
+			</article>
+		{/each}
+		<WorkList works={products} />
 	</section>
 
 	<section>
-		<h2>学習・実験</h2>
-		<WorkTable works={byCategory('learning')} />
-	</section>
-
-	<section>
-		<h2>インフラ</h2>
-		<WorkTable works={byCategory('infra')} />
-	</section>
-
-	<section>
-		<h2>連絡先</h2>
+		<h2>Contact</h2>
 		<div class="contacts">
 			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
 				<GithubIcon />
@@ -161,9 +162,39 @@
 		color: var(--ink);
 	}
 
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
-		gap: 1rem;
+	.pick {
+		padding: 1.25rem 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.pick:first-of-type {
+		border-top: 1px solid var(--line);
+	}
+
+	.pick + :global(.list) {
+		border-top: none;
+	}
+
+	.pick h3 {
+		margin: 0 0 0.5rem;
+		font-size: var(--font-size-20);
+		line-height: var(--line-height-150);
+	}
+
+	.pick p {
+		max-width: 42rem;
+		margin: 0 0 0.5rem;
+	}
+
+	.pick .tech {
+		color: var(--muted);
+		font-size: var(--font-size-14);
+		line-height: var(--line-height-150);
+	}
+
+	.pick .links {
+		display: flex;
+		gap: 1.5rem;
+		margin: 0;
 	}
 </style>
