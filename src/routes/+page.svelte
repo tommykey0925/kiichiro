@@ -12,7 +12,7 @@
 </script>
 
 <svelte:head>
-	<title>{profile.name} — 制作物</title>
+	<title>{profile.name} — slops</title>
 	<meta name="description" content={profile.bio} />
 </svelte:head>
 
