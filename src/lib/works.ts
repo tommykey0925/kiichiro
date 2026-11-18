@@ -22,7 +22,7 @@ export const works = (
       "tech": ["TypeScript", "React", "デジタル庁デザインシステム", "Hono", "Lambda", "DynamoDB", "S3", "EventBridge Scheduler", "Web Crypto API", "Terraform", "GitHub Actions", "Vitest", "Playwright"],
       "repo": "https://github.com/gakushu-lab/hapax",
       "liveUrl": "https://hapax.tom.gakushu.now/",
-      "pitch": "いや〜これ最近やった中で1番割と頑張りましたね〜。ドメイン見てもらったらモロですけど学習用なんすね。ただ、自分で社内研修専用でAWSのOrganizationUnitとSCP作って、その例としてリリースしてるアプリなんで、そういう意味で頑張りました。",
+      "pitch": "ただのファイル共有サービスですけどいや〜これ最近やった中で1番割と頑張りましたね〜。ドメイン見てもらったらモロですけど学習用なんすね。ただ、自分で社内研修専用でAWSのOrganizationUnitとSCP作って、その例としてリリースしてるアプリなんで、そういう意味で頑張りました。",
       "spot": { "index": 0, "color": "#d95f79" }
     },
     {
@@ -31,7 +31,7 @@ export const works = (
       "summary": "Ahab船長ですね。銛で白鯨を狩ったっていう。dockerの状態をdockerで見せようという変な取り組み。ぶっちゃけdocker desktop下位互換",
       "tech": ["Go 1.27 (標準ライブラリのみ)", "Docker Engine API", "Server-Sent Events", "Vanilla JS", "Mermaid", "デジタル庁デザインシステム", "Docker (scratch)", "GHCR", "GitHub Actions"],
       "repo": "https://github.com/tommykey-apps/ahab",
-      "pitch": "Goにハマってた時のですね。goといえばdockerという安直なあれです。frontはめんどかったんでAIにvanilaJSで書かせたますですハイ",
+      "pitch": "dockerの状態をdockerで見せようという変な取り組み。ぶっちゃけdocker desktop下位互換どす。Goにハマってた時のですね。goといえばdockerという安直なあれです。frontはめんどかったんでAIにvanilaJSで書かせてますですハイ",
       "spot": { "index": 1, "color": "#8fd95f" }
     },
     {
@@ -40,7 +40,7 @@ export const works = (
       "summary": "ヒンディー語で網、ネットワークを意味します。ネットワークの勉強してる時にイメージしやすいように作りました。",
       "tech": ["Go 1.27", "hynt", "Mermaid", "GoReleaser", "GitHub Actions"],
       "repo": "https://github.com/tommykey-apps/sanjal",
-      "pitch": "ホストが繋がっているネットワークを、仮想プライベートネットワーク (Virtual Private Network, VPN) を含めて Mermaid の図にする CLI。情報の収集は自作の hynt に任せ、sanjal は描くことだけを受け持つ。",
+      "pitch": "ネットワークの勉強してる時にイメージしやすいように作りました。ネットワークの可視化かなできるの。Go書くのに飽きてAIに作らせたからか、全然思い入れがない。",
       "spot": { "index": 2, "color": "#5f6ed9" }
     },
     {
