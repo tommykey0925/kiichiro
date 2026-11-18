@@ -1,9 +1,9 @@
 <script lang="ts">
 	import WorkList from '$lib/WorkList.svelte';
 	import BeeIcon from '$lib/BeeIcon.svelte';
-	import GithubIcon from '$lib/GithubIcon.svelte';
-	import XIcon from '$lib/XIcon.svelte';
-	import MailIcon from '$lib/MailIcon.svelte';
+	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
+	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
+	import EnvelopeSimpleIcon from 'phosphor-svelte/lib/EnvelopeSimpleIcon';
 	import { profile } from '$lib/profile';
 	import '$lib/dads/link.css';
 	import { showcase, works } from '$lib/works';
@@ -47,13 +47,13 @@
 		<h2>Contact</h2>
 		<div class="contacts">
 			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
-				<GithubIcon />
+				<GithubLogoIcon size="1.25em" aria-hidden="true" />
 			</a>
 			<a class="contact" href={profile.x} rel="me" aria-label="X (@grdevtom2gramp1)">
-				<XIcon />
+				<XLogoIcon size="1.25em" aria-hidden="true" />
 			</a>
 			<a class="contact" href="mailto:{profile.email}" aria-label="メール ({profile.email})">
-				<MailIcon />
+				<EnvelopeSimpleIcon size="1.25em" aria-hidden="true" />
 			</a>
 		</div>
 	</section>

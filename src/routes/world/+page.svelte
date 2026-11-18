@@ -3,7 +3,8 @@
 	import type { Work } from '$lib/works';
 	import { works } from '$lib/works';
 	import { profile } from '$lib/profile';
-	import GithubIcon from '$lib/GithubIcon.svelte';
+	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
+	import { onThemeChange, resolvedTheme } from '$lib/theme/theme';
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
@@ -35,7 +36,12 @@
 				const world = await createWorld(canvas, works, (work) => (near = work));
 				if (disposed) return world.dispose();
 				setMove = world.setMove;
-				dispose = world.dispose;
+				world.setTheme(resolvedTheme());
+				const stopTheme = onThemeChange(world.setTheme);
+				dispose = () => {
+					stopTheme();
+					world.dispose();
+				};
 				loading = false;
 			})
 			.catch(() => {
@@ -104,7 +110,7 @@
 		<div class="links">
 			<a class="pill" href="/works/{near.id}">詳細を見る</a>
 			<a class="pill" href={near.repo} rel="noreferrer" aria-label="GitHub">
-				<GithubIcon />
+				<GithubLogoIcon size="1.25em" aria-hidden="true" />
 			</a>
 			{#if near.liveUrl}
 				<a class="pill pill-primary" href={near.liveUrl} rel="noreferrer">
@@ -151,13 +157,13 @@
 	}
 
 	.exit {
-		top: 1rem;
+		top: calc(var(--header-height) + 1rem);
 		left: 1rem;
 		color: var(--ink);
 	}
 
 	.hint {
-		top: 1rem;
+		top: calc(var(--header-height) + 1rem);
 		right: 1rem;
 		margin: 0;
 		color: var(--muted);

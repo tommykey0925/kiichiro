@@ -1,5 +1,5 @@
 <script lang="ts">
-	import GithubIcon from '$lib/GithubIcon.svelte';
+	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 
 	let { data } = $props();
 	const work = $derived(data.work);
@@ -38,7 +38,7 @@
 
 	<p class="links">
 		<a class="pill icon" href={work.repo} rel="noreferrer" aria-label="GitHub">
-			<GithubIcon />
+			<GithubLogoIcon size="1.25em" aria-hidden="true" />
 		</a>
 		{#if work.liveUrl}
 			<a class="pill pill-primary" href={work.liveUrl} rel="noreferrer">

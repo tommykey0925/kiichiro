@@ -40,6 +40,7 @@ pnpm build    # build/ に静的サイトを出力
 |---|---|---|
 | `src/lib/dads/link.css` | digital-go-jp/design-system-example-components-html `src/components/link/link.css` @ af8b665 (MIT) | 上流に追随しない |
 | `src/lib/fonts/noto-sans-jp.css` | `@fontsource/noto-sans-jp` の `400.css` と `700.css`。`font-display` を `swap` から `optional` に変えたもの | 下のコマンド |
+| `src/lib/theme/dark.css` | tommykey-apps/ahab `internal/web/static/theme.css` のダーク用トークン | 手で合わせる |
 
 ```bash
 cat node_modules/@fontsource/noto-sans-jp/{400,700}.css \
