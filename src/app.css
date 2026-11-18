@@ -9,6 +9,9 @@
 	--muted: var(--color-neutral-solid-gray-600);
 	--line: var(--color-neutral-solid-gray-100);
 	color-scheme: light;
+	/* iOS が読み込み時に文字の大きさを自動で変えないようにする */
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
 }
 
 * {
