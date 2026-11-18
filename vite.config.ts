@@ -6,12 +6,10 @@ export default defineConfig({
 	plugins: [
 		sveltekit({
 			compilerOptions: {
-				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			// 全ルートは prerender 済みなので、fallback は未一致 URL にしか使われない。
 			adapter: adapter({ fallback: '404.html' })
 		})
 	]

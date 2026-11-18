@@ -12,8 +12,6 @@
 	let loading = $state(true);
 
 	onMount(() => {
-		// Svelte のコンポーネント CSS はクライアント遷移で剥がれないので、
-		// :global(body) に書くと /world を離れてもスクロールが止まったままになる。
 		const previousOverflow = document.body.style.overflow;
 		document.body.style.overflow = 'hidden';
 		const restore = () => {
@@ -32,7 +30,6 @@
 		let disposed = false;
 		let dispose = () => {};
 
-		// Three.js は 3D モードに入って初めて読む。/ の初期表示に載せないため。
 		import('$lib/world/World')
 			.then(async ({ createWorld }) => {
 				const world = await createWorld(canvas, works, (work) => (near = work));
@@ -142,7 +139,6 @@
 		touch-action: none;
 	}
 
-	/* トークンに透過色は無いので、白トークンから相対色で派生させる */
 	.exit,
 	.hint {
 		position: fixed;
@@ -209,7 +205,6 @@
 		gap: 0.5rem;
 	}
 
-	/* パネルが狭いので、ここだけピルを一段小さくする */
 	.links .pill {
 		padding: 0.35rem 0.85rem;
 		font-size: var(--font-size-14);
@@ -270,7 +265,6 @@
 
 		.panel {
 			bottom: 9.5rem;
-			/* 横画面だと 9.5rem 空けた残りに収まらない端末がある */
 			max-height: calc(100dvh - 11rem);
 			overflow-y: auto;
 		}

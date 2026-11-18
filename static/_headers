@@ -1,5 +1,2 @@
-# 名前に内容のハッシュが入るファイル (SvelteKit の _app/immutable) は中身が変わらないので、1 年保存させる。
-# Cloudflare の既定は max-age=0 で、再読み込みのたびに書体ファイルの確認が往復し、文字が一瞬消えていた。
-# https://developers.cloudflare.com/workers/static-assets/headers/
 /_app/immutable/*
   Cache-Control: public, max-age=31536000, immutable
