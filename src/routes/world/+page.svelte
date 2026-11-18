@@ -5,9 +5,8 @@
 	import { profile } from '$lib/profile';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import { onThemeChange, resolvedTheme } from '$lib/theme/theme';
-	import { localize } from '$lib/i18n/localize';
+	import { localize, localizePath } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
-	import { localizeHref } from '$lib/paraglide/runtime';
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
@@ -91,11 +90,11 @@
 {#if error}
 	<div class="unsupported">
 		<p>{error}</p>
-		<a href={localizeHref('/')}>{m.world_to_list()}</a>
+		<a href={localizePath('/')}>{m.world_to_list()}</a>
 	</div>
 {/if}
 
-<a class="exit" href={localizeHref('/')}>{m.world_exit()}</a>
+<a class="exit" href={localizePath('/')}>{m.world_exit()}</a>
 
 {#if !error && !loading}
 	<p class="hint">{m.world_hint()}</p>
@@ -111,7 +110,7 @@
 			{/each}
 		</ul>
 		<div class="links">
-			<a class="pill" href={localizeHref(`/works/${near.id}`)}>{m.world_details()}</a>
+			<a class="pill" href={localizePath(`/works/${near.id}`)}>{m.world_details()}</a>
 			<a class="pill" href={near.repo} rel="noreferrer" aria-label="GitHub">
 				<GithubLogoIcon size="1.25em" aria-hidden="true" />
 			</a>

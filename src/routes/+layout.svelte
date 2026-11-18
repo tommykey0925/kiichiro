@@ -7,7 +7,8 @@
 	import SiteHeader from '$lib/SiteHeader.svelte';
 	import { page } from '$app/state';
 	import { profile } from '$lib/profile';
-	import { deLocalizeHref, locales, localizeHref } from '$lib/paraglide/runtime';
+	import { deLocalizeHref, locales } from '$lib/paraglide/runtime';
+	import { localizePath } from '$lib/i18n/localize';
 
 	let { children } = $props();
 </script>
@@ -15,7 +16,7 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 	{#each locales as locale (locale)}
-		<link rel="alternate" hreflang={locale} href="{profile.site}{localizeHref(deLocalizeHref(page.url.pathname), { locale })}" />
+		<link rel="alternate" hreflang={locale} href="{profile.site}{localizePath(deLocalizeHref(page.url.pathname), { locale })}" />
 	{/each}
 	<link rel="alternate" hreflang="x-default" href="{profile.site}{deLocalizeHref(page.url.pathname)}" />
 </svelte:head>
