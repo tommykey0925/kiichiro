@@ -1,6 +1,6 @@
 /*
  * 色・書体・角丸・影はデジタル庁デザイントークン (@digital-go-jp/design-tokens) だけを使う。
- * 読み込み順は +layout.svelte で tokens.css → 書体 → この file。
+ * 読み込み順は +layout.svelte で tokens.css → 書体 ($lib/fonts/noto-sans-jp.css) → この file。
  */
 :root {
 	--bg: var(--color-neutral-white);
