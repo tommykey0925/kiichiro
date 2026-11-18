@@ -26,7 +26,7 @@ export const works = (
       "liveUrl": "https://hapax.tom.gakushu.now/",
       "pitch": {
         "ja": "ただのファイル共有サービスですけどいや〜これ最近やった中で1番割と頑張りましたね〜。ドメイン見てもらったらモロですけど学習用なんすね。ただ、自分で社内研修専用でAWSのOrganizationUnitとSCP作って、その例としてリリースしてるアプリなんで、そういう意味で頑張りました。",
-        "en": "It's just a file-sharing service, but damn, it's the one I busted my ass on most lately. The domain gives it away: it's a learning thing. I built an AWS organizational unit and service control policies (SCPs) just for in-house training, and this app ships as the example for them. That's the part I worked my ass off on."
+        "en": "It's just a file-sharing service, but honestly, it's the one I busted my ass on most lately. The domain gives it away: it's a learning thing. I built an AWS organizational unit and service control policies (SCPs) just for in-house training, and this app ships as the example for them. That's the part I'm proud of."
       },
       "spot": { "index": 0, "color": "#d95f79" }
     },
@@ -35,13 +35,13 @@ export const works = (
       "title": "ahab",
       "summary": {
         "ja": "Ahab船長ですね。銛で白鯨を狩ったっていう。dockerの状態をdockerで見せようという変な取り組み。ぶっちゃけdocker desktop下位互換",
-        "en": "Captain Ahab, the guy who went after the white whale with a harpoon. A weird-ass attempt to show Docker's state using Docker. Honestly, a shittier Docker Desktop."
+        "en": "Captain Ahab, the guy who went after the white whale with a harpoon. A weird attempt to show Docker's state using Docker. Honestly, a shittier Docker Desktop."
       },
       "tech": [{ "ja": "Go 1.27 (標準ライブラリのみ)", "en": "Go 1.27 (standard library only)" }, "Docker Engine API", "Server-Sent Events", "Vanilla JS", "Mermaid", { "ja": "デジタル庁デザインシステム", "en": "Digital Agency Design System" }, "Docker (scratch)", "GHCR", "GitHub Actions"],
       "repo": "https://github.com/tommykey-apps/ahab",
       "pitch": {
         "ja": "dockerの状態をdockerで見せようという変な取り組み。ぶっちゃけdocker desktop下位互換どす。Goにハマってた時のですね。goといえばdockerという安直なあれです。frontはめんどかったんでAIにvanilaJSで書かせてますですハイ",
-        "en": "A weird-ass attempt to show Docker's state using Docker. Honestly, a shittier Docker Desktop. Made it back when I was hooked on Go. Go means Docker, right? Yeah, that dumb logic. The frontend was a pain in the ass, so I had AI write it in vanilla JS. So there."
+        "en": "A weird attempt to show Docker's state using Docker. Honestly, a worse Docker Desktop. Made it back when I was hooked on Go. Go means Docker, right? Yeah, that lazy logic. The frontend was a chore, so I had AI write it in vanilla JS. So there."
       },
       "spot": { "index": 1, "color": "#8fd95f" }
     },
@@ -50,13 +50,13 @@ export const works = (
       "title": "sanjal",
       "summary": {
         "ja": "ヒンディー語で網、ネットワークを意味します。ネットワークの勉強してる時にイメージしやすいように作りました。",
-        "en": "Hindi for net, as in network. Built it so I could actually picture networks while studying that shit."
+        "en": "Hindi for net, as in network. Built it so I could actually picture networks while studying them."
       },
       "tech": ["Go 1.27", "hynt", "Mermaid", "GoReleaser", "GitHub Actions"],
       "repo": "https://github.com/tommykey-apps/sanjal",
       "pitch": {
         "ja": "ネットワークの勉強してる時にイメージしやすいように作りました。ネットワークの可視化かなできるの。Go書くのに飽きてAIに作らせたからか、全然思い入れがない。",
-        "en": "Built it so I could actually picture networks while studying that shit. It visualizes networks, I guess. I got sick of writing Go and had AI build it, so I don't give a damn about this one."
+        "en": "Built it so I could actually picture networks while studying them. It visualizes networks, I guess. I got sick of writing Go and had AI build it, so I have zero attachment to it, lol."
       },
       "spot": { "index": 2, "color": "#5f6ed9" }
     },
@@ -65,7 +65,7 @@ export const works = (
       "title": "hynt",
       "summary": {
         "ja": "ウェールズ語で道だった様な。普通にヒントって読みます。sanjalの中で動いてますが単独でも使えます。ホストのネットワークを丸っと出力します",
-        "en": "Welsh for road, I think? Just say \"hint\". It runs inside sanjal but works fine on its own. Dumps your host's whole damn network."
+        "en": "Welsh for road, I think? Just say \"hint\". It runs inside sanjal but works fine on its own. Dumps your host's whole network."
       },
       "tech": ["Go 1.27", "iproute2", "nftables", "GoReleaser", "GitHub Actions"],
       "repo": "https://github.com/tommykey-apps/hynt",
@@ -88,7 +88,7 @@ export const works = (
       "title": "ui-components",
       "summary": {
         "ja": "Svelte 5 コンポーネント集。集と言いつつ1個だけ。ガントみたいなやつです。shadcn/ui-svelteになかったってだけ",
-        "en": "A Svelte 5 component collection. Calls itself a collection, has exactly one fucking component. Some Gantt-ish thing. Only made it because shadcn/ui-svelte didn't have one."
+        "en": "A Svelte 5 component collection. Calls itself a collection, has exactly one. Some Gantt-ish thing. Only made it because shadcn/ui-svelte didn't have one."
       },
       "tech": ["Svelte 5", "svelte-package", "Vite 8", "Storybook 10", "Changesets", "date-fns", "flox", "GitHub Actions"],
       "repo": "https://github.com/tommykey-apps/ui-components",
@@ -99,7 +99,7 @@ export const works = (
       "title": "kiichi.ro",
       "summary": {
         "ja": "今あなたが見てるこのサイトのソースですよ笑",
-        "en": "The source of the damn site you're looking at right now, lol."
+        "en": "The source of the site you're looking at right now, lol."
       },
       "tech": ["SvelteKit 2", "Svelte 5", "Three.js", "adapter-static", "Cloudflare Workers", "GitHub Actions"],
       "repo": "https://github.com/tommykey0925/kiichiro",
