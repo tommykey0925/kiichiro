@@ -1,9 +1,11 @@
 <script lang="ts">
 	import ThemeToggle from './theme/ThemeToggle.svelte';
+	import LocaleSwitch from './i18n/LocaleSwitch.svelte';
 </script>
 
 <header class="site-header">
 	<div class="tools">
+		<LocaleSwitch />
 		<ThemeToggle />
 	</div>
 </header>

@@ -100,3 +100,28 @@ a {
 		animation: none;
 	}
 }
+
+.header-button {
+	display: inline-grid;
+	place-items: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 0;
+	border: none;
+	border-radius: var(--border-radius-8);
+	background: none;
+	color: var(--ink);
+	font-size: var(--font-size-16);
+	cursor: pointer;
+}
+
+.header-button:focus-visible {
+	outline: calc(4 / 16 * 1rem) solid var(--color-neutral-black);
+	outline-offset: calc(-4 / 16 * 1rem);
+}
+
+@media (hover: hover) {
+	.header-button:hover {
+		background: var(--color-neutral-opacity-gray-100);
+	}
+}

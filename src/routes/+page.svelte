@@ -7,34 +7,37 @@
 	import { profile } from '$lib/profile';
 	import '$lib/dads/link.css';
 	import { showcase, works } from '$lib/works';
+	import { localize } from '$lib/i18n/localize';
+	import { m } from '$lib/paraglide/messages';
+	import { localizeHref } from '$lib/paraglide/runtime';
 
 	const products = works.filter((w) => !w.pitch);
 </script>
 
 <svelte:head>
 	<title>{profile.name} — slops</title>
-	<meta name="description" content={profile.bio} />
+	<meta name="description" content={m.bio()} />
 </svelte:head>
 
 <div class="wrap">
 	<header>
 		<h1>{profile.name}</h1>
-		<p class="bio">{profile.bio}</p>
-		<a class="enter" href="/world" aria-label="3D で見る">
+		<p class="bio">{m.bio()}</p>
+		<a class="enter" href={localizeHref('/world')} aria-label={m.enter_world()}>
 			<BeeIcon />
 		</a>
 	</header>
 
 	<section>
-		<h2>安いよ安いよ〜</h2>
+		<h2>{m.showcase_heading()}</h2>
 		{#each showcase as work (work.id)}
 			<article class="pick">
-				<h3><a class="dads-link" href="/works/{work.id}">{work.title}</a></h3>
-				<p>{work.pitch}</p>
-				<p class="tech">{work.tech.join(' / ')}</p>
+				<h3><a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a></h3>
+				<p>{work.pitch && localize(work.pitch)}</p>
+				<p class="tech">{work.tech.map(localize).join(' / ')}</p>
 				<p class="links">
 					{#if work.liveUrl}
-						<a class="dads-link" href={work.liveUrl} rel="noreferrer">サイトを開く</a>
+						<a class="dads-link" href={work.liveUrl} rel="noreferrer">{m.open_site()}</a>
 					{/if}
 					<a class="dads-link" href={work.repo} rel="noreferrer">GitHub</a>
 				</p>
@@ -44,7 +47,7 @@
 	</section>
 
 	<section>
-		<h2>Contact</h2>
+		<h2>{m.contact_heading()}</h2>
 		<div class="contacts">
 			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
 				<GithubLogoIcon size="1.25em" aria-hidden="true" />
@@ -52,7 +55,7 @@
 			<a class="contact" href={profile.x} rel="me" aria-label="X (@grdevtom2gramp1)">
 				<XLogoIcon size="1.25em" aria-hidden="true" />
 			</a>
-			<a class="contact" href="mailto:{profile.email}" aria-label="メール ({profile.email})">
+			<a class="contact" href="mailto:{profile.email}" aria-label={m.contact_mail({ email: profile.email })}>
 				<EnvelopeSimpleIcon size="1.25em" aria-hidden="true" />
 			</a>
 		</div>
