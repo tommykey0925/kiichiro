@@ -7,9 +7,8 @@
 	import { profile } from '$lib/profile';
 	import '$lib/dads/link.css';
 	import { showcase, works } from '$lib/works';
-	import { localize } from '$lib/i18n/localize';
+	import { localize, localizePath } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
-	import { localizeHref } from '$lib/paraglide/runtime';
 
 	const products = works.filter((w) => !w.pitch);
 </script>
@@ -23,7 +22,7 @@
 	<header>
 		<h1>{profile.name}</h1>
 		<p class="bio">{m.bio()}</p>
-		<a class="enter" href={localizeHref('/world')} aria-label={m.enter_world()}>
+		<a class="enter" href={localizePath('/world')} aria-label={m.enter_world()}>
 			<BeeIcon />
 		</a>
 	</header>
@@ -32,7 +31,7 @@
 		<h2>{m.showcase_heading()}</h2>
 		{#each showcase as work (work.id)}
 			<article class="pick">
-				<h3><a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a></h3>
+				<h3><a class="dads-link" href={localizePath(`/works/${work.id}`)}>{work.title}</a></h3>
 				<p>{work.pitch && localize(work.pitch)}</p>
 				<p class="tech">{work.tech.map(localize).join(' / ')}</p>
 				<p class="links">
