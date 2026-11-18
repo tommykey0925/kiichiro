@@ -5,6 +5,9 @@
 	import { profile } from '$lib/profile';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import { onThemeChange, resolvedTheme } from '$lib/theme/theme';
+	import { localize } from '$lib/i18n/localize';
+	import { m } from '$lib/paraglide/messages';
+	import { localizeHref } from '$lib/paraglide/runtime';
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
@@ -24,7 +27,7 @@
 		};
 
 		if (!document.createElement('canvas').getContext('webgl2')) {
-			fail('この環境では 3D を表示できません (WebGL が無効)。');
+			fail(m.world_no_webgl());
 			return restore;
 		}
 
@@ -45,7 +48,7 @@
 				loading = false;
 			})
 			.catch(() => {
-				fail('3D の読み込みに失敗しました。');
+				fail(m.world_load_failed());
 			});
 
 		return () => {
@@ -82,39 +85,39 @@
 <canvas bind:this={canvas}></canvas>
 
 {#if loading && !error}
-	<p class="loading">3D を読み込み中…</p>
+	<p class="loading">{m.world_loading()}</p>
 {/if}
 
 {#if error}
 	<div class="unsupported">
 		<p>{error}</p>
-		<a href="/">一覧で見る →</a>
+		<a href={localizeHref('/')}>{m.world_to_list()}</a>
 	</div>
 {/if}
 
-<a class="exit" href="/">← 一覧で見る</a>
+<a class="exit" href={localizeHref('/')}>{m.world_exit()}</a>
 
 {#if !error && !loading}
-	<p class="hint">WASD / 矢印キーで移動　ドラッグで視点</p>
+	<p class="hint">{m.world_hint()}</p>
 {/if}
 
 {#if near}
 	<aside class="panel">
 		<h2>{near.title}</h2>
-		<p>{near.summary}</p>
+		<p>{localize(near.summary)}</p>
 		<ul>
-			{#each near.tech.slice(0, 6) as t (t)}
+			{#each near.tech.slice(0, 6).map(localize) as t (t)}
 				<li class="tag">{t}</li>
 			{/each}
 		</ul>
 		<div class="links">
-			<a class="pill" href="/works/{near.id}">詳細を見る</a>
+			<a class="pill" href={localizeHref(`/works/${near.id}`)}>{m.world_details()}</a>
 			<a class="pill" href={near.repo} rel="noreferrer" aria-label="GitHub">
 				<GithubLogoIcon size="1.25em" aria-hidden="true" />
 			</a>
 			{#if near.liveUrl}
 				<a class="pill pill-primary" href={near.liveUrl} rel="noreferrer">
-					<span class="beacon"></span>サイトを開く
+					<span class="beacon"></span>{m.open_site()}
 				</a>
 			{/if}
 		</div>
