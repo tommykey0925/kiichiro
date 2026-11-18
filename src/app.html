@@ -5,6 +5,15 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
 		<script>
+			// 調査用。URL の ?nobee で蜂を消し、?nofly で蜂の飛行だけを止める。最初の描画より前に適用する。
+			(function () {
+				var q = location.search, css = '';
+				if (/nobee/.test(q)) css = '.enter{display:none!important}';
+				else if (/nofly/.test(q)) css = '.enter{animation:none!important;offset-path:none!important;position:static!important}';
+				if (css) document.write('<style>' + css + '</style>');
+			})();
+		</script>
+		<script>
 			// 調査用。開いてから 3 秒間、画面の幅と拡大率が変わるたびに記録し、最後に画面へ出す。
 			(function () {
 				var t0 = performance.now(), last = '', log = [];
