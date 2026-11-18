@@ -2,8 +2,7 @@
 	import { page } from '$app/state';
 	import TranslateIcon from 'phosphor-svelte/lib/TranslateIcon';
 	import { m } from '$lib/paraglide/messages';
-	import { getLocale } from '$lib/paraglide/runtime';
-	import { localizePath } from '$lib/i18n/localize';
+	import { getLocale, localizeHref } from '$lib/paraglide/runtime';
 
 	const target = $derived(getLocale() === 'ja' ? 'en' : 'ja');
 	const label = $derived(m.locale_switch({}, { locale: getLocale() }));
@@ -11,7 +10,7 @@
 
 <a
 	class="header-button"
-	href={localizePath(page.url.pathname, { locale: target })}
+	href={localizeHref(page.url.pathname, { locale: target })}
 	hreflang={target}
 	lang={target}
 	aria-label={label}

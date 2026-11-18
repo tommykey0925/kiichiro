@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { profile } from '$lib/profile';
 	import { m } from '$lib/paraglide/messages';
-	import { localizePath } from '$lib/i18n/localize';
+	import { localizeHref } from '$lib/paraglide/runtime';
 </script>
 
 <svelte:head>
@@ -13,7 +13,7 @@
 <div class="wrap">
 	<h1>{page.status}</h1>
 	<p>{page.status === 404 ? m.not_found() : page.error?.message}</p>
-	<a href={localizePath('/')}>{m.back_to_list()}</a>
+	<a href={localizeHref('/')}>{m.back_to_list()}</a>
 </div>
 
 <style>

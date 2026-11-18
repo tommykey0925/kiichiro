@@ -1,7 +1,8 @@
 <script lang="ts">
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
-	import { localize, localizePath } from '$lib/i18n/localize';
+	import { localize } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
+	import { localizeHref } from '$lib/paraglide/runtime';
 
 	let { data } = $props();
 	const work = $derived(data.work);
@@ -16,7 +17,7 @@
 </svelte:head>
 
 <div class="wrap">
-	<a class="back" href={localizePath('/')}>{m.back_to_list()}</a>
+	<a class="back" href={localizeHref('/')}>{m.back_to_list()}</a>
 
 	<h1>{work.title}</h1>
 	<p class="summary">{localize(work.pitch ?? work.summary)}</p>
