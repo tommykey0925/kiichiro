@@ -5,7 +5,15 @@ export const paraglideOptions = {
 	outdir: './src/lib/paraglide',
 	emitTsDeclarations: true,
 	strategy: ['url', 'baseLocale'],
+	trailingSlash: 'never',
 	urlPatterns: [
+		{
+			pattern: '/',
+			localized: [
+				['en', '/en'],
+				['ja', '/']
+			]
+		},
 		{
 			pattern: '/:path(.*)?',
 			localized: [
