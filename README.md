@@ -33,3 +33,18 @@ pnpm check    # 型チェック
 pnpm test     # 3D の配置を検証 (展示台の間隔・移動方向・キラキラの分布)
 pnpm build    # build/ に静的サイトを出力
 ```
+
+## 複製したファイル
+
+| ファイル | 複製元 | 作り直し方 |
+|---|---|---|
+| `src/lib/dads/link.css` | digital-go-jp/design-system-example-components-html `src/components/link/link.css` @ af8b665 (MIT) | 上流に追随しない |
+| `src/lib/fonts/noto-sans-jp.css` | `@fontsource/noto-sans-jp` の `400.css` と `700.css`。`font-display` を `swap` から `optional` に変えたもの | 下のコマンド |
+
+```bash
+cat node_modules/@fontsource/noto-sans-jp/{400,700}.css \
+  | sed -e '/^\/\*/d' \
+        -e 's/font-display: swap/font-display: optional/' \
+        -e 's#url(\./files/#url(@fontsource/noto-sans-jp/files/#g' \
+  > src/lib/fonts/noto-sans-jp.css
+```

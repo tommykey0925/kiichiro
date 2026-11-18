@@ -3,8 +3,6 @@ name: CI
 on:
   pull_request:
 
-# デプロイは Workers Builds が担当するため、この workflow は検証だけを行う。
-# Cloudflare の認証情報を GitHub に置かずに済ませるための分担。
 permissions:
   contents: read
 
@@ -14,7 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # setup-node の cache: pnpm より先に pnpm を入れる必要がある。
       - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v7

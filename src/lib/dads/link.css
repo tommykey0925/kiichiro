@@ -1,4 +1,3 @@
-/* 複製元: digital-go-jp/design-system-example-components-html src/components/link/link.css @ af8b665 (MIT)。上流に追随しない */
 .dads-link:any-link {
   color: var(--color-primitive-blue-1000);
   text-decoration: underline;

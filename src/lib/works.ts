@@ -5,11 +5,8 @@ export type Work = {
   tech: string[];
   repo: string;
   liveUrl?: string;
-  /** 素材のライセンス表記。持つのはこのサイト自身のエントリだけ。 */
   credits?: string[];
-  /** 一覧の 1 行より詳しい紹介。持つ作品はトップの先頭に宣言順で並ぶ。 */
   pitch?: string;
-  /** 無い作品は 3D に現れず、一覧にのみ載る。 */
   spot?: { index: number; color: string };
 };
 

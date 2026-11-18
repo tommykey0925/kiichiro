@@ -82,14 +82,7 @@
 		color: var(--muted);
 	}
 
-	/*
-	 * 画面いっぱいを飛ばすため、蜂自身を fixed にする。offset-path の % は
-	 * containing block に対して解決されるので、fixed = ビューポート基準になり、
-	 * 幅を問わず同じ図形を描く。中の svg に持たせると % が 4.5rem 基準になる。
-	 */
 	.enter {
-		/* 左右の折り返し位置。% だと狭い画面で蜂が端からはみ出すので、
-		   蜂の半分 (2.25rem) より広い固定値を画面幅から引く。 */
 		--edge: 3rem;
 
 		position: fixed;
@@ -97,13 +90,7 @@
 		display: block;
 		width: 4.5rem;
 		height: 4.5rem;
-		/* shape() 非対応ブラウザはこちらが残る。∞ ではなくなるが飛びはする */
 		offset-path: ellipse(42% 37%);
-		/*
-		 * 制御点を 0% / 100% に置いているのは、3 次ベジェが制御点まで届かないため。
-		 * 曲線が実際に届く高さは (100 + 6 * 制御点) / 8 で、0% / 100% のとき
-		 * 12.5% / 87.5%。見た目の縦幅を画面の 3/4 にするための値。
-		 */
 		offset-path: shape(
 			from 50% 50%,
 			curve to calc(100% - var(--edge)) 50% with 50% 0% / calc(100% - var(--edge)) 0%,
@@ -111,16 +98,10 @@
 			curve to var(--edge) 50% with 50% 0% / var(--edge) 0%,
 			curve to 50% 50% with var(--edge) 100% / 50% 100%
 		);
-		/* Twemoji の蜂は上を向いているので、接線から 90 度ずらす */
 		offset-rotate: auto 90deg;
 		animation: bee-flight 60s linear infinite;
 	}
 
-	/*
-	 * hover の拡大はリンク本体ではなく中の svg に当てる。個別プロパティの scale は
-	 * offset (経路上への移動) より先に合成されるため、リンク本体に付けると移動量まで
-	 * 1.12 倍され、蜂が経路から 100px ほど滑る。
-	 */
 	.enter :global(svg) {
 		transition: scale 0.2s ease;
 	}
@@ -138,7 +119,6 @@
 		}
 	}
 
-	/* 動きを止める人には、飛ばさず元どおりヘッダーの中に置く */
 	@media (prefers-reduced-motion: reduce) {
 		.enter {
 			position: static;

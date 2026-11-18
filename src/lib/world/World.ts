@@ -17,16 +17,12 @@ const CAMERA_DISTANCE = 7.5;
 const CAMERA_HEIGHT = 3.4;
 const SKY = 0xdfe9f2;
 
-// モデルの単位が実寸と揃っていないので、見た目で合わせるための調整値。
-// 元は全長 11.2 / 高さ 6.3。0.16 倍で全長 1.8 ほどになる。
 const BEE_SCALE = 0.16;
 const HOVER_HEIGHT = 0.9;
 
-// 花は高さ 3.6、原点は茎の途中 (下端 y=-1.09)。地面に生やすので下端を y=0 に合わせる。
 const FLOWER_SCALE = 0.5;
 const FLOWER_BOTTOM = -1.09;
 const LABEL_HEIGHT = 2.6;
-/** 花びらのマテリアル名。ここだけ複製して作品ごとの色にする。 */
 const PETAL_MATERIAL = 'mat21';
 
 const IDLE_GLOW = 0.06;
@@ -63,7 +59,6 @@ export async function createWorld(
 
 	const scene = new THREE.Scene();
 	scene.background = new THREE.Color(SKY);
-	// 道の先と地面の端を霧に溶かす。終端の地形を作らずに済ませるため。
 	scene.fog = new THREE.Fog(SKY, 24, 62);
 
 	const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
@@ -72,8 +67,6 @@ export async function createWorld(
 	const sun = new THREE.DirectionalLight(0xfff4e2, 2.4);
 	sun.castShadow = true;
 	sun.shadow.mapSize.set(2048, 2048);
-	// 影の範囲は道全体ではなくキャラの周りだけ。道は 84 あるので、
-	// 全体を 1 枚の shadow map で覆うと影が潰れる。
 	sun.shadow.camera.left = -22;
 	sun.shadow.camera.right = 22;
 	sun.shadow.camera.top = 22;
@@ -220,9 +213,6 @@ export async function createWorld(
 				material.map?.dispose();
 				material.dispose();
 			});
-			// dispose は GPU 上のデータを捨てるだけで WebGL context は手放さない。
-			// canvas は /world に入るたび作り直されるので、明示的に失わせないと
-			// 往復のたびに context が積み、ブラウザの同時保持数の上限に触れる。
 			renderer.forceContextLoss();
 			renderer.dispose();
 		}
@@ -271,8 +261,6 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	const { index, color } = work.spot!;
 	const { x, z } = spotPosition(work.spot!);
 
-	// clone はマテリアルを共有するので、色を変える花びらだけ複製する。
-	// 茎と中心は共有のままにして、描画時の状態変更を減らす。
 	const model = flower.clone();
 	let glow: THREE.MeshStandardMaterial | undefined;
 	model.traverse((object) => {
@@ -289,7 +277,6 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	if (!glow) throw new Error(`花びらのマテリアル ${PETAL_MATERIAL} が見つからない`);
 
 	model.position.set(x, -FLOWER_BOTTOM * FLOWER_SCALE, z);
-	// 全部同じ向きだと並びが機械的に見えるので、少しずつ回す。
 	model.rotation.y = index * 1.1;
 
 	const label = createLabel(work.title);
@@ -308,10 +295,6 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 
 type Sparkles = ReturnType<typeof createSparkles>;
 
-/**
- * Web サイトのある作品の目印。emissive を上げても昼のシーンでは花びらが白飛びしていて
- * 差が出ないので、輝度ではなく粒の動きで示す。
- */
 function createSparkles(x: number, z: number, color: string) {
 	const offsets = sparkleOffsets();
 	const positions = new Float32Array(offsets.length * 3);
@@ -334,7 +317,6 @@ function createSparkles(x: number, z: number, color: string) {
 	);
 	points.position.set(x, 0, z);
 
-	// 加算合成は暗い色を足しても何も起きないので、作品の色を白に寄せて明るい側に振る。
 	const tint = new THREE.Color(color).lerp(new THREE.Color(0xffffff), 0.65);
 	const colors = geometry.attributes.color as THREE.BufferAttribute;
 
@@ -397,15 +379,9 @@ function createLabel(text: string) {
 	return sprite;
 }
 
-/**
- * 蜂はアニメーションを持たないので、上下の揺れで羽ばたきを代用する。
- * 止まっていても浮いていないと落ちて見えるため、揺れは常時かける。
- */
 async function createCharacter() {
 	const model = await new GLTFLoader().loadAsync('/bee.glb');
 	model.scene.scale.setScalar(BEE_SCALE);
-	// モデルは -Z を向いている。進行方向は毎フレーム group に入るので、
-	// モデル自身の向き直しは内側の 1 枚に持たせて上書きされないようにする。
 	model.scene.rotation.y = Math.PI;
 	model.scene.traverse((object) => {
 		if (object instanceof THREE.Mesh) object.castShadow = true;
