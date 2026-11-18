@@ -4,6 +4,34 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<script>
+			// 調査用。開いてから 3 秒間、画面の幅と拡大率が変わるたびに記録し、最後に画面へ出す。
+			(function () {
+				var t0 = performance.now(), last = '', log = [];
+				function widest() {
+					var w = innerWidth, out = [];
+					document.querySelectorAll('body *').forEach(function (e) {
+						var r = e.getBoundingClientRect();
+						if (r.right > w + 1 || r.left < -1) out.push(e.tagName.toLowerCase() + '.' + (e.getAttribute('class') || '').split(' ')[0] + ' ' + Math.round(r.left) + '..' + Math.round(r.right));
+					});
+					return out.slice(0, 4).join(', ');
+				}
+				function tick() {
+					var t = Math.round(performance.now() - t0), d = document.documentElement, v = window.visualViewport;
+					var fs = document.body ? getComputedStyle(document.body).fontSize : '-';
+					var s = 'iw' + innerWidth + ' cw' + d.clientWidth + ' sw' + d.scrollWidth + ' vv' + (v ? Math.round(v.width) + '@' + v.scale.toFixed(2) : '-') + ' fs' + fs;
+					if (s !== last) { log.push(t + 'ms ' + s + (document.body && d.scrollWidth > d.clientWidth ? ' wide:' + widest() : '')); last = s; }
+					if (t < 3000) requestAnimationFrame(tick); else show();
+				}
+				function show() {
+					var p = document.createElement('pre');
+					p.textContent = navigator.userAgent + '\nDPR' + devicePixelRatio + '\n' + log.join('\n');
+					p.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9;margin:0;padding:8px;max-height:60vh;overflow:auto;white-space:pre-wrap;background:#fff;color:#000;border-top:2px solid #000;font:12px/1.4 monospace';
+					document.body.appendChild(p);
+				}
+				requestAnimationFrame(tick);
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
