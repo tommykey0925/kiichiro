@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Work } from './works';
 	import './dads/link.css';
-	import { localize, localizePath } from './i18n/localize';
+	import { localize } from './i18n/localize';
+	import { localizeHref } from './paraglide/runtime';
 
 	let { works }: { works: Work[] } = $props();
 </script>
@@ -10,7 +11,7 @@
 	{#each works as work (work.id)}
 		<li class="item">
 			<p class="name">
-				<a class="dads-link" href={localizePath(`/works/${work.id}`)}>{work.title}</a>
+				<a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a>
 			</p>
 			<p class="summary">{localize(work.summary)}</p>
 			<p class="tech">{work.tech.map(localize).join(' / ')}</p>
