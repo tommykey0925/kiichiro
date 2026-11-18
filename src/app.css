@@ -4,7 +4,22 @@
 	--ink: var(--color-neutral-solid-gray-900);
 	--muted: var(--color-neutral-solid-gray-600);
 	--line: var(--color-neutral-solid-gray-100);
+	--on-key: var(--color-neutral-white);
+	--header-height: 2.5rem;
 	color-scheme: light;
+	scroll-padding-top: var(--header-height);
+}
+
+:root[data-theme="dark"] {
+	--on-key: var(--color-neutral-black);
+	color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--on-key: var(--color-neutral-black);
+		color-scheme: dark;
+	}
 }
 
 * {
@@ -59,7 +74,7 @@ a {
 .pill-primary {
 	border-color: var(--color-key-600);
 	background: var(--color-key-600);
-	color: var(--color-neutral-white);
+	color: var(--on-key);
 }
 
 .beacon {

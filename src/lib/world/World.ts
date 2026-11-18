@@ -15,7 +15,12 @@ import {
 const WALK_SPEED = 5.5;
 const CAMERA_DISTANCE = 7.5;
 const CAMERA_HEIGHT = 3.4;
-const SKY = 0xdfe9f2;
+const PALETTES = {
+	light: { sky: 0xdfe9f2, hemiSky: 0xffffff, hemiGround: 0x8fa88c, hemi: 2.1, sun: 0xfff4e2, sunIntensity: 2.4, ground: 0x9dbf8e },
+	dark: { sky: 0x121a26, hemiSky: 0x8ea2c8, hemiGround: 0x22301f, hemi: 0.8, sun: 0xbfcfff, sunIntensity: 0.7, ground: 0x3a5537 }
+} as const;
+
+export type WorldTheme = keyof typeof PALETTES;
 
 const BEE_SCALE = 0.16;
 const HOVER_HEIGHT = 0.9;
@@ -36,6 +41,7 @@ export type MoveInput = { x: number; y: number };
 
 export type World = {
 	setMove: (input: MoveInput) => void;
+	setTheme: (theme: WorldTheme) => void;
 	dispose: () => void;
 };
 
@@ -58,13 +64,16 @@ export async function createWorld(
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 	const scene = new THREE.Scene();
-	scene.background = new THREE.Color(SKY);
-	scene.fog = new THREE.Fog(SKY, 24, 62);
+	const sky = new THREE.Color();
+	scene.background = sky;
+	const fog = new THREE.Fog(sky, 24, 62);
+	scene.fog = fog;
 
 	const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
 
-	scene.add(new THREE.HemisphereLight(0xffffff, 0x8fa88c, 2.1));
-	const sun = new THREE.DirectionalLight(0xfff4e2, 2.4);
+	const hemi = new THREE.HemisphereLight();
+	scene.add(hemi);
+	const sun = new THREE.DirectionalLight();
 	sun.castShadow = true;
 	sun.shadow.mapSize.set(2048, 2048);
 	sun.shadow.camera.left = -22;
@@ -73,12 +82,26 @@ export async function createWorld(
 	sun.shadow.camera.bottom = -22;
 	scene.add(sun, sun.target);
 
+	const groundMaterial = new THREE.MeshStandardMaterial({ roughness: 1 });
 	const ground = new THREE.Mesh(
 		new THREE.PlaneGeometry(ROAD_HALF_WIDTH * 2, ROAD_HALF_LENGTH * 2).rotateX(-Math.PI / 2),
-		new THREE.MeshStandardMaterial({ color: 0x9dbf8e, roughness: 1 })
+		groundMaterial
 	);
 	ground.receiveShadow = true;
 	scene.add(ground);
+
+	const setTheme = (theme: WorldTheme) => {
+		const palette = PALETTES[theme];
+		sky.set(palette.sky);
+		fog.color.set(palette.sky);
+		hemi.color.set(palette.hemiSky);
+		hemi.groundColor.set(palette.hemiGround);
+		hemi.intensity = palette.hemi;
+		sun.color.set(palette.sun);
+		sun.intensity = palette.sunIntensity;
+		groundMaterial.color.set(palette.ground);
+	};
+	setTheme('light');
 
 	const [character, flower] = await Promise.all([createCharacter(), loadFlower()]);
 
@@ -185,6 +208,7 @@ export async function createWorld(
 	tick();
 
 	return {
+		setTheme,
 		setMove(next) {
 			move.x = next.x;
 			move.y = next.y;
