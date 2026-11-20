@@ -26,7 +26,7 @@ export const works = (
       "liveUrl": "https://hapax.tom.gakushu.now/",
       "pitch": {
         "ja": "ただのファイル共有サービスですけどいや〜これ最近やった中で1番割と頑張りましたね〜。ドメイン見てもらったらモロですけど学習用なんすね。ただ、自分で社内研修専用でAWSのOrganizationUnitとSCP作って、その例としてリリースしてるアプリなんで、そういう意味で頑張りました。",
-        "en": "It's just a file-sharing service, but honestly, it's the one I busted my ass on most lately. The domain gives it away: it's a learning thing. I built an AWS organizational unit and service control policies (SCPs) just for in-house training, and this app ships as the example for them. That's the part I'm proud of."
+        "en": "It's just a file-sharing service, but honestly, it's the one I busted my ass on most lately. The domain gives it away: it's a learning thing. I built an AWS organizational unit and SCPs just for in-house training, and this app ships as the example for them. That's the part I'm proud of."
       },
       "spot": { "index": 0, "color": "#d95f79" }
     },
