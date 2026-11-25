@@ -7,6 +7,7 @@
 //   - ヘッダーの背景が不透明で、スクロールしても下の文字が透けて重ならない
 //   - メニューが開き、Esc で閉じ、フォーカスが開いたボタンに戻る
 //   - 作品一覧まで読み進めると花が咲き、蜂が訪れてヘッダーの蜂の巣に蜜がたまる
+//   - トップでたまった蜜が /world に引き継がれ、ヘッダーの蜂の巣に出る
 //   - 動きを減らす設定では、文字帯と飛ぶ蜂が止まり、読む位置に来た花はすぐ咲いて訪れた扱いになる
 
 import { spawn } from 'node:child_process';
@@ -116,6 +117,10 @@ try {
 		}
 		const label = await comb.getAttribute('aria-label');
 		if (!label?.startsWith('1 / 7') && !label?.startsWith('2 / 7')) fail(`${name}: 蜂の巣に蜜がたまらない (${label})`);
+		// 同じタブで /world へ移っても、たまった蜜はそのまま
+		await page.goto(base + '/world', { waitUntil: 'networkidle' });
+		const carried = await page.locator('.comb').getAttribute('aria-label').catch(() => null);
+		if (carried !== label) fail(`${name}: /world に蜜が引き継がれない (トップ ${label} / world ${carried})`);
 		await context.close();
 	}
 
