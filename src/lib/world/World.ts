@@ -13,8 +13,9 @@ import {
 	spotPosition
 } from './layout';
 
-const CAMERA_DISTANCE = 7.5;
-const CAMERA_HEIGHT = 3.4;
+/** カメラは蜂の後ろ CAMERA_DISTANCE (m)、上 CAMERA_RISE (m) に付く。蜂が小さいので近くから見る */
+const CAMERA_DISTANCE = 3.6;
+const CAMERA_RISE = 1.25;
 const PALETTES = {
 	light: { hemiSky: 0xfff6e0, hemiGround: 0x7f9f5c, hemi: 1.9, sun: 0xffe7b8, sunIntensity: 2.6 },
 	dark: { hemiSky: 0xa9b8e0, hemiGround: 0x2c3d28, hemi: 1.15, sun: 0xc8d6ff, sunIntensity: 1.1 }
@@ -41,12 +42,10 @@ export type MoveInput = { x: number; y: number };
 /**
  * 蜜集め
  *   visited   蜜が巣に届いている作品 (トップで訪れたものを含む)
- *   onCarry   花粉を運んでいる作品が変わったとき
  *   onVisit   花粉を巣に降ろして、その作品の部屋が満ちたとき
  */
 export type Foraging = {
 	visited: Iterable<string>;
-	onCarry: (ids: string[]) => void;
 	onVisit: (id: string) => void;
 };
 
@@ -60,6 +59,8 @@ const HIVE_REACH = 8;
 const CAMERA_FOLLOW = 4;
 /** 花へ自分で寄り始める速さの上限 (m/秒)。これより速く飛んでいるときは素通りする */
 const SETTLE_SPEED = 2.5;
+/** 花粉を降ろし終えたあと、巣から離れる距離 (m) */
+const LEAVE = 5.5;
 
 export type World = {
 	setMove: (input: MoveInput) => void;
@@ -140,8 +141,12 @@ export async function createWorld(
 	// トップで訪れた作品の部屋は、最初から蜜で満たしておく
 	const visited = new Set(foraging.visited);
 	for (const exhibit of exhibits) {
-		if (visited.has(exhibit.work.id)) scenery.hive.fill(exhibit.work.spot!.index, true);
+		if (!visited.has(exhibit.work.id)) continue;
+		scenery.hive.fill(exhibit.work.spot!.index, true);
+		scenery.grow(exhibit.work.spot!.index, true);
 	}
+	const isComplete = () => exhibits.every((e) => visited.has(e.work.id));
+	scenery.setComplete(isComplete());
 
 	/**
 	 * 蜂のしていること
@@ -150,8 +155,11 @@ export async function createWorld(
 	 *   resting    花の上に止まって花粉を集める
 	 *   toHive     花粉を運んで巣の前で止まったので、入口へ寄る
 	 *   unloading  入口で花粉を 1 つずつ降ろす
+	 *   leaving    降ろし終えて巣から谷の方へ離れる (振り返ったカメラが巣に隠れないように)
 	 */
-	type Mode = 'free' | 'toFlower' | 'resting' | 'toHive' | 'unloading';
+	type Mode = 'free' | 'toFlower' | 'resting' | 'toHive' | 'unloading' | 'leaving';
+	/** 降ろし終えたあと離れる先: 巣の入口から谷 (-z) の方へ LEAVE (m) */
+	const leaveTo = scenery.hive.entrance.clone().add(new THREE.Vector3(0, 0.3, -LEAVE));
 	let mode: Mode = 'free';
 	let landing: Exhibit | null = null;
 	let clock = 0;
@@ -162,16 +170,17 @@ export async function createWorld(
 	const carry = (id: string) => {
 		carried.push(id);
 		bee.setPollen(carried.length);
-		foraging.onCarry([...carried]);
 	};
 	const unload = () => {
 		const id = carried.shift();
 		if (!id) return;
 		const exhibit = exhibits.find((e) => e.work.id === id)!;
 		scenery.hive.fill(exhibit.work.spot!.index, still);
+		// 蜜が届いたご褒美に、その作品の色の花が野原へ広がる
+		scenery.grow(exhibit.work.spot!.index);
 		visited.add(id);
+		scenery.setComplete(isComplete());
 		bee.setPollen(carried.length);
-		foraging.onCarry([...carried]);
 		foraging.onVisit(id);
 	};
 
@@ -182,6 +191,8 @@ export async function createWorld(
 	const move: MoveInput = { x: 0, y: 0 };
 	const keys = new Set<string>();
 	let yaw = 0;
+	/** 振り返る先の向き。花粉を降ろし終えたら、咲いていく谷の方へカメラを回す。ドラッグしたらやめる */
+	let lookBack: number | null = null;
 	let dragging = false;
 	let lastPointerX = 0;
 	let nearId: string | null = null;
@@ -205,6 +216,7 @@ export async function createWorld(
 	const pointerMove = (e: PointerEvent) => {
 		if (!dragging) return;
 		yaw -= (e.clientX - lastPointerX) * 0.006;
+		lookBack = null;
 		lastPointerX = e.clientX;
 	};
 	const pointerUp = () => {
@@ -265,6 +277,8 @@ export async function createWorld(
 			control = { kind: 'steer', dir: { x: Math.sin(heading) * amount, z: Math.cos(heading) * amount } };
 		} else if (mode === 'toFlower' || mode === 'resting') {
 			control = { kind: 'arrive', target: landing!.head };
+		} else if (mode === 'leaving') {
+			control = { kind: 'arrive', target: leaveTo };
 		} else {
 			control = { kind: 'arrive', target: scenery.hive.entrance };
 		}
@@ -294,6 +308,13 @@ export async function createWorld(
 				clock = 0;
 				unload();
 			}
+			// 降ろし終えたら巣から離れ、谷 (-z) の方を向いて、咲いていく花を見せる
+			if (carried.length === 0) {
+				mode = 'leaving';
+				lookBack = Math.PI;
+			}
+		} else if (mode === 'leaving' && hasArrived(flight, leaveTo)) {
+			mode = 'free';
 		}
 
 		const wings: WingMode =
@@ -301,16 +322,22 @@ export async function createWorld(
 		bee.update(flight, wings, delta);
 		scenery.animate(elapsed, delta);
 
+		if (lookBack !== null) {
+			const turn = Math.atan2(Math.sin(lookBack - yaw), Math.cos(lookBack - yaw));
+			yaw += turn * Math.min(1, delta * (still ? 60 : 1.6));
+			if (Math.abs(turn) < 0.01) lookBack = null;
+		}
+
 		const target = bee.group.position;
 		sun.position.set(target.x + 12, 20, target.z + 8);
 		sun.target.position.copy(target);
 		// カメラはばねのように少し遅れて付いてくる
 		const wantPosition = new THREE.Vector3(
 			target.x - Math.sin(yaw) * CAMERA_DISTANCE,
-			CAMERA_HEIGHT + (target.y - FLIGHT3.idle),
+			target.y + CAMERA_RISE,
 			target.z - Math.cos(yaw) * CAMERA_DISTANCE
 		);
-		const wantLook = new THREE.Vector3(target.x, target.y + 0.3, target.z);
+		const wantLook = new THREE.Vector3(target.x, target.y + 0.35, target.z);
 		const follow = cameraReady ? 1 - Math.exp(-delta * CAMERA_FOLLOW) : 1;
 		cameraPosition.lerp(wantPosition, follow);
 		cameraLook.lerp(wantLook, cameraReady ? 1 - Math.exp(-delta * CAMERA_FOLLOW * 2) : 1);
@@ -328,7 +355,10 @@ export async function createWorld(
 			exhibit.sparkles?.twinkle(elapsed);
 			// カメラが札のすぐ横を通るときは薄くして、画面を札で覆わない
 			const distance = camera.position.distanceTo(exhibit.label.position);
-			exhibit.label.material.opacity = THREE.MathUtils.smoothstep(distance, LABEL_FADE.near, LABEL_FADE.far);
+			// 近くの作品はパネルに名前が出るので、札は消す
+			const fade = exhibit.work.id === nearId ? 0 : THREE.MathUtils.smoothstep(distance, LABEL_FADE.near, LABEL_FADE.far);
+			const opacity = exhibit.label.material.opacity;
+			exhibit.label.material.opacity = opacity + (fade - opacity) * Math.min(1, delta * 8);
 		}
 
 		renderer.render(scene, camera);

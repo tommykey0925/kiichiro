@@ -4,6 +4,7 @@
 	import { works } from '$lib/works';
 	import { profile } from '$lib/profile';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
+	import CaretUpIcon from 'phosphor-svelte/lib/CaretUpIcon';
 	import { onThemeChange, resolvedTheme } from '$lib/theme/theme';
 	import { localize } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
@@ -12,8 +13,12 @@
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
-	/** 蜂が花粉を運んでいる作品 */
-	let carrying = $state<string[]>([]);
+	/** スマホでパネルの説明を開いているか。近くの作品が変わったら畳む */
+	let open = $state(false);
+	$effect(() => {
+		void near?.id;
+		open = false;
+	});
 	let stick = $state<{ x: number; y: number } | null>(null);
 	let error = $state<string | null>(null);
 	let loading = $state(true);
@@ -42,7 +47,6 @@
 			.then(async ({ createWorld }) => {
 				const world = await createWorld(canvas, works, (work) => (near = work), {
 					visited: forage.visited,
-					onCarry: (ids) => (carrying = ids),
 					onVisit: (id) => forage.visit(id)
 				});
 				if (disposed) return world.dispose();
@@ -108,26 +112,25 @@
 
 {#if !error && !loading}
 	<p class="hint">{m.world_hint()}</p>
-	{#if carrying.length > 0}
-		<!-- 運んでいる花粉の数と、降ろす場所 -->
-		<p class="carrying" role="status">
-			<span class="pollen" aria-hidden="true"></span>{m.world_carrying({ count: carrying.length })}
-		</p>
-	{/if}
 {/if}
 
 {#if near}
-	<aside class="panel" style:--spot={near.spot?.color}>
-		<h2>{near.title}</h2>
-		<p class="forage">
-			{#if forage.visited.has(near.id)}
-				{m.world_status_stored()}
-			{:else if carrying.includes(near.id)}
-				{m.world_status_carrying()}
-			{:else}
-				{m.world_status_land()}
-			{/if}
-		</p>
+	<!-- スマホでは名前だけの帯に畳み、押すと説明を開く。PC はいつも開いている -->
+	<aside class="panel" class:open style:--spot={near.spot?.color}>
+		<div class="head">
+			<h2>{near.title}</h2>
+			<button
+				class="toggle"
+				type="button"
+				aria-expanded={open}
+				aria-controls="work-detail"
+				aria-label={open ? m.world_less() : m.world_more()}
+				onclick={() => (open = !open)}
+			>
+				<CaretUpIcon size="1.25em" aria-hidden="true" />
+			</button>
+		</div>
+		<div class="detail" id="work-detail">
 		<p>{localize(near.summary)}</p>
 		<ul>
 			{#each near.tech.slice(0, 6).map(localize) as t (t)}
@@ -144,6 +147,7 @@
 					<span class="beacon"></span>{m.open_site()}
 				</a>
 			{/if}
+		</div>
 		</div>
 	</aside>
 {/if}
@@ -216,6 +220,29 @@
 		box-shadow: 8px 8px 0 var(--brand-ink);
 	}
 
+	.head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.toggle {
+		display: none;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border: 2px solid var(--brand-ink);
+		border-radius: 50%;
+		background: var(--brand-surface);
+		color: var(--ink);
+		transition: rotate 0.2s ease;
+	}
+
+	.open .toggle {
+		rotate: 180deg;
+	}
+
 	.panel h2 {
 		margin: 0 0 0.4rem;
 		font-size: var(--font-size-28);
@@ -227,40 +254,6 @@
 		color: var(--ink);
 		font-size: var(--font-size-16);
 		line-height: var(--line-height-160);
-	}
-
-	.panel .forage {
-		margin: 0 0 0.5rem;
-		color: var(--muted);
-		font-size: var(--font-size-14);
-	}
-
-	.carrying {
-		position: fixed;
-		top: calc(var(--header-height) + 4rem);
-		left: 50%;
-		z-index: 1;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin: 0;
-		padding: 0.45rem 0.9rem;
-		border: 2px solid var(--brand-ink);
-		border-radius: var(--border-radius-8);
-		background: var(--brand-paper);
-		color: var(--ink);
-		font-size: var(--font-size-14);
-		font-weight: 700;
-		translate: -50% 0;
-		white-space: nowrap;
-	}
-
-	.pollen {
-		width: 0.8rem;
-		height: 0.8rem;
-		border: 2px solid var(--brand-ink);
-		border-radius: 50%;
-		background: var(--brand-honey);
 	}
 
 	.panel ul {
@@ -337,11 +330,41 @@
 			display: grid;
 		}
 
+		/* 畳んだ帯は操作パッドの右に置き、蜂と花を隠さない */
 		.panel {
-			bottom: 9.5rem;
-			/* 上の「一覧で見る」と花粉の表示に重ならない高さまで */
-			max-height: calc(100dvh - 9.5rem - var(--header-height) - 7rem);
+			bottom: 1.5rem;
+			left: 10rem;
+			padding: 0.5rem 0.5rem 0.5rem 1rem;
+			max-height: calc(100dvh - var(--header-height) - 6rem);
 			overflow-y: auto;
+		}
+
+		.panel h2 {
+			margin: 0;
+			overflow: hidden;
+			font-size: var(--font-size-20);
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.toggle {
+			display: grid;
+			flex: none;
+		}
+
+		.panel:not(.open) .detail {
+			display: none;
+		}
+
+		/* 開いたら横幅いっぱいに広げて説明を読みやすくする */
+		.panel.open {
+			left: 1rem;
+			bottom: 9.5rem;
+			padding: 1rem 1.1rem;
+		}
+
+		.panel.open .head {
+			margin-bottom: 0.5rem;
 		}
 
 		.hint {

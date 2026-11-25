@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { ROAD_HALF_LENGTH, ROAD_HALF_WIDTH, spotPosition } from './layout.ts';
-import { CLEAR_RADIUS, HIVE_POSITION, combCells, fillOrder, groundHeight, pathAmount, scatter, seeded } from './terrain.ts';
+import { CLEAR_RADIUS, HIVE_POSITION, SPROUT_SPEED, SPROUT_WIDTH, combCells, fillOrder, groundHeight, pathAmount, sprouts, scatter, seeded } from './terrain.ts';
 import { featured } from '../works.ts';
 
 const spots = featured.map((work) => work.spot!);
@@ -68,5 +68,22 @@ for (const i of order.slice(1, 7)) assert.ok(Math.abs(Math.hypot(cells[i].x, cel
 const firstRing = order.slice(1, 7).map((i) => cells[i]);
 assert.ok(firstRing[0].y > 0, '輪の最初が上にない');
 assert.ok(firstRing[1].x > firstRing[firstRing.length - 1].x, '時計回りになっていない');
+
+// 蜜が届いたときに咲く花: 巣から作品の花への帯に並び、遅れは巣からの距離に比例し、作品の花の側が密
+const target = spotPosition(spots[0]);
+const grown = sprouts(HIVE_POSITION, target, 160, spots, 5);
+assert.equal(grown.length, 160, '咲く花を必要な数だけ置けない');
+const fromHive = (t: { x: number; z: number }) => Math.hypot(t.x - HIVE_POSITION.x, t.z - HIVE_POSITION.z);
+const span = Math.hypot(target.x - HIVE_POSITION.x, target.z - HIVE_POSITION.z);
+for (const t of grown) {
+	assert.ok(Math.abs(t.delay - fromHive(t) / SPROUT_SPEED) < 1e-9, '遅れが巣からの距離に比例しない');
+	assert.ok(fromHive(t) < span + SPROUT_WIDTH, '帯の外に咲いている');
+	assert.ok(pathAmount(t.x, t.z) <= 0.2, '咲く花が小道の上にある');
+	assert.equal(t.y, groundHeight(t.x, t.z), '咲く花が地面から浮いている');
+}
+const nearFlower = grown.filter((t) => fromHive(t) > span / 2).length;
+assert.ok(nearFlower > grown.length / 2, `作品の花の側が密になっていない (${nearFlower})`);
+assert.ok(Math.min(...grown.map((t) => t.delay)) < 1, '巣の近くから咲き始めない');
+assert.ok(Math.max(...grown.map((t) => t.delay)) < 5, '咲き終わるまでが長すぎる');
 
 console.log(`terrain ok: ${tufts.length} tufts (${inside} in the valley), hill ${highest.toFixed(1)}m`);

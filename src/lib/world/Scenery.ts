@@ -1,9 +1,10 @@
-// 花畑の見た目 (地面・空・草・野の花・遠くの蜂の巣) を Three.js で組む。
+// 花畑の見た目 (地面・空・草・野の花・蜂の巣・蜜で広がる花・蛍) を Three.js で組む。
 // 地形と配置の計算は terrain.ts にあり、ここは形と色だけを受け持つ。
 
 import * as THREE from 'three';
 import type { Spot } from './layout';
-import { GROUND_SIZE, HIVE_POSITION, combCells, fillOrder, grassTone, groundHeight, pathAmount, scatter } from './terrain';
+import { spotPosition } from './layout';
+import { GROUND_SIZE, HIVE_POSITION, combCells, fillOrder, grassTone, groundHeight, pathAmount, scatter, sprouts } from './terrain';
 
 export type SceneryPalette = {
 	skyTop: number;
@@ -16,6 +17,8 @@ export type SceneryPalette = {
 	hiveDeep: number;
 	/** 蜜の部屋の灯りの強さ */
 	honeyGlow: number;
+	/** 夜か。巣が満ちたあと、夜だけ蛍を飛ばす */
+	night: boolean;
 };
 
 export const SCENERY_PALETTES: Record<'light' | 'dark', SceneryPalette> = {
@@ -29,7 +32,8 @@ export const SCENERY_PALETTES: Record<'light' | 'dark', SceneryPalette> = {
 		// 壁は淡い蜜蝋、空の部屋は影、蜜の部屋は濃い琥珀で見分ける
 		hive: 0xf1d98c,
 		hiveDeep: 0xb8934a,
-		honeyGlow: 0.35
+		honeyGlow: 0.35,
+		night: false
 	},
 	// 月夜。暗くしすぎず、小道と丘の形が読める明るさにする
 	dark: {
@@ -42,7 +46,8 @@ export const SCENERY_PALETTES: Record<'light' | 'dark', SceneryPalette> = {
 		hive: 0xb99a52,
 		hiveDeep: 0x3a2c14,
 		// 夜は蜜の部屋だけが灯り、遠くからいくつ満ちたか分かる
-		honeyGlow: 1.4
+		honeyGlow: 1.4,
+		night: true
 	}
 };
 
@@ -52,10 +57,14 @@ const WILDFLOWER_COLORS = [0xd95f79, 0xf2b705, 0xfbf6e9, 0xe9a6c0, 0xb9a3e3];
 const GROUND_SEGMENTS = 96;
 const BLADE_COUNT = 4200;
 const WILDFLOWER_COUNT = 520;
+/** 蜜が 1 部屋満ちるたびに、その作品の色で野原へ広がる花の数 */
+const SPROUT_COUNT = 240;
+/** 巣が全部満ちたあと夜に飛ぶ蛍の数 */
+const FIREFLY_COUNT = 160;
 const HIVE_CELL = 0.42;
 /** 巣の真ん中の高さ。蜂が止まって降ろせる高さにする */
 const HIVE_HEIGHT = 1.6;
-/** 蜜の色。巣の部屋と、花から運ぶ粒で使う */
+/** 蜜の色。巣の部屋で使う */
 export const HONEY_COLOR = 0xe8960c;
 export const HONEY_GLOW_COLOR = 0xff9a00;
 
@@ -65,7 +74,13 @@ export type Scenery = {
 	setPalette: (palette: SceneryPalette) => THREE.Color;
 	animate: (time: number, delta: number) => void;
 	hive: Hive;
+	/** index 番目の作品の色の花を野原へ広げる。now なら動きなしで咲かせる */
+	grow: (index: number, now?: boolean) => void;
+	/** 巣が全部満ちたか (満ちると夜に蛍が飛ぶ) */
+	setComplete: (complete: boolean) => void;
 };
+
+export type WorkSpot = { index: number; color: string };
 
 export type Hive = ReturnType<typeof createHive>;
 
@@ -73,7 +88,7 @@ export type Hive = ReturnType<typeof createHive>;
  * still: 動きを減らす設定。草を揺らさない
  * lite: 指で操作する端末。草花を減らして描く量を抑える
  */
-export function createScenery(spots: Spot[], { still, lite }: { still: boolean; lite: boolean }): Scenery {
+export function createScenery(spots: WorkSpot[], { still, lite }: { still: boolean; lite: boolean }): Scenery {
 	const ground = createGround();
 	const sky = createSky();
 	const wind = { value: 0 };
@@ -81,11 +96,25 @@ export function createScenery(spots: Spot[], { still, lite }: { still: boolean; 
 	const blades = createBlades(spots, wind, Math.round(BLADE_COUNT * share));
 	const wildflowers = createWildflowers(spots, wind, Math.round(WILDFLOWER_COUNT * share));
 	const hive = createHive(spots.length);
+	const meadows = spots.map((spot) => createMeadow(spot, spots, wind, Math.round(SPROUT_COUNT * share)));
+	const fireflies = createFireflies(Math.round(FIREFLY_COUNT * share));
+	let complete = false;
+	let night = false;
+	const showFireflies = () => (fireflies.points.visible = complete && night);
 
 	return {
-		objects: [ground.mesh, sky.mesh, blades.mesh, wildflowers, hive.group],
+		objects: [ground.mesh, sky.mesh, blades.mesh, wildflowers, hive.group, fireflies.points, ...meadows.map((m) => m.mesh)],
 		hive,
+		grow(index, now = false) {
+			meadows.find((m) => m.index === index)?.grow(now || still);
+		},
+		setComplete(next) {
+			complete = next;
+			showFireflies();
+		},
 		setPalette(palette) {
+			night = palette.night;
+			showFireflies();
 			ground.paint(palette);
 			sky.paint(palette);
 			blades.paint(palette);
@@ -96,6 +125,8 @@ export function createScenery(spots: Spot[], { still, lite }: { still: boolean; 
 			// 動きを減らす設定では草を揺らさない
 			wind.value = still ? 0 : time;
 			hive.update(delta);
+			for (const meadow of meadows) meadow.update(delta);
+			if (fireflies.points.visible) fireflies.update(still ? 0 : time);
 		}
 	};
 }
@@ -180,11 +211,18 @@ function createSky() {
 }
 
 /** 草と野の花の先を風で揺らす。高いところほど大きく、場所ごとに揺れの位相をずらす */
-function addWind(material: THREE.Material, wind: { value: number }, height: number) {
+function addWind(material: THREE.Material, wind: { value: number }, height: number, tinted = false) {
 	material.onBeforeCompile = (shader) => {
 		shader.uniforms.wind = wind;
 		shader.vertexShader = shader.vertexShader
-			.replace('#include <common>', '#include <common>\nuniform float wind;')
+			.replace('#include <common>', '#include <common>\nuniform float wind;' + (tinted ? '\nattribute float tint;' : ''))
+			// tinted: 作品や野の花の色 (instanceColor) を花びらだけに付け、茎の緑と芯の黄は残す
+			.replace(
+				'#include <color_vertex>',
+				tinted
+					? '#include <color_vertex>\nvColor.rgb = color.rgb * mix(vec3(1.0), instanceColor.rgb, tint);'
+					: '#include <color_vertex>'
+			)
 			.replace(
 				'#include <begin_vertex>',
 				/* glsl */ `#include <begin_vertex>
@@ -237,13 +275,54 @@ function createBlades(spots: Spot[], wind: { value: number }, count: number) {
 	};
 }
 
+/** 細い茎の先に、上を向いた杯形の花。横から見ても板に見えないよう、下をすぼめる */
+/**
+ * 野の花の形。緑の茎の先に、上へ開いた 5 枚の花びらと黄色の芯。
+ * 花びらだけ tint = 1 にして、色 (instanceColor) を付ける。
+ */
+function wildflowerGeometry() {
+	const stem = paint(new THREE.CylinderGeometry(0.007, 0.011, 0.46, 4).translate(0, 0.23, 0), 0x5f8f3a, 0);
+	const leaf = paint(
+		new THREE.SphereGeometry(1, 5, 3).scale(0.05, 0.008, 0.016).translate(0.045, 0.16, 0).rotateZ(0.5),
+		0x5f8f3a,
+		0
+	);
+	const petals = [0, 1, 2, 3, 4].map((k) =>
+		paint(
+			new THREE.SphereGeometry(1, 5, 2)
+				.scale(0.052, 0.01, 0.026)
+				.translate(0.05, 0, 0)
+				.rotateZ(0.35)
+				.rotateY((k / 5) * Math.PI * 2)
+				.translate(0, 0.47, 0),
+			0xffffff,
+			1
+		)
+	);
+	const center = paint(new THREE.SphereGeometry(0.024, 5, 3).scale(1, 0.6, 1).translate(0, 0.475, 0), 0xf2b705, 0);
+	// 蜂 (体長 0.46m) と並べて小さすぎないよう、全体を 1.5 倍にする
+	return mergeGeometries([stem, leaf, ...petals, center]).scale(1.5, 1.5, 1.5);
+}
+
+/** 頂点色と、花びらかどうか (tint) を付ける */
+function paint(geometry: THREE.BufferGeometry, color: number, tint: number) {
+	const flat = geometry.toNonIndexed();
+	const count = flat.attributes.position.count;
+	const c = new THREE.Color(color);
+	flat.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count * 3).map((_, i) => [c.r, c.g, c.b][i % 3]), 3));
+	flat.setAttribute('tint', new THREE.BufferAttribute(new Float32Array(count).fill(tint), 1));
+	return flat;
+}
+
+function flowerMaterial(wind: { value: number }) {
+	const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, flatShading: true });
+	addWind(material, wind, 0.75, true);
+	return material;
+}
+
 function createWildflowers(spots: Spot[], wind: { value: number }, count: number) {
-	// 細い茎の先に、上を向いた杯形の花。横から見ても板に見えないよう、下をすぼめる
-	const stem = new THREE.CylinderGeometry(0.01, 0.014, 0.45, 4).translate(0, 0.225, 0);
-	const head = new THREE.CylinderGeometry(0.09, 0.015, 0.08, 6).translate(0, 0.48, 0);
-	const geometry = mergeGeometries([stem, head]);
-	const material = new THREE.MeshStandardMaterial({ roughness: 0.7, flatShading: true });
-	addWind(material, wind, 0.5);
+	const geometry = wildflowerGeometry();
+	const material = flowerMaterial(wind);
 
 	const heads = scatter(count, spots, 23);
 	const mesh = new THREE.InstancedMesh(geometry, material, heads.length);
@@ -260,6 +339,125 @@ function createWildflowers(spots: Spot[], wind: { value: number }, count: number
 		mesh.setColorAt(i, color.set(WILDFLOWER_COLORS[Math.floor(t.tone * WILDFLOWER_COLORS.length)]));
 	});
 	return mesh;
+}
+
+/**
+ * 蜜が巣に届いた作品の色で咲く花。巣から作品の花へ向かって、波のように咲いていく。
+ * 最初は全部大きさ 0 で隠し、grow で咲かせる。
+ */
+function createMeadow(spot: WorkSpot, spots: Spot[], wind: { value: number }, count: number) {
+	const material = flowerMaterial(wind);
+	const places = sprouts(HIVE_POSITION, spotPosition(spot), count, spots, 100 + spot.index);
+	const mesh = new THREE.InstancedMesh(wildflowerGeometry(), material, places.length);
+	mesh.visible = false;
+	const matrices = places.map((t) => {
+		const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler((t.tone - 0.5) * 0.3, t.turn, 0));
+		return { position: new THREE.Vector3(t.x, t.y, t.z), rotation, size: t.scale };
+	});
+	const matrix = new THREE.Matrix4();
+	const scale = new THREE.Vector3();
+	const place = (i: number, size: number) => {
+		const m = matrices[i];
+		matrix.compose(m.position, m.rotation, scale.setScalar(Math.max(size, 1e-4)));
+		mesh.setMatrixAt(i, matrix);
+	};
+	const color = new THREE.Color(spot.color);
+	places.forEach((_, i) => {
+		place(i, 0);
+		mesh.setColorAt(i, color);
+	});
+	let time = -1;
+	const finished = Math.max(...places.map((p) => p.delay)) + GROW_TIME;
+
+	return {
+		index: spot.index,
+		mesh,
+		grow(now: boolean) {
+			if (time >= 0) return;
+			mesh.visible = true;
+			time = now ? finished : 0;
+			if (now) {
+				places.forEach((p, i) => place(i, matrices[i].size));
+				mesh.instanceMatrix.needsUpdate = true;
+			}
+		},
+		update(delta: number) {
+			if (time < 0 || time >= finished) return;
+			time = Math.min(finished, time + delta);
+			places.forEach((p, i) => {
+				const t = Math.max(0, Math.min(1, (time - p.delay) / GROW_TIME));
+				place(i, easeOutBack(t) * matrices[i].size);
+			});
+			mesh.instanceMatrix.needsUpdate = true;
+		}
+	};
+}
+
+/** 1 輪が咲ききるまでの時間 (秒) */
+const GROW_TIME = 0.5;
+
+/** 蛍。谷の中をゆっくり漂い、明滅する */
+function createFireflies(count: number) {
+	const base = new Float32Array(count * 3);
+	const phase = new Float32Array(count);
+	for (let i = 0; i < count; i++) {
+		// 決まった並びにするため、添字から位置を作る
+		const a = Math.sin(i * 12.9898) * 43758.5453;
+		const b = Math.sin(i * 78.233) * 12345.678;
+		const u = a - Math.floor(a);
+		const v = b - Math.floor(b);
+		base.set([(u * 2 - 1) * 14, 0.4 + ((u * 7) % 1) * 2.2, -44 + v * 92], i * 3);
+		phase[i] = ((u + v) * 10) % (Math.PI * 2);
+	}
+	const positions = new Float32Array(base);
+	const colors = new Float32Array(count * 3);
+	const geometry = new THREE.BufferGeometry();
+	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+	geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+	const points = new THREE.Points(
+		geometry,
+		new THREE.PointsMaterial({
+			size: 0.22,
+			map: glowTexture(),
+			vertexColors: true,
+			transparent: true,
+			depthWrite: false,
+			blending: THREE.AdditiveBlending
+		})
+	);
+	points.visible = false;
+	points.frustumCulled = false;
+	const glow = new THREE.Color(0xd8ff7a);
+	return {
+		points,
+		update(time: number) {
+			for (let i = 0; i < count; i++) {
+				const p = phase[i];
+				positions[i * 3] = base[i * 3] + Math.sin(time * 0.4 + p) * 0.8;
+				positions[i * 3 + 1] = base[i * 3 + 1] + Math.sin(time * 0.7 + p * 2) * 0.3;
+				positions[i * 3 + 2] = base[i * 3 + 2] + Math.cos(time * 0.35 + p) * 0.8;
+				const light = Math.max(0, Math.sin(time * 1.6 + p * 3)) ** 3;
+				colors.set([glow.r * light, glow.g * light, glow.b * light], i * 3);
+			}
+			geometry.attributes.position.needsUpdate = true;
+			geometry.attributes.color.needsUpdate = true;
+		}
+	};
+}
+
+function glowTexture() {
+	const size = 64;
+	const canvas = document.createElement('canvas');
+	canvas.width = size;
+	canvas.height = size;
+	const context = canvas.getContext('2d')!;
+	const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+	gradient.addColorStop(0, 'rgba(255,255,255,1)');
+	gradient.addColorStop(0.3, 'rgba(255,255,255,0.45)');
+	gradient.addColorStop(1, 'rgba(255,255,255,0)');
+	context.fillStyle = gradient;
+	context.fillRect(0, 0, size, size);
+	return new THREE.CanvasTexture(canvas);
 }
 
 /**
@@ -382,16 +580,21 @@ function easeOutBack(t: number) {
 
 /** 位置と法線だけを持つ geometry をつなげる (BufferGeometryUtils を読まずに済ませる) */
 function mergeGeometries(parts: THREE.BufferGeometry[]) {
-	const flat = parts.map((p) => p.toNonIndexed());
-	const total = flat.reduce((n, p) => n + p.attributes.position.count, 0);
-	const position = new Float32Array(total * 3);
-	let offset = 0;
-	for (const p of flat) {
-		position.set(p.attributes.position.array as Float32Array, offset);
-		offset += p.attributes.position.count * 3;
-	}
+	const flat = parts.map((p) => (p.index ? p.toNonIndexed() : p));
 	const geometry = new THREE.BufferGeometry();
-	geometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
+	// 全部の部品が持っている属性だけをつなげる (位置は必ず、頂点色と tint は持っていれば)
+	for (const name of ['position', 'color', 'tint']) {
+		if (!flat.every((p) => p.attributes[name])) continue;
+		const size = flat[0].attributes[name].itemSize;
+		const total = flat.reduce((n, p) => n + p.attributes.position.count, 0);
+		const array = new Float32Array(total * size);
+		let offset = 0;
+		for (const p of flat) {
+			array.set(p.attributes[name].array as Float32Array, offset);
+			offset += p.attributes.position.count * size;
+		}
+		geometry.setAttribute(name, new THREE.BufferAttribute(array, size));
+	}
 	geometry.computeVertexNormals();
 	return geometry;
 }

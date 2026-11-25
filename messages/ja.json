@@ -29,8 +29,6 @@
 	"nav_world": "3D の花畑を飛ぶ",
 	"nav_contact": "連絡先",
 	"forage_progress": "{visited} / {total} 作品に蜂が立ち寄った",
-	"world_carrying": "花粉 {count} 個　道の突き当たりの巣で止まると降ろす",
-	"world_status_stored": "この花の蜜は巣に届いている",
-	"world_status_carrying": "この花の花粉を運んでいる",
-	"world_status_land": "近くで止まると花に降りて花粉を集める"
+	"world_more": "説明を開く",
+	"world_less": "説明を閉じる"
 }
