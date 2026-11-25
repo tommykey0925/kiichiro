@@ -1,6 +1,7 @@
 <script lang="ts">
 	import WorkList from '$lib/WorkList.svelte';
-	import BeeIcon from '$lib/BeeIcon.svelte';
+	import BeeIcon from '$lib/brand/BeeIcon.svelte';
+	import Logo from '$lib/brand/Logo.svelte';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
 	import EnvelopeSimpleIcon from 'phosphor-svelte/lib/EnvelopeSimpleIcon';
@@ -19,7 +20,7 @@
 
 <div class="wrap">
 	<header>
-		<h1>{profile.name}</h1>
+		<h1><Logo /></h1>
 		<p class="bio">{m.bio()}</p>
 		<a class="enter" href={localizeHref('/world')} aria-label={m.enter_world()}>
 			<BeeIcon />

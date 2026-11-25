@@ -17,7 +17,16 @@
 
 ## 絵とロゴ
 
-ページは `src/lib/brand/` の部品だけを参照する。当面は 3D の蜂 (`static/bee.glb`) から書き出した静止画と、書体で組んだ文字ロゴを使う。描いた絵や依頼した絵に替えるときは、`src/lib/brand/` の画像を替えるだけで済む形を保つ。
+ページは `src/lib/brand/` の部品だけを参照する。当面は 3D の蜂 (`static/bee.glb`) と花 (`static/flower.glb`) から書き出した静止画と、書体で組んだ文字ロゴを使う。描いた絵や依頼した絵に替えるときは、`src/lib/brand/` の画像を替えるだけで済む形を保つ。
+
+| 部品 | 中身 |
+|---|---|
+| `Logo.svelte` | 文字ロゴ。「.」を六角形で見せる |
+| `Mascot.svelte` | 蜂の静止画。`pose` で向きを選ぶ (`hero` / `side` / `top`) |
+| `Flower.svelte` | 花の静止画。`color` で色を選ぶ (`petal` / `honey` / `cream`) |
+| `BeeIcon.svelte` | `/world` への入口に使う Twemoji の蜂 |
+
+静止画を撮り直すときは `CHROMIUM_PATH=/usr/bin/chromium node --experimental-strip-types scripts/render-brand.ts` を実行する。角度と色は同じファイルの `shots` で決める。
 
 ## デジタル庁デザインシステムの残り
 
