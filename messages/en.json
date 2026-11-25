@@ -28,5 +28,6 @@
 	"nav_works": "Things I made",
 	"nav_world": "Fly around in 3D",
 	"nav_contact": "Say hi",
-	"hero_label": "Portfolio"
+	"hero_label": "Portfolio",
+	"forage_progress": "The bee has visited {visited} of {total} works"
 }

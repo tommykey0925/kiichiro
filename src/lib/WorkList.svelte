@@ -3,14 +3,19 @@
 	import './dads/link.css';
 	import { localize } from './i18n/localize';
 	import { localizeHref } from './paraglide/runtime';
+	import Bloom from './brand/Bloom.svelte';
+	import { detour } from './forage/state.svelte';
 
 	let { works, start = 1 }: { works: Work[]; start?: number } = $props();
 </script>
 
 <ol class="list" {start}>
 	{#each works as work, i (work.id)}
-		<li class="item">
-			<span class="no" aria-hidden="true">{String(start + i).padStart(2, '0')}</span>
+		<li class="item" use:detour={work.id}>
+			<span class="no">
+				<span aria-hidden="true">{String(start + i).padStart(2, '0')}</span>
+				<Bloom id={work.id} color={work.spot?.color ?? 'var(--brand-petal)'} size="2.5rem" />
+			</span>
 			<p class="name">
 				<a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a>
 			</p>
@@ -41,6 +46,10 @@
 	}
 
 	.no {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.25rem;
 		grid-row: span 2;
 		color: var(--muted);
 		font-family: var(--font-display);
