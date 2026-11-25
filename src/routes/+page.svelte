@@ -1,7 +1,5 @@
 <script lang="ts">
 	import WorkList from '$lib/WorkList.svelte';
-	import Garden from '$lib/Garden.svelte';
-	import 'lenis/dist/lenis.css';
 	import BeeIcon from '$lib/brand/BeeIcon.svelte';
 	import Logo from '$lib/brand/Logo.svelte';
 	import Mascot from '$lib/brand/Mascot.svelte';
@@ -47,8 +45,6 @@
 		{/each}
 	</div>
 </div>
-
-<Garden />
 
 <a class="enter" href={localizeHref('/world')} aria-label={m.enter_world()}>
 	<BeeIcon />
