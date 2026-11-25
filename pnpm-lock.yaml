@@ -11,6 +11,9 @@ importers:
       '@digital-go-jp/design-tokens':
         specifier: 2.0.1
         version: 2.0.1
+      '@fontsource/jost':
+        specifier: 5.3.0
+        version: 5.3.0
       '@fontsource/noto-sans-jp':
         specifier: 5.3.0
         version: 5.3.0
@@ -391,6 +394,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/jost@5.3.0':
+    resolution: {integrity: sha512-lORv5y49hSoLVxjGb0qNuBzXvnaNYI3B94200uGPGJFei8fao6d6LLz2ziWbOZubGfZnibzuT6GVNX8fBw8WQQ==}
 
   '@fontsource/noto-sans-jp@5.3.0':
     resolution: {integrity: sha512-OZbBzZ8LrFRs2RFT2Cc0HUV2C2ZeSfyEXhDJWR0EZuZaraJfRubpvrFmUnCljuBDEkw8Vn6CE/+nf9dj9b+0lg==}
@@ -1615,6 +1621,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.1':
     optional: true
+
+  '@fontsource/jost@5.3.0': {}
 
   '@fontsource/noto-sans-jp@5.3.0': {}
 

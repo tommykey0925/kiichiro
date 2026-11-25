@@ -1,23 +1,21 @@
 :root {
-	--bg: var(--color-neutral-white);
-	--surface: var(--color-neutral-white);
-	--ink: var(--color-neutral-solid-gray-900);
-	--muted: var(--color-neutral-solid-gray-600);
-	--line: var(--color-neutral-solid-gray-100);
-	--on-key: var(--color-neutral-white);
+	--bg: var(--brand-paper);
+	--surface: var(--brand-surface);
+	--ink: var(--brand-ink);
+	--muted: var(--brand-muted);
+	--line: var(--brand-line);
+	--on-key: var(--brand-on-honey);
 	--header-height: 2.5rem;
 	color-scheme: light;
 	scroll-padding-top: var(--header-height);
 }
 
 :root[data-theme="dark"] {
-	--on-key: var(--color-neutral-black);
 	color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
-		--on-key: var(--color-neutral-black);
 		color-scheme: dark;
 	}
 }
@@ -36,8 +34,15 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
+h1,
+h2,
+h3 {
+	font-family: var(--font-display);
+	font-weight: 700;
+}
+
 a {
-	color: var(--color-key-900);
+	color: var(--brand-petal);
 }
 
 .wrap {
@@ -72,8 +77,8 @@ a {
 }
 
 .pill-primary {
-	border-color: var(--color-key-600);
-	background: var(--color-key-600);
+	border-color: var(--brand-honey);
+	background: var(--brand-honey);
 	color: var(--on-key);
 }
 
@@ -116,7 +121,7 @@ a {
 }
 
 .header-button:focus-visible {
-	outline: calc(4 / 16 * 1rem) solid var(--color-neutral-black);
+	outline: calc(4 / 16 * 1rem) solid var(--brand-ink);
 	outline-offset: calc(-4 / 16 * 1rem);
 }
 

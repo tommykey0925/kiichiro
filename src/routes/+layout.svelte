@@ -3,6 +3,9 @@
 	import '@digital-go-jp/design-tokens/dist/tokens.css';
 	import '$lib/theme/dark.css';
 	import '$lib/fonts/noto-sans-jp.css';
+	import '@fontsource/jost/latin-500.css';
+	import '@fontsource/jost/latin-700.css';
+	import '$lib/theme/brand.css';
 	import '../app.css';
 	import SiteHeader from '$lib/SiteHeader.svelte';
 	import { page } from '$app/state';
