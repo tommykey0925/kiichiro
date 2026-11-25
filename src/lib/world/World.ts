@@ -103,7 +103,12 @@ export async function createWorld(
 	};
 	setTheme('light');
 
-	const [character, flower] = await Promise.all([createCharacter(), loadFlower()]);
+	const [character, flower] = await Promise.all([
+		createCharacter(),
+		loadFlower(),
+		// 札は canvas に描くので、書体が届いてから描く。届かなくても既定の書体で続ける
+		document.fonts.load(`700 30px ${LABEL_FONT}`).catch(() => [])
+	]);
 
 	const exhibits = works.filter((w) => w.spot).map((work) => createExhibit(work, flower));
 	for (const exhibit of exhibits) scene.add(...exhibit.meshes);
@@ -303,7 +308,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 	model.position.set(x, -FLOWER_BOTTOM * FLOWER_SCALE, z);
 	model.rotation.y = index * 1.1;
 
-	const label = createLabel(work.title);
+	const label = createLabel(work.title, color);
 	label.position.set(x, LABEL_HEIGHT, z);
 
 	const sparkles = work.liveUrl ? createSparkles(x, z, color) : undefined;
@@ -372,34 +377,60 @@ function sparkleTexture() {
 	return new THREE.CanvasTexture(canvas);
 }
 
-function createLabel(text: string) {
+// 作品名の札。トップと同じく、紙色の地に墨の枠と文字、作品の色の帯を付ける
+const LABEL_INK = '#1f1a14';
+const LABEL_PAPER = '#fbf6e9';
+const LABEL_FONT = '"Jost", "Noto Sans JP", sans-serif';
+
+function createLabel(text: string, color: string) {
 	const scale = 3;
-	const font = `${28 * scale}px system-ui, "Hiragino Kaku Gothic ProN", sans-serif`;
+	const font = `700 ${30 * scale}px ${LABEL_FONT}`;
 	const measure = document.createElement('canvas').getContext('2d')!;
 	measure.font = font;
-	const width = Math.ceil(measure.measureText(text).width) + 40 * scale;
-	const height = 48 * scale;
+	const border = 3 * scale;
+	const shadow = 5 * scale;
+	const band = 8 * scale;
+	const boxWidth = Math.ceil(measure.measureText(text).width) + 40 * scale;
+	const boxHeight = 52 * scale;
+	const width = boxWidth + shadow;
+	const height = boxHeight + shadow;
 
 	const canvas = document.createElement('canvas');
 	canvas.width = width;
 	canvas.height = height;
 	const context = canvas.getContext('2d')!;
-	context.font = font;
-	context.fillStyle = '#ffffff';
-	context.strokeStyle = 'rgba(35,32,28,0.14)';
-	context.beginPath();
-	context.roundRect(0, 0, width, height, 16 * scale);
+	const box = (x: number, y: number) => {
+		context.beginPath();
+		context.roundRect(x + border / 2, y + border / 2, boxWidth - border, boxHeight - border, 10 * scale);
+	};
+	// ずらした影
+	context.fillStyle = LABEL_INK;
+	box(shadow, shadow);
 	context.fill();
+	// 地と左の色帯
+	context.fillStyle = LABEL_PAPER;
+	box(0, 0);
+	context.fill();
+	context.save();
+	context.clip();
+	context.fillStyle = color;
+	context.fillRect(0, 0, band + border, boxHeight);
+	context.restore();
+	context.lineWidth = border;
+	context.strokeStyle = LABEL_INK;
+	box(0, 0);
 	context.stroke();
-	context.fillStyle = '#23201c';
+	context.font = font;
+	context.fillStyle = LABEL_INK;
 	context.textAlign = 'center';
 	context.textBaseline = 'middle';
-	context.fillText(text, width / 2, height / 2);
+	context.fillText(text, (boxWidth + band) / 2, boxHeight / 2 + scale);
 
 	const texture = new THREE.CanvasTexture(canvas);
 	texture.colorSpace = THREE.SRGBColorSpace;
+	texture.anisotropy = 4;
 	const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
-	sprite.scale.set((width / height) * 0.9, 0.9, 1);
+	sprite.scale.set((width / height) * 0.95, 0.95, 1);
 	return sprite;
 }
 
