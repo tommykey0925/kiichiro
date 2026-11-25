@@ -22,5 +22,11 @@
 	"theme_system": "OS に合わせる",
 	"theme_toggle": "表示モード: {current}。押すと{next}に切り替える",
 	"theme_title": "表示モード: {current}",
-	"locale_switch": "Read in English"
+	"locale_switch": "Read in English",
+	"menu_open": "メニューを開く",
+	"menu_close": "メニューを閉じる",
+	"nav_works": "作ったもの",
+	"nav_world": "3D の花畑を飛ぶ",
+	"nav_contact": "連絡先",
+	"hero_label": "ポートフォリオ"
 }

@@ -1,16 +1,24 @@
 <script lang="ts">
 	import ThemeToggle from './theme/ThemeToggle.svelte';
 	import LocaleSwitch from './i18n/LocaleSwitch.svelte';
+	import SiteMenu from './SiteMenu.svelte';
+	import Logo from './brand/Logo.svelte';
+	import { localizeHref } from './paraglide/runtime';
 </script>
 
 <header class="site-header">
-	<div class="tools">
-		<LocaleSwitch />
-		<ThemeToggle />
+	<div class="inner">
+		<a class="home" href={localizeHref('/')}><Logo /></a>
+		<div class="tools">
+			<LocaleSwitch />
+			<ThemeToggle />
+			<SiteMenu />
+		</div>
 	</div>
 </header>
 
 <style>
+	/* 文字の上に重ならないよう、背景は常に不透明にする */
 	.site-header {
 		position: sticky;
 		top: 0;
@@ -20,30 +28,31 @@
 		background: var(--bg);
 	}
 
-	@supports (backdrop-filter: blur(1rem)) or (-webkit-backdrop-filter: blur(1rem)) {
-		.site-header {
-			background: rgb(from var(--bg) r g b / 0.72);
-			-webkit-backdrop-filter: blur(1rem) saturate(1.8);
-			backdrop-filter: blur(1rem) saturate(1.8);
-		}
+	.inner {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		max-width: 80rem;
+		height: 100%;
+		margin: 0 auto;
+		padding: 0 clamp(0.75rem, 3vw, 2rem);
 	}
 
-	@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-		.site-header {
-			background: var(--bg);
-			-webkit-backdrop-filter: none;
-			backdrop-filter: none;
-		}
+	.home {
+		color: var(--ink);
+		font-size: var(--font-size-20);
+		text-decoration: none;
+	}
+
+	.home:focus-visible {
+		outline: 4px solid var(--brand-ink);
+		outline-offset: 2px;
+		border-radius: var(--border-radius-4);
 	}
 
 	.tools {
 		display: flex;
-		justify-content: flex-end;
 		align-items: center;
 		gap: 0.25rem;
-		max-width: 62rem;
-		height: 100%;
-		margin: 0 auto;
-		padding: 0 0.75rem;
 	}
 </style>

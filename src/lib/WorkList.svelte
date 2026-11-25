@@ -4,12 +4,13 @@
 	import { localize } from './i18n/localize';
 	import { localizeHref } from './paraglide/runtime';
 
-	let { works }: { works: Work[] } = $props();
+	let { works, start = 1 }: { works: Work[]; start?: number } = $props();
 </script>
 
-<ul class="list">
-	{#each works as work (work.id)}
+<ol class="list" {start}>
+	{#each works as work, i (work.id)}
 		<li class="item">
+			<span class="no" aria-hidden="true">{String(start + i).padStart(2, '0')}</span>
 			<p class="name">
 				<a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a>
 			</p>
@@ -17,7 +18,7 @@
 			<p class="tech">{work.tech.map(localize).join(' / ')}</p>
 		</li>
 	{/each}
-</ul>
+</ol>
 
 <style>
 	.list {
@@ -29,9 +30,9 @@
 
 	.item {
 		display: grid;
-		grid-template-columns: 11rem 1fr;
+		grid-template-columns: 3rem 11rem 1fr;
 		column-gap: 1.5rem;
-		padding: 0.75rem 0;
+		padding: 1rem 0;
 		border-bottom: 1px solid var(--line);
 	}
 
@@ -39,14 +40,26 @@
 		margin: 0;
 	}
 
+	.no {
+		grid-row: span 2;
+		color: var(--muted);
+		font-family: var(--font-display);
+		font-size: var(--font-size-20);
+		font-weight: 700;
+		line-height: var(--line-height-150);
+	}
+
 	.name {
 		grid-row: span 2;
-		font-weight: var(--font-weight-700);
+		font-family: var(--font-display);
+		font-size: var(--font-size-20);
+		font-weight: 700;
+		line-height: var(--line-height-150);
 		overflow-wrap: anywhere;
 	}
 
-
 	.tech {
+		grid-column: 3;
 		color: var(--muted);
 		font-size: var(--font-size-14);
 		line-height: var(--line-height-150);
@@ -54,11 +67,19 @@
 
 	@media (max-width: 40rem) {
 		.item {
-			grid-template-columns: 1fr;
+			grid-template-columns: 2.5rem 1fr;
+		}
+
+		.no {
+			grid-row: span 3;
 		}
 
 		.name {
 			grid-row: auto;
+		}
+
+		.tech {
+			grid-column: 2;
 		}
 	}
 </style>

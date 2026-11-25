@@ -22,5 +22,11 @@
 	"theme_system": "Match OS",
 	"theme_toggle": "Display mode: {current}. Press to switch to {next}",
 	"theme_title": "Display mode: {current}",
-	"locale_switch": "日本語で読む"
+	"locale_switch": "日本語で読む",
+	"menu_open": "Open menu",
+	"menu_close": "Close menu",
+	"nav_works": "Things I made",
+	"nav_world": "Fly around in 3D",
+	"nav_contact": "Say hi",
+	"hero_label": "Portfolio"
 }

@@ -5,7 +5,7 @@
 	--muted: var(--brand-muted);
 	--line: var(--brand-line);
 	--on-key: var(--brand-on-honey);
-	--header-height: 2.5rem;
+	--header-height: 3.5rem;
 	color-scheme: light;
 	scroll-padding-top: var(--header-height);
 }
