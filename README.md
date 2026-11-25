@@ -23,6 +23,7 @@
 | 多言語 | Paraglide JS。日本語は接頭辞なし、英語は `/en/`。画面の文言は `messages/{ja,en}.json`、作品の紹介文は `works.ts` に両方を持つ |
 | 表示モード | ライト・ダーク・OS に合わせる。ダークはデザイントークンの変数を `src/lib/theme/dark.css` で上書きする |
 | 3D | Three.js (素で使う。Threlte / 物理エンジンは使わない) |
+| スクロール演出 | トップの花の螺旋 (`src/lib/Garden.svelte`)。GSAP の ScrollTrigger (GSAP Standard License、無償) で動かし、Lenis (MIT) でスクロールをなめらかにする。どちらもトップでだけ読み込む |
 | 3D アセット | CC-BY (Poly Pizza / Twemoji)。表記は `works.ts` の credits に持ち、`/works/kiichiro` に出す。トップの静止画 (`src/lib/brand/*.webp`) は同じモデルを `scripts/render-brand.ts` で撮ったもの |
 | ホスティング | Cloudflare Workers (アセットのみ)。デプロイは Workers Builds |
 
