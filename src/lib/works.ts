@@ -9,6 +9,7 @@ export type Work = {
   liveUrl?: string;
   credits?: string[];
   pitch?: Localized;
+  main?: boolean;
   spot?: { index: number; color: string };
 };
 
@@ -17,6 +18,7 @@ export const works = (
     {
       "id": "hapax",
       "title": "hapax",
+      "main": true,
       "summary": {
         "ja": "hapaxは文中に1度だけ出る単語を表す言葉ですけどネーミングしくりました。ただのファイル共有サービス。よくあるやつ。",
         "en": "A hapax is a word that shows up exactly once in a text. Yeah, I fucked up the name. It's just a file-sharing service. Nothing special."
@@ -33,6 +35,7 @@ export const works = (
     {
       "id": "ahab",
       "title": "ahab",
+      "main": true,
       "summary": {
         "ja": "Ahab船長ですね。銛で白鯨を狩ったっていう。dockerの状態をdockerで見せようという変な取り組み。ぶっちゃけdocker desktop下位互換",
         "en": "Captain Ahab, the guy who went after the white whale with a harpoon. A weird attempt to show Docker's state using Docker. Honestly, a shittier Docker Desktop."
@@ -48,6 +51,7 @@ export const works = (
     {
       "id": "sanjal",
       "title": "sanjal",
+      "main": true,
       "summary": {
         "ja": "ヒンディー語で網、ネットワークを意味します。ネットワークの勉強してる時にイメージしやすいように作りました。",
         "en": "Hindi for net, as in network. Built it so I could actually picture networks while studying them."
@@ -116,4 +120,6 @@ export const works = (
 
 export const featured = works.filter((w) => w.spot);
 
-export const showcase = works.filter((w) => w.pitch);
+export const showcase = works.filter((w) => w.main);
+
+export const others = works.filter((w) => !w.main);

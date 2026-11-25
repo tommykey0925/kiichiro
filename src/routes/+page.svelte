@@ -6,12 +6,10 @@
 	import EnvelopeSimpleIcon from 'phosphor-svelte/lib/EnvelopeSimpleIcon';
 	import { profile } from '$lib/profile';
 	import '$lib/dads/link.css';
-	import { showcase, works } from '$lib/works';
+	import { showcase, others } from '$lib/works';
 	import { localize } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
-
-	const products = works.filter((w) => !w.pitch);
 </script>
 
 <svelte:head>
@@ -33,7 +31,7 @@
 		{#each showcase as work (work.id)}
 			<article class="pick">
 				<h3><a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a></h3>
-				<p>{work.pitch && localize(work.pitch)}</p>
+				<p>{localize(work.summary)}</p>
 				<p class="tech">{work.tech.map(localize).join(' / ')}</p>
 				<p class="links">
 					{#if work.liveUrl}
@@ -43,7 +41,7 @@
 				</p>
 			</article>
 		{/each}
-		<WorkList works={products} />
+		<WorkList works={others} />
 	</section>
 
 	<section>
