@@ -1,10 +1,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { Work } from '$lib/works';
+import { createScenery, SCENERY_PALETTES } from './Scenery';
 import {
 	NEAR_DISTANCE,
-	ROAD_HALF_LENGTH,
-	ROAD_HALF_WIDTH,
 	START_POSITION,
 	clampToGround,
 	moveHeading,
@@ -16,8 +15,8 @@ const WALK_SPEED = 5.5;
 const CAMERA_DISTANCE = 7.5;
 const CAMERA_HEIGHT = 3.4;
 const PALETTES = {
-	light: { sky: 0xdfe9f2, hemiSky: 0xffffff, hemiGround: 0x8fa88c, hemi: 2.1, sun: 0xfff4e2, sunIntensity: 2.4, ground: 0x9dbf8e },
-	dark: { sky: 0x121a26, hemiSky: 0x8ea2c8, hemiGround: 0x22301f, hemi: 0.8, sun: 0xbfcfff, sunIntensity: 0.7, ground: 0x3a5537 }
+	light: { hemiSky: 0xfff6e0, hemiGround: 0x7f9f5c, hemi: 1.9, sun: 0xffe7b8, sunIntensity: 2.6 },
+	dark: { hemiSky: 0xa9b8e0, hemiGround: 0x2c3d28, hemi: 1.15, sun: 0xc8d6ff, sunIntensity: 1.1 }
 } as const;
 
 export type WorldTheme = keyof typeof PALETTES;
@@ -25,9 +24,11 @@ export type WorldTheme = keyof typeof PALETTES;
 const BEE_SCALE = 0.16;
 const HOVER_HEIGHT = 0.9;
 
-const FLOWER_SCALE = 0.5;
+const FLOWER_SCALE = 0.8;
 const FLOWER_BOTTOM = -1.09;
-const LABEL_HEIGHT = 2.6;
+const LABEL_HEIGHT = 3.6;
+/** カメラからこの距離 (m) より近い札は薄くし、near で消える */
+const LABEL_FADE = { near: 2.5, far: 5 };
 const PETAL_MATERIAL = 'mat21';
 
 const IDLE_GLOW = 0.06;
@@ -49,6 +50,7 @@ type Exhibit = {
 	work: Work;
 	position: THREE.Vector3;
 	glow: THREE.MeshStandardMaterial;
+	label: THREE.Sprite;
 	sparkles?: Sparkles;
 	meshes: THREE.Object3D[];
 };
@@ -59,17 +61,18 @@ export async function createWorld(
 	onNear: (work: Work | null) => void
 ): Promise<World> {
 	const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-	renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+	// 指で操作する端末 (多くはスマホ) は描く画素と草花を減らす
+	const lite = matchMedia('(pointer: coarse)').matches;
+	renderer.setPixelRatio(Math.min(devicePixelRatio, lite ? 1.5 : 2));
 	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	renderer.shadowMap.type = THREE.PCFShadowMap;
 
 	const scene = new THREE.Scene();
-	const sky = new THREE.Color();
-	scene.background = sky;
-	const fog = new THREE.Fog(sky, 24, 62);
+	// 霧は空の地平線と同じ色にして、遠くの丘を空へ溶かす
+	const fog = new THREE.Fog(0xffffff, 28, 120);
 	scene.fog = fog;
 
-	const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+	const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 400);
 
 	const hemi = new THREE.HemisphereLight();
 	scene.add(hemi);
@@ -82,24 +85,21 @@ export async function createWorld(
 	sun.shadow.camera.bottom = -22;
 	scene.add(sun, sun.target);
 
-	const groundMaterial = new THREE.MeshStandardMaterial({ roughness: 1 });
-	const ground = new THREE.Mesh(
-		new THREE.PlaneGeometry(ROAD_HALF_WIDTH * 2, ROAD_HALF_LENGTH * 2).rotateX(-Math.PI / 2),
-		groundMaterial
+	const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const scenery = createScenery(
+		works.flatMap((w) => (w.spot ? [w.spot] : [])),
+		{ still, lite }
 	);
-	ground.receiveShadow = true;
-	scene.add(ground);
+	scene.add(...scenery.objects);
 
 	const setTheme = (theme: WorldTheme) => {
 		const palette = PALETTES[theme];
-		sky.set(palette.sky);
-		fog.color.set(palette.sky);
+		fog.color.copy(scenery.setPalette(SCENERY_PALETTES[theme]));
 		hemi.color.set(palette.hemiSky);
 		hemi.groundColor.set(palette.hemiGround);
 		hemi.intensity = palette.hemi;
 		sun.color.set(palette.sun);
 		sun.intensity = palette.sunIntensity;
-		groundMaterial.color.set(palette.ground);
 	};
 	setTheme('light');
 
@@ -167,12 +167,15 @@ export async function createWorld(
 	observer.observe(canvas);
 	resize();
 
-	const clock = new THREE.Clock();
+	const timer = new THREE.Timer();
+	timer.connect(document);
 	let frame = 0;
 
 	const tick = () => {
 		frame = requestAnimationFrame(tick);
-		const delta = Math.min(clock.getDelta(), 0.1);
+		timer.update();
+		const delta = Math.min(timer.getDelta(), 0.1);
+		const elapsed = timer.getElapsed();
 
 		const input = readInput(keys, move);
 		const moving = input.lengthSq() > 0;
@@ -185,7 +188,8 @@ export async function createWorld(
 			character.group.position.x = inside.x;
 			character.group.position.z = inside.z;
 		}
-		character.animate(clock.elapsedTime, moving);
+		character.animate(elapsed, moving);
+		scenery.animate(elapsed);
 
 		const target = character.group.position;
 		sun.position.set(target.x + 12, 20, target.z + 8);
@@ -205,7 +209,10 @@ export async function createWorld(
 		for (const exhibit of exhibits) {
 			const lit = exhibit.work.id === nearId ? NEAR_GLOW : IDLE_GLOW;
 			exhibit.glow.emissiveIntensity += (lit - exhibit.glow.emissiveIntensity) * 0.15;
-			exhibit.sparkles?.twinkle(clock.elapsedTime);
+			exhibit.sparkles?.twinkle(elapsed);
+			// カメラが札のすぐ横を通るときは薄くして、画面を札で覆わない
+			const distance = camera.position.distanceTo(exhibit.label.position);
+			exhibit.label.material.opacity = THREE.MathUtils.smoothstep(distance, LABEL_FADE.near, LABEL_FADE.far);
 		}
 
 		renderer.render(scene, camera);
@@ -220,6 +227,7 @@ export async function createWorld(
 		},
 		dispose() {
 			cancelAnimationFrame(frame);
+			timer.dispose();
 			observer.disconnect();
 			removeEventListener('keydown', keyDown);
 			removeEventListener('keyup', keyUp);
@@ -317,6 +325,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 		work,
 		position: new THREE.Vector3(x, 0, z),
 		glow,
+		label,
 		sparkles,
 		meshes: sparkles ? [model, label, sparkles.points] : [model, label]
 	};
@@ -429,8 +438,10 @@ function createLabel(text: string, color: string) {
 	const texture = new THREE.CanvasTexture(canvas);
 	texture.colorSpace = THREE.SRGBColorSpace;
 	texture.anisotropy = 4;
-	const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false }));
-	sprite.scale.set((width / height) * 0.95, 0.95, 1);
+	const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true }));
+	// 近づいても蜂を隠さない大きさ。遠くの札は霧に溶けないよう fog を切る
+	sprite.material.fog = false;
+	sprite.scale.set((width / height) * 0.72, 0.72, 1);
 	return sprite;
 }
 
