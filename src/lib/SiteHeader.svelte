@@ -3,12 +3,16 @@
 	import LocaleSwitch from './i18n/LocaleSwitch.svelte';
 	import SiteMenu from './SiteMenu.svelte';
 	import Logo from './brand/Logo.svelte';
+	import Comb from './forage/Comb.svelte';
 	import { localizeHref } from './paraglide/runtime';
 </script>
 
 <header class="site-header">
 	<div class="inner">
-		<a class="home" href={localizeHref('/')}><Logo /></a>
+		<div class="start">
+			<a class="home" href={localizeHref('/')}><Logo /></a>
+			<Comb />
+		</div>
 		<div class="tools">
 			<LocaleSwitch />
 			<ThemeToggle />
@@ -48,6 +52,12 @@
 		outline: 4px solid var(--brand-ink);
 		outline-offset: 2px;
 		border-radius: var(--border-radius-4);
+	}
+
+	.start {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
 	}
 
 	.tools {

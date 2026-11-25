@@ -16,10 +16,7 @@ type Shot = { file: string; model: 'bee' | 'flower'; yaw: number; pitch: number;
 const shots: Shot[] = [
 	{ file: 'mascot.webp', model: 'bee', yaw: 2.6, pitch: 0.35, size: 1024 },
 	{ file: 'bee-side.webp', model: 'bee', yaw: -1.1, pitch: 0.25, size: 512 },
-	{ file: 'bee-top.webp', model: 'bee', yaw: 3.4, pitch: 0.9, size: 512 },
-	{ file: 'flower-petal.webp', model: 'flower', yaw: 0.3, pitch: 1.25, petal: '#d95f79', size: 512 },
-	{ file: 'flower-honey.webp', model: 'flower', yaw: 1.4, pitch: 1.35, petal: '#f2b705', size: 512 },
-	{ file: 'flower-cream.webp', model: 'flower', yaw: 2.5, pitch: 1.2, petal: '#fff3d6', size: 512 }
+	{ file: 'bee-top.webp', model: 'bee', yaw: 3.4, pitch: 0.9, size: 512 }
 ];
 
 const page = /* html */ `<!doctype html><body style="margin:0;background:transparent">

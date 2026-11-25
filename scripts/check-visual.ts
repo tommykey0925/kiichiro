@@ -6,7 +6,8 @@
 //   - PC とスマホ、ライトとダークの全組み合わせで、横スクロールが出ない・ページのエラーが出ない
 //   - ヘッダーの背景が不透明で、スクロールしても下の文字が透けて重ならない
 //   - メニューが開き、Esc で閉じ、フォーカスが開いたボタンに戻る
-//   - 動きを減らす設定では、文字帯と飛ぶ蜂が止まる
+//   - 作品一覧まで読み進めると花が咲き、蜂が訪れてヘッダーの蜂の巣に蜜がたまる
+//   - 動きを減らす設定では、文字帯と飛ぶ蜂が止まり、読む位置に来た花はすぐ咲いて訪れた扱いになる
 
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -99,6 +100,25 @@ try {
 		await context.close();
 	}
 
+	// 蜂の演出: 作品一覧まで読み進めると、蜂が最初の花を訪れて蜜が 1 部屋たまる
+	for (const [name, options] of Object.entries(viewports)) {
+		const context = await browser.newContext(options);
+		const page = await context.newPage();
+		watchErrors(page, `${name} 蜂`);
+		await page.goto(base + '/', { waitUntil: 'networkidle' });
+		const comb = page.locator('.comb');
+		if ((await comb.getAttribute('aria-label')) !== '0 / 7 作品に蜂が立ち寄った') fail(`${name}: 蜂の巣の初期表示が想定外 (${await comb.getAttribute('aria-label')})`);
+		await page.evaluate(() => document.getElementById('works')!.scrollIntoView());
+		try {
+			await page.waitForFunction(() => document.querySelector('.bloom')?.classList.contains('visited'), null, { timeout: 6000 });
+		} catch {
+			fail(`${name}: 6 秒以内に蜂が最初の花を訪れない`);
+		}
+		const label = await comb.getAttribute('aria-label');
+		if (!label?.startsWith('1 / 7') && !label?.startsWith('2 / 7')) fail(`${name}: 蜂の巣に蜜がたまらない (${label})`);
+		await context.close();
+	}
+
 	// 動きを減らす設定
 	{
 		const context = await browser.newContext({ ...viewports.pc, reducedMotion: 'reduce' });
@@ -108,10 +128,14 @@ try {
 		await page.waitForTimeout(300);
 		const state = await page.evaluate(() => ({
 			band: getComputedStyle(document.querySelector('.track')!).animationName,
-			bee: getComputedStyle(document.querySelector('.enter')!).display
+			bee: document.querySelector<HTMLElement>('.bee')?.hidden
 		}));
 		if (state.band !== 'none') fail(`動きを減らす設定: 文字帯が流れている (${state.band})`);
-		if (state.bee !== 'none') fail('動きを減らす設定: 飛ぶ蜂が出ている');
+		if (!state.bee) fail('動きを減らす設定: 飛ぶ蜂が出ている');
+		await page.evaluate(() => document.getElementById('works')!.scrollIntoView());
+		await page.waitForTimeout(300);
+		const first = await page.locator('.bloom').first().getAttribute('class');
+		if (!first?.includes('open') || !first.includes('visited')) fail(`動きを減らす設定: 最初の花が咲いて訪れた扱いにならない (${first})`);
 		await context.close();
 	}
 } finally {
@@ -123,4 +147,4 @@ if (failures.length > 0) {
 	console.error(failures.map((f) => `NG ${f}`).join('\n'));
 	process.exit(1);
 }
-console.log(`visual ok: ${Object.keys(viewports).length * 2 * paths.length} pages, menu, reduced motion`);
+console.log(`visual ok: ${Object.keys(viewports).length * 2 * paths.length} pages, menu, bee, reduced motion`);

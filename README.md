@@ -23,6 +23,7 @@
 | 多言語 | Paraglide JS。日本語は接頭辞なし、英語は `/en/`。画面の文言は `messages/{ja,en}.json`、作品の紹介文は `works.ts` に両方を持つ |
 | 表示モード | ライト・ダーク・OS に合わせる。ダークはデザイントークンの変数を `src/lib/theme/dark.css` で上書きする |
 | 3D | Three.js (素で使う。Threlte / 物理エンジンは使わない) |
+| 蜂の演出 | トップで、読む位置に来た作品の花が咲き、蜂がそこへ飛ぶ (`src/lib/forage/`)。ライブラリは使わず `requestAnimationFrame` で動かす |
 | 3D アセット | CC-BY (Poly Pizza / Twemoji)。表記は `works.ts` の credits に持ち、`/works/kiichiro` に出す。トップの静止画 (`src/lib/brand/*.webp`) は同じモデルを `scripts/render-brand.ts` で撮ったもの |
 | ホスティング | Cloudflare Workers (アセットのみ)。デプロイは Workers Builds |
 
@@ -32,9 +33,9 @@
 pnpm install
 pnpm dev
 pnpm check    # 型チェック
-pnpm test     # 3D の配置を検証 (展示台の間隔・移動方向・キラキラの分布)
+pnpm test     # 3D の配置 (展示台の間隔・移動方向・キラキラの分布) と蜂の飛び方を検証
 pnpm build    # build/ に静的サイトを出力
-pnpm test:visual  # build/ を headless Chromium で開き、横スクロール・ヘッダーの透け・メニュー・動きを減らす設定を検査
+pnpm test:visual  # build/ を headless Chromium で開き、横スクロール・ヘッダーの透け・メニュー・蜂の演出・動きを減らす設定を検査
 ```
 
 ## 複製したファイル

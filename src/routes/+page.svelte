@@ -1,9 +1,10 @@
 <script lang="ts">
 	import WorkList from '$lib/WorkList.svelte';
-	import BeeIcon from '$lib/brand/BeeIcon.svelte';
 	import Logo from '$lib/brand/Logo.svelte';
 	import Mascot from '$lib/brand/Mascot.svelte';
-	import Flower from '$lib/brand/Flower.svelte';
+	import Bloom from '$lib/brand/Bloom.svelte';
+	import Bee from '$lib/forage/Bee.svelte';
+	import { detour } from '$lib/forage/state.svelte';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
 	import EnvelopeSimpleIcon from 'phosphor-svelte/lib/EnvelopeSimpleIcon';
@@ -14,7 +15,6 @@
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
 
-	const flowers = ['petal', 'honey', 'cream'] as const;
 	// 文字帯には作品名を流す。並びは一覧と同じ
 	const band = [...showcase, ...others].map((w) => w.title);
 </script>
@@ -47,9 +47,7 @@
 	</div>
 </div>
 
-<a class="enter" href={localizeHref('/world')} aria-label={m.enter_world()}>
-	<BeeIcon />
-</a>
+<Bee />
 
 <div class="wrap">
 	<section id="works" aria-labelledby="works-heading">
@@ -60,7 +58,7 @@
 
 		<ol class="picks">
 			{#each showcase as work, i (work.id)}
-				<li class="pick">
+				<li class="pick" use:detour={work.id}>
 					<span class="no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
 					<div class="pick-body">
 						<h3><a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a></h3>
@@ -77,7 +75,7 @@
 							<a class="dads-link" href={work.repo} rel="noreferrer">GitHub</a>
 						</p>
 					</div>
-					<Flower color={flowers[i % flowers.length]} class="pick-flower" loading="lazy" aria-hidden="true" />
+					<span class="pick-bloom"><Bloom id={work.id} color={work.spot?.color ?? 'var(--brand-petal)'} size="8rem" /></span>
 				</li>
 			{/each}
 		</ol>
@@ -317,19 +315,21 @@
 		gap: 1.5rem;
 	}
 
-	.pick :global(.pick-flower) {
-		width: 100%;
-		height: auto;
-		rotate: -6deg;
-	}
-
-	.pick:nth-child(even) :global(.pick-flower) {
-		rotate: 8deg;
+	.pick-bloom {
+		display: grid;
+		place-items: center;
+		padding-top: 1rem;
 	}
 
 	@media (max-width: 48rem) {
 		.pick {
 			grid-template-columns: 3.5rem minmax(0, 1fr);
+			grid-template-rows: auto 1fr;
+		}
+
+		.pick-body {
+			grid-column: 2;
+			grid-row: 1 / span 2;
 		}
 
 		.no {
@@ -340,8 +340,15 @@
 			font-size: var(--font-size-28);
 		}
 
-		.pick :global(.pick-flower) {
-			display: none;
+		/* スマホでは番号の下に小さく咲かせる */
+		.pick-bloom {
+			grid-column: 1;
+			grid-row: 2;
+			padding-top: 0;
+		}
+
+		.pick-bloom {
+			--bloom-size: 3.5rem;
 		}
 	}
 
@@ -361,49 +368,5 @@
 
 	.world {
 		margin: 2rem 0 0;
-	}
-
-	/* /world への入口: 画面を飛び回る蜂 */
-	.enter {
-		--edge: 3rem;
-
-		position: fixed;
-		z-index: 5;
-		display: block;
-		width: 4.5rem;
-		height: 4.5rem;
-		offset-path: ellipse(42% 37%);
-		offset-path: shape(
-			from 50% 50%,
-			curve to calc(100% - var(--edge)) 50% with 50% 0% / calc(100% - var(--edge)) 0%,
-			curve to 50% 50% with calc(100% - var(--edge)) 100% / 50% 100%,
-			curve to var(--edge) 50% with 50% 0% / var(--edge) 0%,
-			curve to 50% 50% with var(--edge) 100% / 50% 100%
-		);
-		offset-rotate: auto 90deg;
-		animation: bee-flight 60s linear infinite;
-	}
-
-	.enter :global(svg) {
-		transition: scale 0.2s ease;
-	}
-
-	.enter:hover :global(svg) {
-		scale: 1.12;
-	}
-
-	@keyframes bee-flight {
-		from {
-			offset-distance: 0%;
-		}
-		to {
-			offset-distance: 100%;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.enter {
-			display: none;
-		}
 	}
 </style>
