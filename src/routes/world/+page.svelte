@@ -102,7 +102,7 @@
 {/if}
 
 {#if near}
-	<aside class="panel">
+	<aside class="panel" style:--spot={near.spot?.color}>
 		<h2>{near.title}</h2>
 		<p>{localize(near.summary)}</p>
 		<ul>
@@ -153,9 +153,12 @@
 		position: fixed;
 		z-index: 1;
 		padding: 0.45rem 0.9rem;
+		border: 2px solid var(--brand-ink);
 		border-radius: var(--border-radius-8);
-		background: rgb(from var(--color-neutral-white) r g b / 0.85);
+		background: var(--brand-paper);
+		font-family: var(--font-display);
 		font-size: var(--font-size-14);
+		font-weight: 700;
 		text-decoration: none;
 	}
 
@@ -181,21 +184,24 @@
 		max-width: 30rem;
 		margin: 0 auto;
 		padding: 1.1rem 1.3rem;
+		border: 2px solid var(--brand-ink);
+		border-top: 0.5rem solid var(--spot, var(--brand-honey));
 		border-radius: var(--border-radius-12);
-		background: rgb(from var(--color-neutral-white) r g b / 0.94);
-		box-shadow: var(--elevation-4);
+		background: var(--brand-paper);
+		/* トップの蜂と同じ、ずらした塗りの影 */
+		box-shadow: 8px 8px 0 var(--brand-ink);
 	}
 
 	.panel h2 {
 		margin: 0 0 0.4rem;
-		font-size: var(--font-size-18);
+		font-size: var(--font-size-28);
 		line-height: var(--line-height-150);
 	}
 
 	.panel p {
 		margin: 0 0 0.7rem;
-		color: var(--muted);
-		font-size: var(--font-size-14);
+		color: var(--ink);
+		font-size: var(--font-size-16);
 		line-height: var(--line-height-160);
 	}
 
@@ -254,17 +260,18 @@
 		place-items: center;
 		width: 7rem;
 		height: 7rem;
+		border: 2px solid var(--brand-ink);
 		border-radius: 50%;
-		background: rgb(from var(--color-neutral-white) r g b / 0.5);
+		background: rgb(from var(--brand-paper) r g b / 0.6);
 		touch-action: none;
 	}
 
 	.knob {
 		width: 2.6rem;
 		height: 2.6rem;
+		border: 2px solid var(--brand-ink);
 		border-radius: 50%;
-		background: rgb(from var(--color-neutral-white) r g b / 0.95);
-		box-shadow: var(--elevation-1);
+		background: var(--brand-honey);
 	}
 
 	@media (pointer: coarse) {

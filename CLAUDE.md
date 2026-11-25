@@ -40,4 +40,4 @@
 
 ## デジタル庁デザインシステムの残り
 
-`@digital-go-jp/design-tokens` は `/world` の画面部品と `src/lib/theme/dark.css` がまだ参照している。新しく書く部品では使わない。
+`@digital-go-jp/design-tokens` は、文字の大きさ・行間・角丸の変数と `src/lib/theme/dark.css` がまだ参照している。色と影は新しく書く部品では使わない。`/world` の札とパネルも `brand.css` の色にそろえてある。
