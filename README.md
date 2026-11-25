@@ -33,7 +33,7 @@
 pnpm install
 pnpm dev
 pnpm check    # 型チェック
-pnpm test     # 3D の配置 (展示台の間隔・移動方向・キラキラの分布) と蜂の飛び方を検証
+pnpm test     # 3D の配置 (展示台の間隔・移動方向・キラキラの分布)・花畑の地形・蜂の飛び方を検証
 pnpm build    # build/ に静的サイトを出力
 pnpm test:visual  # build/ を headless Chromium で開き、横スクロール・ヘッダーの透け・メニュー・蜂の演出・動きを減らす設定を検査
 ```
