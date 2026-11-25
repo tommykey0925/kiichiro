@@ -135,3 +135,46 @@ export function fillOrder(cells: { q: number; r: number; x: number; y: number }[
 		.sort((a, b) => a.ring - b.ring || a.turn - b.turn)
 		.map((c) => c.index);
 }
+
+export type Sprout = Tuft & { delay: number };
+
+/**
+ * 蜜が巣に届いたとき、その作品の色で咲く花の位置。巣 (from) から作品の花 (to) へ向かう帯に散らす。
+ *
+ *    巣 ●≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈● 作品の花
+ *       ↑ 巣の前で降ろした蜂の目の前から咲き始め、波になって作品の花まで届く
+ *
+ * delay (秒) は巣からの距離に比例させる。作品の花に近いほど密にする。
+ */
+export function sprouts(from: { x: number; z: number }, to: { x: number; z: number }, count: number, spots: Spot[], seed: number): Sprout[] {
+	const random = seeded(seed);
+	const result: Sprout[] = [];
+	const dx = to.x - from.x;
+	const dz = to.z - from.z;
+	const length = Math.hypot(dx, dz);
+	const side = { x: -dz / length, z: dx / length };
+	let guard = count * 30;
+	while (result.length < count && guard-- > 0) {
+		// 作品の花の側に寄せる (u が 1 に近いほど多い)
+		const u = Math.pow(random(), 0.6);
+		const width = SPROUT_WIDTH * (0.4 + 0.6 * u);
+		const offset = (random() * 2 - 1) * width;
+		const x = from.x + dx * u + side.x * offset;
+		const z = from.z + dz * u + side.z * offset;
+		if (Math.abs(x) > 46 || pathAmount(x, z) > 0.2 || nearSpot(x, z, spots)) continue;
+		result.push({
+			x,
+			y: groundHeight(x, z),
+			z,
+			scale: 0.8 + random() * 0.6,
+			turn: random() * Math.PI * 2,
+			tone: random(),
+			delay: Math.hypot(x - from.x, z - from.z) / SPROUT_SPEED
+		});
+	}
+	return result;
+}
+
+/** 帯の片側の幅 (m) と、波の進む速さ (m/秒) */
+export const SPROUT_WIDTH = 9;
+export const SPROUT_SPEED = 20;
