@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { createBeeModel, type WingMode } from './BeeModel';
+import { createFlight3, FLIGHT3, hasArrived, speedOf, step3, type Control } from './flight';
 import type { Work } from '$lib/works';
-import { createScenery, HONEY_COLOR, HONEY_GLOW_COLOR, SCENERY_PALETTES } from './Scenery';
-import { honeyArc } from './terrain';
+import { createScenery, SCENERY_PALETTES } from './Scenery';
 import {
 	NEAR_DISTANCE,
 	START_POSITION,
@@ -12,7 +13,6 @@ import {
 	spotPosition
 } from './layout';
 
-const WALK_SPEED = 5.5;
 const CAMERA_DISTANCE = 7.5;
 const CAMERA_HEIGHT = 3.4;
 const PALETTES = {
@@ -21,9 +21,6 @@ const PALETTES = {
 } as const;
 
 export type WorldTheme = keyof typeof PALETTES;
-
-const BEE_SCALE = 0.16;
-const HOVER_HEIGHT = 0.9;
 
 const FLOWER_SCALE = 0.8;
 const FLOWER_BOTTOM = -1.09;
@@ -41,24 +38,28 @@ const SPARKLE_TWINKLE = 3.2;
 
 export type MoveInput = { x: number; y: number };
 
-/** 蜜集め: すでに訪れた作品と、新しく訪れたときの知らせ先 */
+/**
+ * 蜜集め
+ *   visited   蜜が巣に届いている作品 (トップで訪れたものを含む)
+ *   onCarry   花粉を運んでいる作品が変わったとき
+ *   onVisit   花粉を巣に降ろして、その作品の部屋が満ちたとき
+ */
 export type Foraging = {
 	visited: Iterable<string>;
+	onCarry: (ids: string[]) => void;
 	onVisit: (id: string) => void;
 };
 
-/** 花の近くにこの時間 (秒) 留まると蜜を集めたことにする */
-const DWELL = 1;
-/** 蜜が花から巣へ飛ぶ時間 (秒) */
-const HONEY_FLIGHT = 2.4;
-/** 蜜が飛び立つ高さ (花の頭のあたり) */
-const HONEY_START_HEIGHT = 2.2;
-/** 道の奥で見上げる量。z が from から to へ進むにつれて、注視点を height (m) まで上げる */
-const LOOK_UP = { from: 18, to: 40, height: 3 };
-/** 蜜の通り道の弧の高さ (m) */
-const HONEY_RISE = 3;
-/** 蜜の粒が残す光の尾の長さ (点の数) */
-const TRAIL_LENGTH = 24;
+/** 花の上に止まってから花粉が付くまでの時間 (秒) */
+const REST = 0.9;
+/** 巣の前で花粉を 1 つ降ろす間隔 (秒) */
+const DROP_INTERVAL = 0.4;
+/** 花粉を運んでいるとき、巣の入口からこの距離 (m) で止まると自分で巣へ寄る。道の突き当たりのどこからでも届く広さ */
+const HIVE_REACH = 8;
+/** カメラが蜂に追いつく速さ。大きいほど遅れが小さい */
+const CAMERA_FOLLOW = 4;
+/** 花へ自分で寄り始める速さの上限 (m/秒)。これより速く飛んでいるときは素通りする */
+const SETTLE_SPEED = 2.5;
 
 export type World = {
 	setMove: (input: MoveInput) => void;
@@ -70,6 +71,8 @@ type Exhibit = {
 	work: Work;
 	position: THREE.Vector3;
 	glow: THREE.MeshStandardMaterial;
+	/** 蜂が降りる位置 (花の頭の上) */
+	head: THREE.Vector3;
 	label: THREE.Sprite;
 	sparkles?: Sparkles;
 	meshes: THREE.Object3D[];
@@ -124,8 +127,8 @@ export async function createWorld(
 	};
 	setTheme('light');
 
-	const [character, flower] = await Promise.all([
-		createCharacter(),
+	const [bee, flower] = await Promise.all([
+		createBeeModel({ still }),
 		loadFlower(),
 		// 札は canvas に描くので、書体が届いてから描く。届かなくても既定の書体で続ける
 		document.fonts.load(`700 30px ${LABEL_FONT}`).catch(() => [])
@@ -139,43 +142,42 @@ export async function createWorld(
 	for (const exhibit of exhibits) {
 		if (visited.has(exhibit.work.id)) scenery.hive.fill(exhibit.work.spot!.index, true);
 	}
-	let dwell = 0;
-	const honeyGeometry = new THREE.IcosahedronGeometry(0.32, 1);
-	const honeyMaterial = new THREE.MeshStandardMaterial({
-		color: HONEY_COLOR,
-		emissive: HONEY_GLOW_COLOR,
-		emissiveIntensity: 1.2,
-		roughness: 0.2
-	});
-	type Drop = {
-		mesh: THREE.Mesh;
-		trail: THREE.Points;
-		from: THREE.Vector3;
-		to: THREE.Vector3;
-		slot: number;
-		t: number;
-	};
-	const drops: Drop[] = [];
 
-	const collect = (exhibit: Exhibit) => {
-		const id = exhibit.work.id;
-		const slot = exhibit.work.spot!.index;
+	/**
+	 * 蜂のしていること
+	 *   free       操作どおりに飛ぶ
+	 *   toFlower   止まった近くの花へ自分で寄る
+	 *   resting    花の上に止まって花粉を集める
+	 *   toHive     花粉を運んで巣の前で止まったので、入口へ寄る
+	 *   unloading  入口で花粉を 1 つずつ降ろす
+	 */
+	type Mode = 'free' | 'toFlower' | 'resting' | 'toHive' | 'unloading';
+	let mode: Mode = 'free';
+	let landing: Exhibit | null = null;
+	let clock = 0;
+	const carried: string[] = [];
+	let flight = createFlight3({ x: START_POSITION.x, y: FLIGHT3.idle, z: START_POSITION.z });
+	scene.add(bee.group);
+
+	const carry = (id: string) => {
+		carried.push(id);
+		bee.setPollen(carried.length);
+		foraging.onCarry([...carried]);
+	};
+	const unload = () => {
+		const id = carried.shift();
+		if (!id) return;
+		const exhibit = exhibits.find((e) => e.work.id === id)!;
+		scenery.hive.fill(exhibit.work.spot!.index, still);
 		visited.add(id);
+		bee.setPollen(carried.length);
+		foraging.onCarry([...carried]);
 		foraging.onVisit(id);
-		if (still) {
-			scenery.hive.fill(slot, true);
-			return;
-		}
-		const mesh = new THREE.Mesh(honeyGeometry, honeyMaterial);
-		const from = exhibit.position.clone().setY(HONEY_START_HEIGHT);
-		mesh.position.copy(from);
-		const trail = createTrail(from);
-		scene.add(mesh, trail);
-		drops.push({ mesh, trail, from, to: scenery.hive.cellPosition(slot), slot, t: 0 });
 	};
 
-	character.group.position.set(START_POSITION.x, HOVER_HEIGHT, START_POSITION.z);
-	scene.add(character.group);
+	const cameraPosition = new THREE.Vector3();
+	const cameraLook = new THREE.Vector3();
+	let cameraReady = false;
 
 	const move: MoveInput = { x: 0, y: 0 };
 	const keys = new Set<string>();
@@ -239,56 +241,86 @@ export async function createWorld(
 		const elapsed = timer.getElapsed();
 
 		const input = readInput(keys, move);
-		const moving = input.lengthSq() > 0;
-		if (moving) {
-			const heading = moveHeading(input, yaw);
-			character.group.position.x += Math.sin(heading) * WALK_SPEED * delta;
-			character.group.position.z += Math.cos(heading) * WALK_SPEED * delta;
-			character.group.rotation.y = heading;
-			const inside = clampToGround(character.group.position.x, character.group.position.z);
-			character.group.position.x = inside.x;
-			character.group.position.z = inside.z;
+		const steering = input.lengthSq() > 0;
+		if (steering) {
+			mode = 'free';
+			landing = null;
 		}
-		character.animate(elapsed, moving);
+
+		// 操作をやめて遅くなったら、近くの花か巣へ自分で寄る
+		const near = findNearest(exhibits, flight);
+		if (mode === 'free' && !steering && speedOf(flight) < SETTLE_SPEED) {
+			if (near && !visited.has(near.work.id) && !carried.includes(near.work.id)) {
+				mode = 'toFlower';
+				landing = near;
+			} else if (carried.length > 0 && Math.hypot(flight.x - scenery.hive.entrance.x, flight.z - scenery.hive.entrance.z) < HIVE_REACH) {
+				mode = 'toHive';
+			}
+		}
+
+		let control: Control;
+		if (mode === 'free') {
+			const heading = moveHeading(input, yaw);
+			const amount = Math.min(1, input.length());
+			control = { kind: 'steer', dir: { x: Math.sin(heading) * amount, z: Math.cos(heading) * amount } };
+		} else if (mode === 'toFlower' || mode === 'resting') {
+			control = { kind: 'arrive', target: landing!.head };
+		} else {
+			control = { kind: 'arrive', target: scenery.hive.entrance };
+		}
+		// 1 回の計算で進める時間には上限があるので、画面の更新が遅い端末でも同じ速さで飛ぶよう分けて進める
+		for (let left = delta; left > 1e-6; left -= FLIGHT3.maxStep) {
+			flight = step3(flight, control, Math.min(left, FLIGHT3.maxStep));
+		}
+		if (mode === 'free') {
+			const inside = clampToGround(flight.x, flight.z);
+			flight.x = inside.x;
+			flight.z = inside.z;
+		}
+
+		if (mode === 'toFlower' && hasArrived(flight, landing!.head)) {
+			mode = 'resting';
+			clock = 0;
+		} else if (mode === 'resting') {
+			clock += delta;
+			if (clock >= REST && !carried.includes(landing!.work.id)) carry(landing!.work.id);
+		} else if (mode === 'toHive' && hasArrived(flight, scenery.hive.entrance)) {
+			mode = 'unloading';
+			clock = 0;
+		} else if (mode === 'unloading' && carried.length > 0) {
+			clock += delta;
+			if (still) while (carried.length > 0) unload();
+			else if (clock >= DROP_INTERVAL) {
+				clock = 0;
+				unload();
+			}
+		}
+
+		const wings: WingMode =
+			mode === 'resting' ? 'resting' : speedOf(flight) > 1 ? 'flying' : 'hovering';
+		bee.update(flight, wings, delta);
 		scenery.animate(elapsed, delta);
 
-		const target = character.group.position;
+		const target = bee.group.position;
 		sun.position.set(target.x + 12, 20, target.z + 8);
 		sun.target.position.copy(target);
-		camera.position.set(
+		// カメラはばねのように少し遅れて付いてくる
+		const wantPosition = new THREE.Vector3(
 			target.x - Math.sin(yaw) * CAMERA_DISTANCE,
-			CAMERA_HEIGHT,
+			CAMERA_HEIGHT + (target.y - FLIGHT3.idle),
 			target.z - Math.cos(yaw) * CAMERA_DISTANCE
 		);
-		// 道の奥 (蜂の巣の手前) に近づくほど見上げて、丘の上の巣を画面に入れる
-		const lookUp = THREE.MathUtils.smoothstep(target.z, LOOK_UP.from, LOOK_UP.to) * LOOK_UP.height;
-		camera.lookAt(target.x, 1.2 + lookUp, target.z);
+		const wantLook = new THREE.Vector3(target.x, target.y + 0.3, target.z);
+		const follow = cameraReady ? 1 - Math.exp(-delta * CAMERA_FOLLOW) : 1;
+		cameraPosition.lerp(wantPosition, follow);
+		cameraLook.lerp(wantLook, cameraReady ? 1 - Math.exp(-delta * CAMERA_FOLLOW * 2) : 1);
+		cameraReady = true;
+		camera.position.copy(cameraPosition);
+		camera.lookAt(cameraLook);
 
-		const near = findNearest(exhibits, target);
 		if ((near?.work.id ?? null) !== nearId) {
 			nearId = near?.work.id ?? null;
-			dwell = 0;
 			onNear(near?.work ?? null);
-		}
-		// まだ訪れていない花の近くに留まると、蜜を集めて巣へ送る
-		if (near && !visited.has(near.work.id)) {
-			dwell += delta;
-			if (dwell >= DWELL) collect(near);
-		}
-		for (let i = drops.length - 1; i >= 0; i--) {
-			const drop = drops[i];
-			drop.t = Math.min(1, drop.t + delta / HONEY_FLIGHT);
-			// 飛び立ちはゆっくり、巣に近づくと速く
-			const eased = drop.t * drop.t * (3 - 2 * drop.t);
-			// 低い弧で飛ばし、前を向いた画面の中を巣へ向かう様子が見えるようにする
-			const p = honeyArc(drop.from, drop.to, eased, HONEY_RISE);
-			drop.mesh.position.set(p.x, p.y, p.z);
-			pushTrail(drop.trail, drop.mesh.position);
-			if (drop.t < 1) continue;
-			scene.remove(drop.mesh, drop.trail);
-			drop.trail.geometry.dispose();
-			scenery.hive.fill(drop.slot);
-			drops.splice(i, 1);
 		}
 		for (const exhibit of exhibits) {
 			const lit = exhibit.work.id === nearId ? NEAR_GLOW : IDLE_GLOW;
@@ -360,11 +392,12 @@ function readInput(keys: Set<string>, joystick: MoveInput) {
 	return vector.lengthSq() > 1 ? vector.normalize() : vector;
 }
 
-function findNearest(exhibits: Exhibit[], position: THREE.Vector3) {
+/** 水平の距離で、いちばん近い展示を探す (蜂の高さは問わない) */
+function findNearest(exhibits: Exhibit[], position: { x: number; z: number }) {
 	let best: Exhibit | null = null;
 	let bestDistance = NEAR_DISTANCE * NEAR_DISTANCE;
 	for (const exhibit of exhibits) {
-		const distance = exhibit.position.distanceToSquared(position);
+		const distance = (exhibit.position.x - position.x) ** 2 + (exhibit.position.z - position.z) ** 2;
 		if (distance >= bestDistance) continue;
 		best = exhibit;
 		bestDistance = distance;
@@ -384,6 +417,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 
 	const model = flower.clone();
 	let glow: THREE.MeshStandardMaterial | undefined;
+	let petals: THREE.Mesh | undefined;
 	model.traverse((object) => {
 		if (!(object instanceof THREE.Mesh)) return;
 		object.castShadow = true;
@@ -394,11 +428,16 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 		petal.emissiveIntensity = IDLE_GLOW;
 		object.material = petal;
 		glow = petal;
+		petals = object;
 	});
 	if (!glow) throw new Error(`花びらのマテリアル ${PETAL_MATERIAL} が見つからない`);
 
 	model.position.set(x, -FLOWER_BOTTOM * FLOWER_SCALE, z);
 	model.rotation.y = index * 1.1;
+	// 蜂は花びらの真ん中に降りる。蜂のモデルの原点は体の下端なので、花びらの高さをそのまま使う
+	model.updateMatrixWorld(true);
+	const head = new THREE.Box3().setFromObject(petals!).getCenter(new THREE.Vector3());
+	head.y += 0.02;
 
 	const label = createLabel(work.title, color);
 	label.position.set(x, LABEL_HEIGHT, z);
@@ -409,6 +448,7 @@ function createExhibit(work: Work, flower: THREE.Object3D): Exhibit {
 		work,
 		position: new THREE.Vector3(x, 0, z),
 		glow,
+		head,
 		label,
 		sparkles,
 		meshes: sparkles ? [model, label, sparkles.points] : [model, label]
@@ -453,42 +493,6 @@ function createSparkles(x: number, z: number, color: string) {
 			colors.needsUpdate = true;
 		}
 	};
-}
-
-/** 蜜の粒の尾。直近の位置を点で並べ、古いほど薄くする。明るい空でも見えるよう加算ではなく透明度で薄める */
-function createTrail(start: THREE.Vector3) {
-	const positions = new Float32Array(TRAIL_LENGTH * 3);
-	const colors = new Float32Array(TRAIL_LENGTH * 4);
-	const honey = new THREE.Color(HONEY_COLOR);
-	for (let i = 0; i < TRAIL_LENGTH; i++) {
-		positions.set([start.x, start.y, start.z], i * 3);
-		colors.set([honey.r, honey.g, honey.b, 0.9 * (1 - i / TRAIL_LENGTH)], i * 4);
-	}
-	const geometry = new THREE.BufferGeometry();
-	geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-	geometry.setAttribute('color', new THREE.BufferAttribute(colors, 4));
-	return new THREE.Points(geometry, trailMaterial());
-}
-
-let sharedTrailMaterial: THREE.PointsMaterial | undefined;
-function trailMaterial() {
-	sharedTrailMaterial ??= new THREE.PointsMaterial({
-		size: 0.5,
-		map: sparkleTexture(),
-		vertexColors: true,
-		transparent: true,
-		depthWrite: false
-	});
-	return sharedTrailMaterial;
-}
-
-function pushTrail(trail: THREE.Points, head: THREE.Vector3) {
-	const position = trail.geometry.attributes.position as THREE.BufferAttribute;
-	const array = position.array as Float32Array;
-	array.copyWithin(3, 0, (TRAIL_LENGTH - 1) * 3);
-	array.set([head.x, head.y, head.z], 0);
-	position.needsUpdate = true;
-	trail.geometry.computeBoundingSphere();
 }
 
 function sparkleTexture() {
@@ -563,25 +567,4 @@ function createLabel(text: string, color: string) {
 	sprite.material.fog = false;
 	sprite.scale.set((width / height) * 0.72, 0.72, 1);
 	return sprite;
-}
-
-async function createCharacter() {
-	const model = await new GLTFLoader().loadAsync('/bee.glb');
-	model.scene.scale.setScalar(BEE_SCALE);
-	model.scene.rotation.y = Math.PI;
-	model.scene.traverse((object) => {
-		if (object instanceof THREE.Mesh) object.castShadow = true;
-	});
-
-	const group = new THREE.Group();
-	group.add(model.scene);
-
-	return {
-		group,
-		animate(time: number, moving: boolean) {
-			const beat = moving ? 14 : 6;
-			const amplitude = moving ? 0.14 : 0.07;
-			group.position.y = HOVER_HEIGHT + Math.sin(time * beat) * amplitude;
-		}
-	};
 }

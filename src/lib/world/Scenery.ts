@@ -52,7 +52,9 @@ const WILDFLOWER_COLORS = [0xd95f79, 0xf2b705, 0xfbf6e9, 0xe9a6c0, 0xb9a3e3];
 const GROUND_SEGMENTS = 96;
 const BLADE_COUNT = 4200;
 const WILDFLOWER_COUNT = 520;
-const HIVE_CELL = 1.15;
+const HIVE_CELL = 0.42;
+/** 巣の真ん中の高さ。蜂が止まって降ろせる高さにする */
+const HIVE_HEIGHT = 1.6;
 /** 蜜の色。巣の部屋と、花から運ぶ粒で使う */
 export const HONEY_COLOR = 0xe8960c;
 export const HONEY_GLOW_COLOR = 0xff9a00;
@@ -78,7 +80,7 @@ export function createScenery(spots: Spot[], { still, lite }: { still: boolean; 
 	const share = lite ? 0.5 : 1;
 	const blades = createBlades(spots, wind, Math.round(BLADE_COUNT * share));
 	const wildflowers = createWildflowers(spots, wind, Math.round(WILDFLOWER_COUNT * share));
-	const hive = createHive();
+	const hive = createHive(spots.length);
 
 	return {
 		objects: [ground.mesh, sky.mesh, blades.mesh, wildflowers, hive.group],
@@ -260,66 +262,99 @@ function createWildflowers(spots: Spot[], wind: { value: number }, count: number
 	return mesh;
 }
 
-/** 道の奥の丘に立つ蜂の巣。ロゴの「.」と同じ六角形の部屋を積み、奥行きを少しずつずらす */
-function createHive() {
+/**
+ * 道の突き当たりの木に吊るした蜂の巣。部屋は作品の数だけ作り、真ん中から外へ埋める。
+ *
+ *        ___________ 枝
+ *       |     |
+ *       |   ⬡⬡⬡      ← 巣 (正面は道の方)
+ *    幹 |   ⬡⬡⬡⬡
+ *       |   ⬡⬡⬡
+ *            ●       蜂は巣の下の entrance で止まって花粉を降ろす
+ */
+function createHive(count: number) {
 	const group = new THREE.Group();
 	const ground = groundHeight(HIVE_POSITION.x, HIVE_POSITION.z);
-	group.position.set(HIVE_POSITION.x, ground + 0.2, HIVE_POSITION.z);
-	// 道の方 (z が小さい側) を向ける
+	group.position.set(HIVE_POSITION.x, ground, HIVE_POSITION.z);
+	// 正面 (+z) を道の方 (z が小さい側) へ向ける
 	group.rotation.y = Math.PI;
 
-	const cells = combCells(2, HIVE_CELL);
+	// 作品の数が入る大きさの格子から、真ん中に近い順に count 部屋だけ使う
+	let radius = 0;
+	while (1 + 3 * radius * (radius + 1) < count) radius++;
+	const grid = combCells(radius, HIVE_CELL);
+	const cells = fillOrder(grid)
+		.slice(0, count)
+		.map((i) => grid[i]);
+
 	const wall = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.05, flatShading: true });
 	const deep = new THREE.MeshStandardMaterial({ roughness: 0.4, flatShading: true });
-	const prism = new THREE.CylinderGeometry(HIVE_CELL * 0.96, HIVE_CELL * 0.96, 1, 6).rotateX(Math.PI / 2);
-	const hollow = new THREE.CylinderGeometry(HIVE_CELL * 0.72, HIVE_CELL * 0.72, 0.2, 6).rotateX(Math.PI / 2);
-	const lift = HIVE_CELL * 1.5 * 2 + HIVE_CELL;
-
-	// 蜜で満ちた部屋。少し盛り上がった、つやのある明るい蜂蜜色。最初は大きさ 0 で隠しておく
 	const honey = new THREE.MeshStandardMaterial({
 		color: HONEY_COLOR,
 		emissive: HONEY_GLOW_COLOR,
 		roughness: 0.15,
 		flatShading: true
 	});
-	const cap = new THREE.CylinderGeometry(HIVE_CELL * 0.74, HIVE_CELL * 0.8, 0.32, 6).rotateX(Math.PI / 2);
+	const prism = new THREE.CylinderGeometry(HIVE_CELL * 0.96, HIVE_CELL * 0.96, 1, 6).rotateX(Math.PI / 2);
+	const hollow = new THREE.CylinderGeometry(HIVE_CELL * 0.72, HIVE_CELL * 0.72, 0.1, 6).rotateX(Math.PI / 2);
+	// 蜜で満ちた部屋。少し盛り上がった、つやのある琥珀色。最初は大きさ 0 で隠しておく
+	const cap = new THREE.CylinderGeometry(HIVE_CELL * 0.74, HIVE_CELL * 0.8, 0.2, 6).rotateX(Math.PI / 2);
+	const center = HIVE_HEIGHT;
+	const depth = 0.7;
 	const fills: { mesh: THREE.Mesh; progress: number }[] = [];
 
-	cells.forEach((cell, i) => {
-		const depth = 1.1 + ((i * 37) % 7) * 0.12;
+	for (const cell of cells) {
 		const box = new THREE.Mesh(prism, wall);
 		box.scale.z = depth;
-		box.position.set(cell.x, cell.y + lift, 0);
+		box.position.set(cell.x, cell.y + center, 0);
 		box.castShadow = true;
 		const pit = new THREE.Mesh(hollow, deep);
-		pit.position.set(cell.x, cell.y + lift, depth / 2 - 0.05);
+		pit.position.set(cell.x, cell.y + center, depth / 2);
 		const fill = new THREE.Mesh(cap, honey);
-		fill.position.set(cell.x, cell.y + lift, depth / 2 + 0.02);
+		fill.position.set(cell.x, cell.y + center, depth / 2 + 0.02);
 		fill.scale.setScalar(0);
 		fill.visible = false;
 		group.add(box, pit, fill);
 		fills.push({ mesh: fill, progress: -1 });
-	});
-	const order = fillOrder(cells);
-	group.updateMatrixWorld(true);
+	}
 
-	// 巣を支える太い枝
+	// 木: 巣の横に幹を立て、上から枝を巣の上へ渡す
+	const bark = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 1, flatShading: true });
+	const top = center + HIVE_CELL * 1.5 * (radius + 1) + 0.6;
+	const trunkX = HIVE_CELL * 2 * (radius + 1) + 0.8;
+	const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.42, top + 0.6, 7).translate(trunkX, (top + 0.6) / 2, -0.3), bark);
 	const branch = new THREE.Mesh(
-		new THREE.CylinderGeometry(0.35, 0.5, lift, 6).translate(0, lift / 2, -0.6),
-		new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 1, flatShading: true })
+		new THREE.CylinderGeometry(0.13, 0.18, trunkX + 0.4, 6).rotateZ(Math.PI / 2).translate(trunkX / 2 - 0.2, top, -0.3),
+		bark
 	);
-	group.add(branch);
+	const stalk = new THREE.Mesh(
+		new THREE.CylinderGeometry(0.07, 0.1, top - center - HIVE_CELL * 1.5 * radius, 6).translate(
+			0,
+			(top + center + HIVE_CELL * 1.5 * radius) / 2,
+			-0.3
+		),
+		bark
+	);
+	const crown = new THREE.Mesh(
+		new THREE.IcosahedronGeometry(1.6, 0).translate(trunkX, top + 1.2, -0.3),
+		new THREE.MeshStandardMaterial({ color: 0x5f8a3c, roughness: 0.9, flatShading: true })
+	);
+	for (const part of [trunk, branch, stalk, crown]) part.castShadow = true;
+	group.add(trunk, branch, stalk, crown);
+
+	group.updateMatrixWorld(true);
+	// 蜂が花粉を降ろすときに止まる位置: 巣の下の入口。正面に重ならず、満ちていく部屋が見える
+	const entrance = group.localToWorld(
+		new THREE.Vector3(0, center - HIVE_CELL * 1.5 * radius - HIVE_CELL - 0.55, depth / 2 + 0.2)
+	);
 
 	return {
 		group,
-		/** slot 番目の部屋 (真ん中から外へ数える) の、蜜が入る位置 (世界座標) */
-		cellPosition(slot: number) {
-			return fills[order[slot % order.length]].mesh.getWorldPosition(new THREE.Vector3());
-		},
-		/** slot 番目の部屋を蜜で満たす。now なら動きなしで満たす */
+		entrance,
+		/** slot 番目の部屋 (真ん中から外へ数える) を蜜で満たす。now なら動きなしで満たす */
 		fill(slot: number, now = false) {
-			const cell = fills[order[slot % order.length]];
-			if (cell.progress >= 0) return;
+			const cell = fills[slot];
+			if (!cell || cell.progress >= 0) return;
 			cell.mesh.visible = true;
 			cell.progress = now ? 1 : 0;
 			cell.mesh.scale.setScalar(now ? 1 : 0);
@@ -327,7 +362,7 @@ function createHive() {
 		update(delta: number) {
 			for (const cell of fills) {
 				if (cell.progress < 0 || cell.progress >= 1) continue;
-				cell.progress = Math.min(1, cell.progress + delta / 0.6);
+				cell.progress = Math.min(1, cell.progress + delta / 0.5);
 				cell.mesh.scale.setScalar(easeOutBack(cell.progress));
 			}
 		},

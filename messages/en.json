@@ -15,7 +15,7 @@
 	"world_loading": "Loading 3D…",
 	"world_to_list": "View as list →",
 	"world_exit": "← View as list",
-	"world_hint": "WASD / arrow keys to move, drag to look around",
+	"world_hint": "WASD / arrow keys to fly, stop near a flower to land, drag to look around",
 	"world_details": "Details",
 	"theme_light": "Light",
 	"theme_dark": "Dark",
@@ -28,5 +28,9 @@
 	"nav_works": "Things I made",
 	"nav_world": "Fly around in 3D",
 	"nav_contact": "Say hi",
-	"forage_progress": "The bee has visited {visited} of {total} works"
+	"forage_progress": "The bee has visited {visited} of {total} works",
+	"world_carrying": "Carrying {count} pollen. Stop at the hive at the end of the path to drop it off",
+	"world_status_stored": "Its honey is already in the hive",
+	"world_status_carrying": "You're carrying its pollen",
+	"world_status_land": "Stop nearby to land and collect pollen"
 }

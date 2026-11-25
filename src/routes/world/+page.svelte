@@ -12,6 +12,8 @@
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
+	/** 蜂が花粉を運んでいる作品 */
+	let carrying = $state<string[]>([]);
 	let stick = $state<{ x: number; y: number } | null>(null);
 	let error = $state<string | null>(null);
 	let loading = $state(true);
@@ -40,6 +42,7 @@
 			.then(async ({ createWorld }) => {
 				const world = await createWorld(canvas, works, (work) => (near = work), {
 					visited: forage.visited,
+					onCarry: (ids) => (carrying = ids),
 					onVisit: (id) => forage.visit(id)
 				});
 				if (disposed) return world.dispose();
@@ -105,11 +108,26 @@
 
 {#if !error && !loading}
 	<p class="hint">{m.world_hint()}</p>
+	{#if carrying.length > 0}
+		<!-- 運んでいる花粉の数と、降ろす場所 -->
+		<p class="carrying" role="status">
+			<span class="pollen" aria-hidden="true"></span>{m.world_carrying({ count: carrying.length })}
+		</p>
+	{/if}
 {/if}
 
 {#if near}
 	<aside class="panel" style:--spot={near.spot?.color}>
 		<h2>{near.title}</h2>
+		<p class="forage">
+			{#if forage.visited.has(near.id)}
+				{m.world_status_stored()}
+			{:else if carrying.includes(near.id)}
+				{m.world_status_carrying()}
+			{:else}
+				{m.world_status_land()}
+			{/if}
+		</p>
 		<p>{localize(near.summary)}</p>
 		<ul>
 			{#each near.tech.slice(0, 6).map(localize) as t (t)}
@@ -211,6 +229,40 @@
 		line-height: var(--line-height-160);
 	}
 
+	.panel .forage {
+		margin: 0 0 0.5rem;
+		color: var(--muted);
+		font-size: var(--font-size-14);
+	}
+
+	.carrying {
+		position: fixed;
+		top: calc(var(--header-height) + 4rem);
+		left: 50%;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0.45rem 0.9rem;
+		border: 2px solid var(--brand-ink);
+		border-radius: var(--border-radius-8);
+		background: var(--brand-paper);
+		color: var(--ink);
+		font-size: var(--font-size-14);
+		font-weight: 700;
+		translate: -50% 0;
+		white-space: nowrap;
+	}
+
+	.pollen {
+		width: 0.8rem;
+		height: 0.8rem;
+		border: 2px solid var(--brand-ink);
+		border-radius: 50%;
+		background: var(--brand-honey);
+	}
+
 	.panel ul {
 		display: flex;
 		flex-wrap: wrap;
@@ -287,7 +339,8 @@
 
 		.panel {
 			bottom: 9.5rem;
-			max-height: calc(100dvh - 11rem);
+			/* 上の「一覧で見る」と花粉の表示に重ならない高さまで */
+			max-height: calc(100dvh - 9.5rem - var(--header-height) - 7rem);
 			overflow-y: auto;
 		}
 

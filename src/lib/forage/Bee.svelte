@@ -11,7 +11,7 @@
 	import { onMount } from 'svelte';
 	import BeeIcon from '$lib/brand/BeeIcon.svelte';
 	import { forage } from './state.svelte';
-	import { createFlight, isHovering, step, type Point } from './flight';
+	import { createFlight, FLIGHT, isHovering, step, type Point } from './flight';
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
 
@@ -55,7 +55,11 @@
 		function tick(now: number) {
 			const [id, target] = pickTarget() ?? [null, null];
 			const dt = Math.min((now - last) / 1000, 0.1);
-			flight = step(flight, target, home(), dt);
+			// 1 回で進める時間には上限があるので、画面の更新が遅い端末でも同じ速さで飛ぶよう分けて進める
+			const goal = home();
+			for (let left = dt; left > 1e-6; left -= FLIGHT.maxStep) {
+				flight = step(flight, target, goal, Math.min(left, FLIGHT.maxStep));
+			}
 			last = now;
 
 			if (id && target && isHovering(flight, target)) {
