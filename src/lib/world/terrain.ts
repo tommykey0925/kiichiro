@@ -124,3 +124,27 @@ export function combCells(radius: number, size: number) {
 	}
 	return cells;
 }
+
+/** 蜜をためる部屋の順番。真ん中の部屋から外へ、同じ輪の中は上から時計回りに埋める */
+export function fillOrder(cells: { q: number; r: number; x: number; y: number }[]) {
+	const ring = (c: { q: number; r: number }) => Math.max(Math.abs(c.q), Math.abs(c.r), Math.abs(-c.q - c.r));
+	// 上 (y が大きい) から時計回り。atan2(x, y) は上で 0、右回りで増える
+	const turn = (c: { x: number; y: number }) => (Math.atan2(c.x, c.y) + Math.PI * 2) % (Math.PI * 2);
+	return cells
+		.map((cell, index) => ({ index, ring: ring(cell), turn: turn(cell) }))
+		.sort((a, b) => a.ring - b.ring || a.turn - b.turn)
+		.map((c) => c.index);
+}
+
+type Point3 = { x: number; y: number; z: number };
+
+/** 花から巣へ飛ぶ蜜の通り道。2 点の上に山なりの弧を描く (2 次ベジェ)。t は 0〜1 */
+export function honeyArc(from: Point3, to: Point3, t: number, rise = 8): Point3 {
+	const control = { x: (from.x + to.x) / 2, y: Math.max(from.y, to.y) + rise, z: (from.z + to.z) / 2 };
+	const u = 1 - t;
+	return {
+		x: u * u * from.x + 2 * u * t * control.x + t * t * to.x,
+		y: u * u * from.y + 2 * u * t * control.y + t * t * to.y,
+		z: u * u * from.z + 2 * u * t * control.z + t * t * to.z
+	};
+}

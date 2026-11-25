@@ -3,7 +3,7 @@
 
 import * as THREE from 'three';
 import type { Spot } from './layout';
-import { GROUND_SIZE, HIVE_POSITION, combCells, grassTone, groundHeight, pathAmount, scatter } from './terrain';
+import { GROUND_SIZE, HIVE_POSITION, combCells, fillOrder, grassTone, groundHeight, pathAmount, scatter } from './terrain';
 
 export type SceneryPalette = {
 	skyTop: number;
@@ -14,8 +14,8 @@ export type SceneryPalette = {
 	blade: number;
 	hive: number;
 	hiveDeep: number;
-	/** 巣の部屋の奥の灯り。夜は巣が灯って遠くからも見える */
-	hiveGlow?: number;
+	/** 蜜の部屋の灯りの強さ */
+	honeyGlow: number;
 };
 
 export const SCENERY_PALETTES: Record<'light' | 'dark', SceneryPalette> = {
@@ -26,8 +26,10 @@ export const SCENERY_PALETTES: Record<'light' | 'dark', SceneryPalette> = {
 		grassDark: 0x6f9f4f,
 		path: 0xdcc79a,
 		blade: 0x7fae55,
-		hive: 0xf2b705,
-		hiveDeep: 0xc98a00
+		// 壁は淡い蜜蝋、空の部屋は影、蜜の部屋は濃い琥珀で見分ける
+		hive: 0xf1d98c,
+		hiveDeep: 0xb8934a,
+		honeyGlow: 0.35
 	},
 	// 月夜。暗くしすぎず、小道と丘の形が読める明るさにする
 	dark: {
@@ -37,9 +39,10 @@ export const SCENERY_PALETTES: Record<'light' | 'dark', SceneryPalette> = {
 		grassDark: 0x34562f,
 		path: 0x8a7656,
 		blade: 0x4f7a40,
-		hive: 0xf2b705,
-		hiveDeep: 0xffb400,
-		hiveGlow: 1.6
+		hive: 0xb99a52,
+		hiveDeep: 0x3a2c14,
+		// 夜は蜜の部屋だけが灯り、遠くからいくつ満ちたか分かる
+		honeyGlow: 1.4
 	}
 };
 
@@ -50,15 +53,19 @@ const GROUND_SEGMENTS = 96;
 const BLADE_COUNT = 4200;
 const WILDFLOWER_COUNT = 520;
 const HIVE_CELL = 1.15;
+/** 蜜の色。巣の部屋と、花から運ぶ粒で使う */
+export const HONEY_COLOR = 0xe8960c;
+export const HONEY_GLOW_COLOR = 0xff9a00;
 
 export type Scenery = {
 	objects: THREE.Object3D[];
 	/** 空と霧の色を合わせるため、地平線の色を返す */
 	setPalette: (palette: SceneryPalette) => THREE.Color;
-	animate: (time: number) => void;
-	/** 蜂の巣の正面の中心 (PR3 で蜜を運ぶ先) */
-	hive: THREE.Group;
+	animate: (time: number, delta: number) => void;
+	hive: Hive;
 };
+
+export type Hive = ReturnType<typeof createHive>;
 
 /**
  * still: 動きを減らす設定。草を揺らさない
@@ -75,7 +82,7 @@ export function createScenery(spots: Spot[], { still, lite }: { still: boolean; 
 
 	return {
 		objects: [ground.mesh, sky.mesh, blades.mesh, wildflowers, hive.group],
-		hive: hive.group,
+		hive,
 		setPalette(palette) {
 			ground.paint(palette);
 			sky.paint(palette);
@@ -83,9 +90,10 @@ export function createScenery(spots: Spot[], { still, lite }: { still: boolean; 
 			hive.paint(palette);
 			return new THREE.Color(palette.skyHorizon);
 		},
-		animate(time) {
+		animate(time, delta) {
 			// 動きを減らす設定では草を揺らさない
 			wind.value = still ? 0 : time;
+			hive.update(delta);
 		}
 	};
 }
@@ -267,6 +275,16 @@ function createHive() {
 	const hollow = new THREE.CylinderGeometry(HIVE_CELL * 0.72, HIVE_CELL * 0.72, 0.2, 6).rotateX(Math.PI / 2);
 	const lift = HIVE_CELL * 1.5 * 2 + HIVE_CELL;
 
+	// 蜜で満ちた部屋。少し盛り上がった、つやのある明るい蜂蜜色。最初は大きさ 0 で隠しておく
+	const honey = new THREE.MeshStandardMaterial({
+		color: HONEY_COLOR,
+		emissive: HONEY_GLOW_COLOR,
+		roughness: 0.15,
+		flatShading: true
+	});
+	const cap = new THREE.CylinderGeometry(HIVE_CELL * 0.74, HIVE_CELL * 0.8, 0.32, 6).rotateX(Math.PI / 2);
+	const fills: { mesh: THREE.Mesh; progress: number }[] = [];
+
 	cells.forEach((cell, i) => {
 		const depth = 1.1 + ((i * 37) % 7) * 0.12;
 		const box = new THREE.Mesh(prism, wall);
@@ -275,8 +293,15 @@ function createHive() {
 		box.castShadow = true;
 		const pit = new THREE.Mesh(hollow, deep);
 		pit.position.set(cell.x, cell.y + lift, depth / 2 - 0.05);
-		group.add(box, pit);
+		const fill = new THREE.Mesh(cap, honey);
+		fill.position.set(cell.x, cell.y + lift, depth / 2 + 0.02);
+		fill.scale.setScalar(0);
+		fill.visible = false;
+		group.add(box, pit, fill);
+		fills.push({ mesh: fill, progress: -1 });
 	});
+	const order = fillOrder(cells);
+	group.updateMatrixWorld(true);
 
 	// 巣を支える太い枝
 	const branch = new THREE.Mesh(
@@ -287,13 +312,37 @@ function createHive() {
 
 	return {
 		group,
+		/** slot 番目の部屋 (真ん中から外へ数える) の、蜜が入る位置 (世界座標) */
+		cellPosition(slot: number) {
+			return fills[order[slot % order.length]].mesh.getWorldPosition(new THREE.Vector3());
+		},
+		/** slot 番目の部屋を蜜で満たす。now なら動きなしで満たす */
+		fill(slot: number, now = false) {
+			const cell = fills[order[slot % order.length]];
+			if (cell.progress >= 0) return;
+			cell.mesh.visible = true;
+			cell.progress = now ? 1 : 0;
+			cell.mesh.scale.setScalar(now ? 1 : 0);
+		},
+		update(delta: number) {
+			for (const cell of fills) {
+				if (cell.progress < 0 || cell.progress >= 1) continue;
+				cell.progress = Math.min(1, cell.progress + delta / 0.6);
+				cell.mesh.scale.setScalar(easeOutBack(cell.progress));
+			}
+		},
 		paint(palette: SceneryPalette) {
 			wall.color.set(palette.hive);
 			deep.color.set(palette.hiveDeep);
-			deep.emissive.set(palette.hiveDeep);
-			deep.emissiveIntensity = palette.hiveGlow ?? 0;
+			honey.emissiveIntensity = palette.honeyGlow;
 		}
 	};
+}
+
+/** 少し行き過ぎてから落ち着く (ぷくっと満ちる) */
+function easeOutBack(t: number) {
+	const c = 1.7;
+	return 1 + (c + 1) * (t - 1) ** 3 + c * (t - 1) ** 2;
 }
 
 /** 位置と法線だけを持つ geometry をつなげる (BufferGeometryUtils を読まずに済ませる) */

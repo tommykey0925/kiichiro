@@ -8,6 +8,7 @@
 	import { localize } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
+	import { forage } from '$lib/forage/state.svelte';
 
 	let canvas: HTMLCanvasElement;
 	let near = $state<Work | null>(null);
@@ -33,10 +34,14 @@
 
 		let disposed = false;
 		let dispose = () => {};
+		const unplant = forage.plant(works.filter((w) => w.spot).map((w) => w.id));
 
 		import('$lib/world/World')
 			.then(async ({ createWorld }) => {
-				const world = await createWorld(canvas, works, (work) => (near = work));
+				const world = await createWorld(canvas, works, (work) => (near = work), {
+					visited: forage.visited,
+					onVisit: (id) => forage.visit(id)
+				});
 				if (disposed) return world.dispose();
 				setMove = world.setMove;
 				world.setTheme(resolvedTheme());
@@ -54,6 +59,7 @@
 		return () => {
 			disposed = true;
 			dispose();
+			unplant();
 			restore();
 		};
 	});

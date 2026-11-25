@@ -1,13 +1,14 @@
 <!--
-	ヘッダーの蜂の巣。ページの花の数だけ部屋があり、蜂が訪れた花の数だけ蜜がたまる。
-	花のないページ (詳細ページや /world) では出さない。
+	ヘッダーの蜂の巣。ページの花 (トップは Bloom、/world は 3D の花) の数だけ部屋があり、
+	蜂が訪れた花の数だけ蜜がたまる。花のないページ (詳細ページなど) では出さない。
 -->
 <script lang="ts">
 	import { forage } from './state.svelte';
 	import { m } from '$lib/paraglide/messages';
 
-	const total = $derived(forage.flowers.size);
-	const visited = $derived([...forage.flowers.keys()].filter((id) => forage.visited.has(id)).length);
+	const ids = $derived(forage.flowers.size > 0 ? [...forage.flowers.keys()] : forage.field);
+	const total = $derived(ids.length);
+	const visited = $derived(ids.filter((id) => forage.visited.has(id)).length);
 </script>
 
 {#if total > 0}

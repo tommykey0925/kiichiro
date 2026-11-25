@@ -36,14 +36,29 @@ class Forage {
 	current = $state<string | null>(null);
 	/** リンクに触れている作品の花。current より優先して向かう */
 	detour = $state<string | null>(null);
+	/** ページの要素ではなく 3D の中にある花 (/world)。蜂の巣の部屋数に使う */
+	field = $state.raw<string[]>([]);
 
 	#loaded = false;
 
+	/** 訪れた記録を sessionStorage から一度だけ読む */
+	restore() {
+		if (this.#loaded) return;
+		this.#loaded = true;
+		for (const visited of load()) this.visited.add(visited);
+	}
+
+	/** /world の花を蜂の巣に数える。戻り値で外す */
+	plant(ids: string[]) {
+		this.restore();
+		this.field = ids;
+		return () => {
+			this.field = [];
+		};
+	}
+
 	register(id: string, element: HTMLElement) {
-		if (!this.#loaded) {
-			this.#loaded = true;
-			for (const visited of load()) this.visited.add(visited);
-		}
+		this.restore();
 		this.flowers = new Map(this.flowers).set(id, element);
 		return () => {
 			const next = new Map(this.flowers);
