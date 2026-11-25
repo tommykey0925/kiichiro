@@ -19,7 +19,7 @@
 |---|---|
 | フレームワーク | SvelteKit 2 + Svelte 5 (runes) |
 | ビルド | `@sveltejs/adapter-static` — 全ページ prerender |
-| 見た目 | 色・書体・角丸・影は `@digital-go-jp/design-tokens` のトークンだけを使う。書体は `@fontsource/noto-sans-jp` で自前配信 |
+| 見た目 | 色と書体は `src/lib/theme/brand.css` の独自トークン (方針は `CLAUDE.md`)。欧文の見出しは Jost (`@fontsource/jost`)、和文は `@fontsource/noto-sans-jp` で自前配信 |
 | 多言語 | Paraglide JS。日本語は接頭辞なし、英語は `/en/`。画面の文言は `messages/{ja,en}.json`、作品の紹介文は `works.ts` に両方を持つ |
 | 表示モード | ライト・ダーク・OS に合わせる。ダークはデザイントークンの変数を `src/lib/theme/dark.css` で上書きする |
 | 3D | Three.js (素で使う。Threlte / 物理エンジンは使わない) |
@@ -40,7 +40,7 @@ pnpm build    # build/ に静的サイトを出力
 
 | ファイル | 複製元 | 作り直し方 |
 |---|---|---|
-| `src/lib/dads/link.css` | digital-go-jp/design-system-example-components-html `src/components/link/link.css` @ af8b665 (MIT) | 上流に追随しない |
+| `src/lib/dads/link.css` | digital-go-jp/design-system-example-components-html `src/components/link/link.css` @ af8b665 (MIT)。色だけ `brand.css` に差し替えた | 上流に追随しない |
 | `src/lib/fonts/noto-sans-jp.css` | `@fontsource/noto-sans-jp` の `400.css` と `700.css`。`font-display` を `swap` から `optional` に変えたもの | 下のコマンド |
 | `src/lib/theme/dark.css` | tommykey-apps/ahab `internal/web/static/theme.css` のダーク用トークン | 手で合わせる |
 

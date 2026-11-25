@@ -1,0 +1,45 @@
+/*
+ * kiichi.ro 独自の色と書体。デジタル庁デザインシステムのトークンは使わない (CLAUDE.md 参照)。
+ * 文字色の組み合わせは WCAG 2.1 AA (4.5:1) を計算で確かめてある。
+ *
+ *   ライト  ink/paper 16.00  muted/paper 6.08  petal/paper 5.34  ink/honey 9.50
+ *   ダーク  ink/paper 15.84  muted/paper 8.24  petal/paper 7.96  honey/paper 10.26
+ *
+ * honey はライトでは背景に対して 1.68 しかないので、文字色には使わず塗りだけに使う。
+ */
+
+:root {
+	--brand-paper: #fbf6e9;
+	--brand-surface: #fffdf7;
+	--brand-ink: #1f1a14;
+	--brand-muted: #665c4d;
+	--brand-line: #e6dcc5;
+	--brand-honey: #f2b705;
+	--brand-on-honey: #1f1a14;
+	--brand-petal: #b8325a;
+	--brand-leaf: #4f7a3a;
+
+	--font-display: 'Jost', 'Noto Sans JP', sans-serif;
+}
+
+:root[data-theme="dark"] {
+	--brand-paper: #16120c;
+	--brand-surface: #1f1a12;
+	--brand-ink: #f4ecd8;
+	--brand-muted: #b8ab92;
+	--brand-line: #3a3226;
+	--brand-petal: #f28aa6;
+	--brand-leaf: #8fbf6a;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--brand-paper: #16120c;
+		--brand-surface: #1f1a12;
+		--brand-ink: #f4ecd8;
+		--brand-muted: #b8ab92;
+		--brand-line: #3a3226;
+		--brand-petal: #f28aa6;
+		--brand-leaf: #8fbf6a;
+	}
+}
