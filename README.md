@@ -35,6 +35,7 @@ pnpm dev
 pnpm check    # 型チェック
 pnpm test     # 3D の配置を検証 (展示台の間隔・移動方向・キラキラの分布)
 pnpm build    # build/ に静的サイトを出力
+pnpm test:visual  # build/ を headless Chromium で開き、横スクロール・ヘッダーの透け・メニュー・動きを減らす設定を検査
 ```
 
 ## 複製したファイル

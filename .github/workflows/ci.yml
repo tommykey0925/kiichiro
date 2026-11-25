@@ -23,3 +23,5 @@ jobs:
       - run: pnpm check
       - run: pnpm test
       - run: pnpm build
+      - run: pnpm exec playwright-core install --with-deps --only-shell chromium
+      - run: pnpm test:visual
