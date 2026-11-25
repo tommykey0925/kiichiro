@@ -26,7 +26,6 @@
 
 <section class="hero">
 	<div class="hero-text">
-		<p class="label">{m.hero_label()}</p>
 		<h1><Logo /></h1>
 		<p class="bio">{m.bio()}</p>
 	</div>
@@ -118,18 +117,6 @@
 		background-image: radial-gradient(var(--line) 1.6px, transparent 1.8px);
 		background-size: 14px 14px;
 		overflow: hidden;
-	}
-
-	.label {
-		display: inline-block;
-		margin: 0 0 1rem;
-		padding-bottom: 0.25rem;
-		border-bottom: 3px solid var(--brand-honey);
-		font-family: var(--font-display);
-		font-size: var(--font-size-16);
-		font-weight: 700;
-		letter-spacing: 0.2em;
-		text-transform: uppercase;
 	}
 
 	h1 {
