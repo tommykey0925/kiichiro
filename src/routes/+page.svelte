@@ -15,7 +15,8 @@
 	import { localizeHref } from '$lib/paraglide/runtime';
 
 	const flowers = ['petal', 'honey', 'cream'] as const;
-	const band = ['HYPER AI-SLOP CREATOR', 'kiichi.ro', 'WORKS', 'BEES & FLOWERS'];
+	// 文字帯には作品名を流す。並びは一覧と同じ
+	const band = [...showcase, ...others].map((w) => w.title);
 </script>
 
 <svelte:head>
@@ -40,7 +41,7 @@
 	<div class="track">
 		{#each [0, 1] as copy (copy)}
 			{#each band as word (word)}
-				<span>{word}</span><span class="spark">✦</span>
+				<span>{word}</span><span class="cell"></span>
 			{/each}
 		{/each}
 	</div>
@@ -222,8 +223,13 @@
 		white-space: nowrap;
 	}
 
-	.spark {
-		color: var(--brand-petal);
+	/* 区切りはロゴの「.」と同じ六角形 */
+	.cell {
+		align-self: center;
+		width: 0.55em;
+		height: 0.62em;
+		background: var(--brand-on-honey);
+		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
