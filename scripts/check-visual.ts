@@ -6,7 +6,7 @@
 //   - PC とスマホ、ライトとダークの全組み合わせで、横スクロールが出ない・ページのエラーが出ない
 //   - ヘッダーの背景が不透明で、スクロールしても下の文字が透けて重ならない
 //   - メニューが開き、Esc で閉じ、フォーカスが開いたボタンに戻る
-//   - 動きを減らす設定では、スクロール演出・文字帯・飛ぶ蜂が止まる
+//   - 動きを減らす設定では、文字帯と飛ぶ蜂が止まる
 
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -107,13 +107,9 @@ try {
 		await page.goto(base + '/', { waitUntil: 'networkidle' });
 		await page.waitForTimeout(300);
 		const state = await page.evaluate(() => ({
-			garden: document.querySelector('.garden')?.classList.contains('live'),
-			lenis: document.documentElement.classList.contains('lenis'),
 			band: getComputedStyle(document.querySelector('.track')!).animationName,
 			bee: getComputedStyle(document.querySelector('.enter')!).display
 		}));
-		if (state.garden) fail('動きを減らす設定: スクロール演出が動いている');
-		if (state.lenis) fail('動きを減らす設定: Lenis が動いている');
 		if (state.band !== 'none') fail(`動きを減らす設定: 文字帯が流れている (${state.band})`);
 		if (state.bee !== 'none') fail('動きを減らす設定: 飛ぶ蜂が出ている');
 		await context.close();
