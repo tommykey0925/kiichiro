@@ -15,7 +15,7 @@
 	"world_loading": "3D を読み込み中…",
 	"world_to_list": "一覧で見る →",
 	"world_exit": "← 一覧で見る",
-	"world_hint": "WASD / 矢印キーで移動　ドラッグで視点",
+	"world_hint": "WASD / 矢印キーで飛ぶ　花の近くで止まると降りる　ドラッグで視点",
 	"world_details": "詳細を見る",
 	"theme_light": "ライト",
 	"theme_dark": "ダーク",
@@ -28,5 +28,9 @@
 	"nav_works": "作ったもの",
 	"nav_world": "3D の花畑を飛ぶ",
 	"nav_contact": "連絡先",
-	"forage_progress": "{visited} / {total} 作品に蜂が立ち寄った"
+	"forage_progress": "{visited} / {total} 作品に蜂が立ち寄った",
+	"world_carrying": "花粉 {count} 個　道の突き当たりの巣で止まると降ろす",
+	"world_status_stored": "この花の蜜は巣に届いている",
+	"world_status_carrying": "この花の花粉を運んでいる",
+	"world_status_land": "近くで止まると花に降りて花粉を集める"
 }

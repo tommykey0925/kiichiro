@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { ROAD_HALF_LENGTH, ROAD_HALF_WIDTH, spotPosition } from './layout.ts';
-import { CLEAR_RADIUS, HIVE_POSITION, combCells, fillOrder, groundHeight, honeyArc, pathAmount, scatter, seeded } from './terrain.ts';
+import { CLEAR_RADIUS, HIVE_POSITION, combCells, fillOrder, groundHeight, pathAmount, scatter, seeded } from './terrain.ts';
 import { featured } from '../works.ts';
 
 const spots = featured.map((work) => work.spot!);
@@ -24,7 +24,7 @@ for (let x = -100; x <= 100; x += 1) {
 	}
 }
 assert.ok(highest > 4, `丘が低すぎて板の端が見える (最高 ${highest.toFixed(2)}m)`);
-assert.ok(groundHeight(HIVE_POSITION.x, HIVE_POSITION.z) > 2, '蜂の巣が丘の上にない');
+assert.equal(groundHeight(HIVE_POSITION.x, HIVE_POSITION.z), 0, '蜂の巣の足元が平らでない');
 
 // 同じ種なら同じ並び
 const a = seeded(7);
@@ -68,13 +68,5 @@ for (const i of order.slice(1, 7)) assert.ok(Math.abs(Math.hypot(cells[i].x, cel
 const firstRing = order.slice(1, 7).map((i) => cells[i]);
 assert.ok(firstRing[0].y > 0, '輪の最初が上にない');
 assert.ok(firstRing[1].x > firstRing[firstRing.length - 1].x, '時計回りになっていない');
-
-// 蜜の通り道は花で始まり巣で終わり、途中は両端より高い
-const from = { x: 5, y: 2, z: -27 };
-const to = { x: 0, y: 9, z: 78 };
-assert.deepEqual(honeyArc(from, to, 0), from);
-const end = honeyArc(from, to, 1);
-for (const k of ['x', 'y', 'z'] as const) assert.ok(Math.abs(end[k] - to[k]) < 1e-9, '通り道が巣で終わらない');
-assert.ok(honeyArc(from, to, 0.5).y > to.y, '通り道が山なりでない');
 
 console.log(`terrain ok: ${tufts.length} tufts (${inside} in the valley), hill ${highest.toFixed(1)}m`);

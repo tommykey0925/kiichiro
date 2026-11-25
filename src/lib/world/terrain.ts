@@ -6,7 +6,7 @@
 //                   ← ROAD_HALF_WIDTH →
 //
 // 歩ける範囲 (道) の地面は高さ 0 のまま平らにし、外へ出るほど丘が立ち上がって板の端を隠す。
-// 道の奥 (z が大きい側) の丘の上に、遠くからも見える蜂の巣を置く。
+// 道の突き当たり (z が大きい側) の木に蜂の巣を吊るす。蜂が花粉を運んで降ろしに行く先。
 
 import { ROAD_HALF_LENGTH, ROAD_HALF_WIDTH, spotPosition, type Spot } from './layout.ts';
 
@@ -18,8 +18,8 @@ const HILL_START = 2;
 /** 丘が上がりきる距離 */
 const HILL_FULL = 20;
 
-/** 蜂の巣の位置。道の奥の丘の上 */
-export const HIVE_POSITION = { x: 0, z: ROAD_HALF_LENGTH + 34 };
+/** 蜂の巣の位置。道の突き当たりのすぐ外 (地面はまだ平ら) */
+export const HIVE_POSITION = { x: 0, z: ROAD_HALF_LENGTH + 1.5 };
 
 /** 決まった種から同じ並びを返す乱数 (mulberry32)。開くたびに草花の配置が変わらないようにする */
 export function seeded(seed: number) {
@@ -134,17 +134,4 @@ export function fillOrder(cells: { q: number; r: number; x: number; y: number }[
 		.map((cell, index) => ({ index, ring: ring(cell), turn: turn(cell) }))
 		.sort((a, b) => a.ring - b.ring || a.turn - b.turn)
 		.map((c) => c.index);
-}
-
-type Point3 = { x: number; y: number; z: number };
-
-/** 花から巣へ飛ぶ蜜の通り道。2 点の上に山なりの弧を描く (2 次ベジェ)。t は 0〜1 */
-export function honeyArc(from: Point3, to: Point3, t: number, rise = 8): Point3 {
-	const control = { x: (from.x + to.x) / 2, y: Math.max(from.y, to.y) + rise, z: (from.z + to.z) / 2 };
-	const u = 1 - t;
-	return {
-		x: u * u * from.x + 2 * u * t * control.x + t * t * to.x,
-		y: u * u * from.y + 2 * u * t * control.y + t * t * to.y,
-		z: u * u * from.z + 2 * u * t * control.z + t * t * to.z
-	};
 }
