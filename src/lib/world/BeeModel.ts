@@ -58,7 +58,8 @@ export function createBeeModel({ still }: { still: boolean }) {
 		sheenRoughness: 0.6
 	})));
 	abdomen.position.set(0, 0.125 * s, -0.01 * s);
-	abdomen.rotation.x = 0.28;
+	// 尻を少し下へ垂らす (+ だと尻が上がる)
+	abdomen.rotation.x = -0.28;
 	abdomen.scale.setScalar(s);
 
 	const thorax = add(new THREE.Mesh(new THREE.SphereGeometry(0.075 * s, 20, 14), fuzz));
@@ -85,8 +86,10 @@ export function createBeeModel({ still }: { still: boolean }) {
 		void antenna;
 	}
 
-	const sting = add(new THREE.Mesh(new THREE.ConeGeometry(0.008 * s, 0.03 * s, 6).rotateX(-Math.PI / 2), black));
-	sting.position.set(0, 0.07 * s, -0.255 * s);
+	// 針は腹の子にして、腹の先から離れないようにする (腹の座標は s 倍前の m)
+	const sting = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.03, 6).rotateX(-Math.PI / 2), black);
+	sting.position.set(0, 0, -0.26);
+	abdomen.add(sting);
 
 	// 脚 3 対。胸の下から外へ広げて下ろす
 	const legRoots = [0.09, 0.06, 0.03];
