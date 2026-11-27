@@ -117,6 +117,13 @@ try {
 		}
 		const label = await comb.getAttribute('aria-label');
 		if (!label?.startsWith('1 / 7') && !label?.startsWith('2 / 7')) fail(`${name}: 蜂の巣に蜜がたまらない (${label})`);
+		// ヒーローの下の野原へ戻ると、訪れた作品の色の花が咲いている
+		await page.evaluate(() => window.scrollTo(0, 0));
+		try {
+			await page.waitForFunction(() => document.querySelectorAll('.meadow .flower.open').length > 0, null, { timeout: 3000 });
+		} catch {
+			fail(`${name}: 蜜がたまっても野原に花が咲かない`);
+		}
 		// 同じタブで /world へ移っても、たまった蜜はそのまま
 		await page.goto(base + '/world', { waitUntil: 'networkidle' });
 		const carried = await page.locator('.comb').getAttribute('aria-label').catch(() => null);
@@ -132,10 +139,10 @@ try {
 		await page.goto(base + '/', { waitUntil: 'networkidle' });
 		await page.waitForTimeout(300);
 		const state = await page.evaluate(() => ({
-			band: getComputedStyle(document.querySelector('.track')!).animationName,
+			meadow: getComputedStyle(document.querySelector('.meadow .head')!).transitionDuration,
 			bee: document.querySelector<HTMLElement>('.bee')?.hidden
 		}));
-		if (state.band !== 'none') fail(`動きを減らす設定: 文字帯が流れている (${state.band})`);
+		if (state.meadow !== '0s') fail(`動きを減らす設定: 野原の花が動いて咲く (${state.meadow})`);
 		if (!state.bee) fail('動きを減らす設定: 飛ぶ蜂が出ている');
 		await page.evaluate(() => document.getElementById('works')!.scrollIntoView());
 		await page.waitForTimeout(300);
