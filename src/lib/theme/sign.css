@@ -1,0 +1,42 @@
+/*
+ * 札。文字を載せる面はすべてこの木の札にする (CLAUDE.md「コンセプト」の 2)。
+ *
+ *   ┌────────────┐  .sign        木の板。焼き文字 (char) で書く
+ *   │ 文字        │
+ *   └──┬──────┬──┘
+ *      ┃      ┃     .sign-post   地面に刺した杭 (2 本)。空に浮かぶ小さな札 (ヘッダー) には付けない
+ *   ˌˌˌ┸ˌˌˌˌˌˌ┸ˌˌˌ   草に落とす影 (shade)
+ */
+
+.sign {
+	position: relative;
+	border: 2px solid var(--char);
+	border-radius: var(--border-radius-8);
+	background: var(--wood);
+	color: var(--char);
+	box-shadow: 0.35rem 0.35rem 0 var(--shade);
+}
+
+.sign-post {
+	margin-bottom: var(--post-height, 2.25rem);
+}
+
+.sign-post::before,
+.sign-post::after {
+	content: '';
+	position: absolute;
+	top: calc(100% + 2px);
+	width: 0.6rem;
+	height: var(--post-height, 2.25rem);
+	border: 2px solid var(--char);
+	border-top: none;
+	background: var(--bark);
+}
+
+.sign-post::before {
+	left: 12%;
+}
+
+.sign-post::after {
+	right: 12%;
+}

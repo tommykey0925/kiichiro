@@ -9,6 +9,7 @@
 	let { works, start = 1 }: { works: Work[]; start?: number } = $props();
 </script>
 
+<div class="sign sign-post board">
 <ol class="list" {start}>
 	{#each works as work, i (work.id)}
 		<li class="item" use:detour={work.id}>
@@ -24,13 +25,17 @@
 		</li>
 	{/each}
 </ol>
+</div>
 
 <style>
+	.board {
+		padding: 0.5rem 1.5rem;
+	}
+
 	.list {
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border-top: 1px solid var(--wood-grain);
 	}
 
 	.item {
@@ -39,6 +44,10 @@
 		column-gap: 1.5rem;
 		padding: 1rem 0;
 		border-bottom: 1px solid var(--wood-grain);
+	}
+
+	.item:last-child {
+		border-bottom: none;
 	}
 
 	p {

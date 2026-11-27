@@ -80,6 +80,8 @@
 	<svg class="ground" viewBox="0 0 1200 100" preserveAspectRatio="none">
 		<path class="far" d="M0 38 C 160 18, 300 30, 460 26 S 760 10, 920 24 S 1120 30, 1200 20 V100 H0 Z" />
 		<path class="near" d="M0 52 C 200 40, 360 58, 560 48 S 900 36, 1060 46 S 1160 50, 1200 44 V100 H0 Z" />
+		<!-- 稜線だけに線を引く (塗りの下と左右には引かない) -->
+		<path class="crest" d="M0 52 C 200 40, 360 58, 560 48 S 900 36, 1060 46 S 1160 50, 1200 44" />
 	</svg>
 	{#each grass as g, i (i)}
 		<svg
@@ -132,11 +134,15 @@
 	}
 
 	.far {
-		fill: color-mix(in oklab, var(--leaf) 45%, var(--wood));
+		fill: color-mix(in oklab, var(--grass) 55%, var(--sky-horizon));
 	}
 
 	.near {
-		fill: var(--leaf);
+		fill: var(--grass);
+	}
+
+	.crest {
+		fill: none;
 		stroke: var(--char);
 		stroke-width: 2;
 		vector-effect: non-scaling-stroke;
@@ -157,7 +163,7 @@
 
 	.grass path {
 		fill: none;
-		stroke: color-mix(in oklab, var(--leaf) 70%, var(--char));
+		stroke: var(--grass-deep);
 		stroke-width: 2;
 		stroke-linecap: round;
 	}
@@ -170,7 +176,7 @@
 
 	.stem {
 		fill: none;
-		stroke: color-mix(in oklab, var(--leaf) 70%, var(--char));
+		stroke: var(--grass-deep);
 		stroke-width: 2;
 		stroke-linecap: round;
 	}
