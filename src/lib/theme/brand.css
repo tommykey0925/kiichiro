@@ -3,7 +3,7 @@
  * 規約にない色や形は、名前の時点で野原にない物とわかる。デジタル庁デザインシステムの色は使わない。
  *
  *   空 sky-*   草 grass-*   小道の土 soil   札の木 wood-*   札の焼き文字 char-*
- *   蜜 honey   巣の蝋 wax   花びら petal   葉と茎 leaf   札の杭 bark   札が草に落とす影 shade
+ *   蜜 honey   巣の蝋 wax   花びら petal   葉と茎 leaf
  *
  * 文字は札 (wood) の上にだけ置く。焼き文字の組み合わせは WCAG 2.1 AA (4.5:1) を計算で確かめてある。
  *
@@ -29,8 +29,6 @@
 	--wax: #f1d98c;
 	--petal: #b8325a;
 	--leaf: #4f7a3a;
-	--bark: #8a6440;
-	--shade: rgb(31 26 20 / 0.22);
 
 	/* 書体: 札の見出しと本文 */
 	--font-sign-title: 'Jost', 'Noto Sans JP', sans-serif;
@@ -60,8 +58,6 @@
 	--wax: #b99a52;
 	--petal: #f28aa6;
 	--leaf: #8fbf6a;
-	--bark: #6b5236;
-	--shade: rgb(0 0 0 / 0.4);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -79,7 +75,5 @@
 		--wax: #b99a52;
 		--petal: #f28aa6;
 		--leaf: #8fbf6a;
-		--bark: #6b5236;
-		--shade: rgb(0 0 0 / 0.4);
 	}
 }

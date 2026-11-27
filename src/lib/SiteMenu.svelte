@@ -1,12 +1,13 @@
 <!--
-	全画面メニュー。野原に立てた大きな札に行き先を書き、空には蜂が飛ぶ。
+	全画面メニュー。開くと右の帯が滑り込み、項目 → 大きなロゴ → 連絡先の順に時間差で出る。
 	<dialog> の showModal を使うので、Esc で閉じる・フォーカスの閉じ込め・開いたボタンへの復帰はブラウザに任せる。
-	動くのは生き物と風と光だけ (CLAUDE.md「コンセプト」) なので、項目を時間差で出す動きは付けない。
+	動きを減らす設定では時間差をなくし、一度に出す。
 -->
 <script lang="ts">
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
 	import EnvelopeSimpleIcon from 'phosphor-svelte/lib/EnvelopeSimpleIcon';
+	import Logo from './brand/Logo.svelte';
 	import Mascot from './brand/Mascot.svelte';
 	import { profile } from './profile';
 	import { m } from './paraglide/messages';
@@ -36,19 +37,11 @@
 </button>
 
 <dialog class="menu" bind:this={dialog} onclose={() => (open = false)} aria-label={m.menu_open()}>
-	<div class="sky" aria-hidden="true">
-		<Mascot pose="side" class="menu-bee" />
-	</div>
-	<svg class="ridge" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
-		<path class="hill" d="M0 30 C 220 8, 420 34, 640 20 S 1020 6, 1200 22 V60 H0 Z" />
-		<path class="crest" d="M0 30 C 220 8, 420 34, 640 20 S 1020 6, 1200 22" />
-	</svg>
-
-	<div class="board sign sign-post">
+	<div class="body">
 		<nav>
 			<ul>
-				{#each items as item (item.label)}
-					<li>
+				{#each items as item, i (item.label)}
+					<li style:--i={i}>
 						<a href={item.href} onclick={hide}>
 							<span class="label">{item.label}</span>
 							<span class="sub">{item.sub}</span>
@@ -58,16 +51,22 @@
 			</ul>
 		</nav>
 
-		<p class="contacts">
+		<p class="contacts" style:--i={items.length + 2}>
 			<a href={profile.github} rel="me" aria-label="GitHub"><GithubLogoIcon size="1.5em" aria-hidden="true" /></a>
 			<a href={profile.x} rel="me" aria-label="X (@grdevtom2gramp1)"><XLogoIcon size="1.5em" aria-hidden="true" /></a>
 			<a href="mailto:{profile.email}" aria-label={m.contact_mail({ email: profile.email })}>
 				<EnvelopeSimpleIcon size="1.5em" aria-hidden="true" />
 			</a>
 		</p>
+
+		<p class="watermark" aria-hidden="true" style:--i={items.length}><Logo /></p>
 	</div>
 
-	<button class="header-button close sign" type="button" onclick={hide} aria-label={m.menu_close()}>
+	<div class="strip" aria-hidden="true">
+		<Mascot pose="side" class="strip-bee" />
+	</div>
+
+	<button class="header-button close" type="button" onclick={hide} aria-label={m.menu_close()}>
 		<span class="bars" aria-hidden="true"></span>
 	</button>
 </dialog>
@@ -110,7 +109,6 @@
 		overflow: hidden;
 	}
 
-	/* 空と草地。札の杭は草地に刺さる */
 	.menu {
 		width: 100%;
 		max-width: none;
@@ -119,63 +117,27 @@
 		margin: 0;
 		padding: 0;
 		border: none;
-		background: linear-gradient(var(--sky-top), var(--sky-horizon) 58%, var(--grass) 58%, color-mix(in oklab, var(--grass) 82%, var(--grass-deep)));
-		color: var(--char);
+		background: var(--char);
+		color: var(--wood);
 	}
 
 	.menu[open] {
 		display: grid;
-		grid-template-rows: 1fr auto 1fr;
-		justify-items: start;
-		padding: 0 clamp(1.25rem, 8vw, 7rem);
+		grid-template-columns: 1fr minmax(8rem, 24vw);
 	}
 
 	.menu::backdrop {
 		background: transparent;
 	}
 
-	.sky {
-		position: absolute;
-		top: 8%;
-		right: clamp(0.5rem, 8vw, 8rem);
-		width: clamp(9rem, 30vw, 24rem);
-		pointer-events: none;
-	}
-
-	.sky :global(.menu-bee) {
-		width: 100%;
-		height: auto;
-	}
-
-	/* 空と草地の境の丘。札より奥 */
-	.ridge {
-		position: absolute;
-		top: calc(58% - 3.5rem);
-		left: 0;
-		width: 100%;
-		height: 3.6rem;
-		pointer-events: none;
-	}
-
-	.hill {
-		fill: var(--grass);
-	}
-
-	.crest {
-		fill: none;
-		stroke: var(--char);
-		stroke-width: 2;
-		vector-effect: non-scaling-stroke;
-	}
-
-	.board {
+	.body {
 		position: relative;
-		grid-row: 2;
 		display: flex;
 		flex-direction: column;
-		gap: 2rem;
-		padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1.5rem, 5vw, 3.5rem);
-		--post-height: 4rem;
+		justify-content: center;
+		gap: 3rem;
+		padding: 5rem clamp(1.25rem, 8vw, 7rem);
+		overflow: hidden;
 	}
 
 	ul {
@@ -185,7 +147,7 @@
 	}
 
 	li + li {
-		margin-top: 0.5rem;
+		margin-top: 1rem;
 	}
 
 	nav a {
@@ -198,26 +160,26 @@
 
 	.label {
 		font-family: var(--font-sign-title);
-		font-size: clamp(2.25rem, 7vw, 4.5rem);
+		font-size: clamp(2.5rem, 7vw, 4.5rem);
 		font-weight: 700;
 		line-height: 1.1;
 		letter-spacing: -0.01em;
 	}
 
 	.sub {
-		color: var(--char-soft);
+		color: var(--honey);
 		font-size: var(--font-size-16);
 	}
 
 	@media (hover: hover) {
 		nav a:hover .label {
-			color: var(--petal);
+			color: var(--honey);
 		}
 	}
 
 	.menu a:focus-visible,
 	.menu button:focus-visible {
-		outline: 4px solid var(--char);
+		outline: 4px solid var(--honey);
 		outline-offset: 4px;
 		border-radius: var(--border-radius-4);
 	}
@@ -233,18 +195,92 @@
 		color: inherit;
 	}
 
+	.watermark {
+		position: absolute;
+		right: -0.05em;
+		bottom: -0.2em;
+		margin: 0;
+		font-size: clamp(5rem, 18vw, 15rem);
+		line-height: 1;
+		opacity: 0.08;
+		pointer-events: none;
+	}
+
+	.strip {
+		position: relative;
+		display: grid;
+		place-items: center;
+		background-color: var(--honey);
+		background-image: radial-gradient(var(--char) 1.2px, transparent 1.4px);
+		background-size: 12px 12px;
+		overflow: hidden;
+	}
+
+	.strip :global(.strip-bee) {
+		width: 160%;
+		max-width: none;
+		rotate: -18deg;
+		filter: drop-shadow(10px 10px 0 var(--petal));
+	}
+
 	.close {
 		position: absolute;
-		top: 0.4rem;
-		right: clamp(0.75rem, 3vw, 2rem);
-		border: 2px solid var(--char);
-		background: var(--wood);
-		box-shadow: none;
+		top: 0.5rem;
+		right: 0.75rem;
+		color: var(--char);
 	}
 
 	@media (max-width: 40rem) {
-		.sky {
-			top: 12%;
+		.menu[open] {
+			grid-template-columns: 1fr;
+			grid-template-rows: 1fr 7rem;
+		}
+
+		.strip :global(.strip-bee) {
+			width: 9rem;
+			rotate: -8deg;
+		}
+
+		.close {
+			color: var(--wood);
+		}
+	}
+
+	/* 時間差で出す。右の帯 → 項目を 1 つずつ → ロゴ → 連絡先 */
+	@media (prefers-reduced-motion: no-preference) {
+		.menu[open] .strip {
+			animation: slide-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+		}
+
+		.menu[open] li,
+		.menu[open] .watermark,
+		.menu[open] .contacts {
+			animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+			animation-delay: calc(0.25s + var(--i) * 0.1s);
+		}
+
+		.menu[open] .watermark {
+			animation-name: rise-faint;
+		}
+	}
+
+	@keyframes slide-in {
+		from {
+			translate: 100% 0;
+		}
+	}
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			translate: 0 1.5rem;
+		}
+	}
+
+	@keyframes rise-faint {
+		from {
+			opacity: 0;
+			translate: 0 3rem;
 		}
 	}
 </style>

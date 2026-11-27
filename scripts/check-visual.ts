@@ -4,7 +4,7 @@
 //
 // 検査すること
 //   - PC とスマホ、ライトとダークの全組み合わせで、横スクロールが出ない・ページのエラーが出ない
-//   - ヘッダーの札 (空に浮かぶ小さな札 2 枚) が不透明で、スクロールしても下の文字が透けて重ならない
+//   - ヘッダーの背景が不透明で、スクロールしても下の文字が透けて重ならない
 //   - メニューが開き、Esc で閉じ、フォーカスが開いたボタンに戻る
 //   - 作品一覧まで読み進めると花が咲き、蜂が訪れてヘッダーの蜂の巣に蜜がたまる
 //   - トップでたまった蜜が /world に引き継がれ、ヘッダーの蜂の巣に出る
@@ -67,15 +67,15 @@ try {
 				if (response?.status() !== 200) fail(`${label}: 応答 ${response?.status()}`);
 
 				const layout = await page.evaluate(() => {
-					const signs = [...document.querySelectorAll<HTMLElement>('.site-header .inner > .sign')];
+					const header = document.querySelector<HTMLElement>('.site-header');
 					return {
 						overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-						signBackgrounds: signs.map((sign) => getComputedStyle(sign).backgroundColor)
+						headerBackground: header ? getComputedStyle(header).backgroundColor : null
 					};
 				});
 				if (layout.overflow > 0) fail(`${label}: 横スクロールが ${layout.overflow}px 出る`);
-				if (layout.signBackgrounds.length !== 2 || layout.signBackgrounds.some((b) => alphaOf(b) < 1)) {
-					fail(`${label}: ヘッダーの札が 2 枚そろって不透明になっていない (${layout.signBackgrounds.join(', ')})`);
+				if (!layout.headerBackground || alphaOf(layout.headerBackground) < 1) {
+					fail(`${label}: ヘッダーの背景が不透明でない (${layout.headerBackground})`);
 				}
 				page.removeAllListeners('pageerror');
 				page.removeAllListeners('console');
