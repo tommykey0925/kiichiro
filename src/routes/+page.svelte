@@ -286,21 +286,13 @@
 		gap: 0.75rem;
 	}
 
-	/* 連絡先も小さな札 (.pill と同じ) */
 	.contact {
 		display: inline-flex;
 		padding: 0.75rem;
 		border: 2px solid var(--char);
 		border-radius: var(--border-radius-8);
-		background: var(--wood);
-		box-shadow: 0.2rem 0.2rem 0 var(--shade);
+		background: var(--wood-pale);
 		color: var(--char);
-	}
-
-	@media (hover: hover) {
-		.contact:hover {
-			background: var(--wood-pale);
-		}
 	}
 
 	.world {

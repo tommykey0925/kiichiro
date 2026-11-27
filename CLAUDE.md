@@ -12,8 +12,6 @@ kiichi.ro は一面の野原。作品はそこに咲く花で、訪れた人は�
 
 ページの地は `src/lib/brand/Field.svelte` (草地) と `Sky.svelte` (各ページの一番上の空と丘の稜線) で描く。文字を載せる面はすべて `src/lib/theme/sign.css` の札 (`.sign`、地面に立てるなら `.sign-post` で杭を付ける) にする。ヘッダーは空に浮かぶ小さな札、メニューは野原に立つ大きな札。
 
-細かい部品も野原の物で作る。技術名は札に貼った葉 (`.tag`)、ボタンは小さな札 (`.pill`)、主ボタンは蜜を塗った札 (`.pill-primary`)、公開中の印は灯りがともる巣の 1 部屋 (`.beacon`)、一覧の区切りは板の木目、`/world` の作品パネルと案内も札にする。
-
 色・書体・動きのトークンは `src/lib/theme/brand.css` にあり、名前は野原の物の名前 (`sky` `grass` `soil` `wood` `char` `honey` `wax` `petal` `leaf`、動きは `flutter` `sway` `bloom`) にする。トークンにない値や、野原にない物の名前の値を足さない。足すときは先にコンセプトに照らして名前を決める。
 
 

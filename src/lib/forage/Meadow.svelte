@@ -215,8 +215,7 @@
 	/* 読み込んだ直後 (ready の前) は動かさない。前に訪れた分は咲いた状態で出す */
 	@media (prefers-reduced-motion: no-preference) {
 		.ready .bud {
-			/* 蕾は咲く瞬間に花と入れ替わる */
-			transition: scale 0s var(--delay);
+			transition: scale 0.25s ease-in var(--delay);
 		}
 
 		.ready .head {

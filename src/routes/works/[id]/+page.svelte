@@ -91,14 +91,12 @@
 		list-style: none;
 	}
 
-	/* 謝辞は大きな札に打ち付けた小さな板 */
 	.credits {
 		margin-bottom: 2rem;
 		padding: 1rem 1.2rem;
-		border: 2px solid var(--char);
-		border-radius: var(--border-radius-4);
+		border: 1px solid var(--wood-grain);
+		border-radius: var(--border-radius-12);
 		background: var(--wood-pale);
-		box-shadow: 0.2rem 0.2rem 0 var(--shade);
 		color: var(--char-soft);
 		font-size: var(--font-size-14);
 	}

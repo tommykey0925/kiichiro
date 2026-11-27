@@ -39,24 +39,15 @@
 	}
 
 	.item {
-		position: relative;
 		display: grid;
 		grid-template-columns: 3rem 11rem 1fr;
 		column-gap: 1.5rem;
 		padding: 1rem 0;
+		border-bottom: 1px solid var(--wood-grain);
 	}
 
-	/* 行の区切りは罫線でなく、板の木目 (波打つ線) */
-	.item:not(:last-child)::after {
-		content: '';
-		position: absolute;
-		right: 0;
-		bottom: -3px;
-		left: 0;
-		height: 6px;
-		background: var(--wood-grain);
-		mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='6'%3E%3Cpath d='M0 3 C 15 0, 30 6, 45 3 S 75 1, 90 3' fill='none' stroke='black' stroke-width='1.6'/%3E%3C/svg%3E") repeat-x;
-		mask-size: 90px 6px;
+	.item:last-child {
+		border-bottom: none;
 	}
 
 	p {

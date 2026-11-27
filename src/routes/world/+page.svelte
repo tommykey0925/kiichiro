@@ -98,27 +98,25 @@
 <canvas bind:this={canvas}></canvas>
 
 {#if loading && !error}
-	<div class="loading"><p class="sign">{m.world_loading()}</p></div>
+	<p class="loading">{m.world_loading()}</p>
 {/if}
 
 {#if error}
 	<div class="unsupported">
-		<div class="sign">
-			<p>{error}</p>
-			<a href={localizeHref('/')}>{m.world_to_list()}</a>
-		</div>
+		<p>{error}</p>
+		<a href={localizeHref('/')}>{m.world_to_list()}</a>
 	</div>
 {/if}
 
-<a class="exit sign" href={localizeHref('/')}>{m.world_exit()}</a>
+<a class="exit" href={localizeHref('/')}>{m.world_exit()}</a>
 
 {#if !error && !loading}
-	<p class="hint sign">{m.world_hint()}</p>
+	<p class="hint">{m.world_hint()}</p>
 {/if}
 
 {#if near}
 	<!-- スマホでは名前だけの帯に畳み、押すと説明を開く。PC はいつも開いている -->
-	<aside class="panel sign" class:open style:--spot={near.spot?.color}>
+	<aside class="panel" class:open style:--spot={near.spot?.color}>
 		<div class="head">
 			<h2>{near.title}</h2>
 			<button
@@ -183,7 +181,9 @@
 		position: fixed;
 		z-index: 1;
 		padding: 0.45rem 0.9rem;
-		box-shadow: 0.2rem 0.2rem 0 var(--shade);
+		border: 2px solid var(--char);
+		border-radius: var(--border-radius-8);
+		background: var(--wood);
 		font-family: var(--font-sign-title);
 		font-size: var(--font-size-14);
 		font-weight: 700;
@@ -212,20 +212,12 @@
 		max-width: 30rem;
 		margin: 0 auto;
 		padding: 1.1rem 1.3rem;
-	}
-
-	/* 作品の色は、名前の前に咲く花で見せる */
-	.panel h2::before {
-		content: '';
-		display: inline-block;
-		width: 0.7em;
-		height: 0.7em;
-		margin-right: 0.4em;
 		border: 2px solid var(--char);
-		border-radius: 50%;
-		background: var(--spot, var(--petal));
-		box-shadow: 0 0 0 0.18em var(--wood), 0 0 0 calc(0.18em + 2px) var(--char);
-		vertical-align: 0.05em;
+		border-top: 0.5rem solid var(--spot, var(--honey));
+		border-radius: var(--border-radius-12);
+		background: var(--wood);
+		/* トップの蜂と同じ、ずらした塗りの影 */
+		box-shadow: 8px 8px 0 var(--char);
 	}
 
 	.head {
@@ -244,6 +236,7 @@
 		border-radius: 50%;
 		background: var(--wood-pale);
 		color: var(--char);
+		transition: rotate 0.2s ease;
 	}
 
 	.open .toggle {
@@ -283,27 +276,24 @@
 		font-size: var(--font-size-14);
 	}
 
-	/* 3D が出るまでは、空と草地の上に札を立てて待つ */
-	.loading,
+	.loading {
+		position: fixed;
+		inset: 0;
+		display: grid;
+		place-content: center;
+		margin: 0;
+		background: var(--wood);
+		color: var(--char-soft);
+	}
+
 	.unsupported {
 		position: fixed;
 		inset: 0;
 		display: grid;
 		place-content: center;
-		padding: 2rem;
-		background: linear-gradient(var(--sky-top), var(--sky-horizon) 55%, var(--grass) 55%);
-	}
-
-	.loading .sign {
-		margin: 0;
-		padding: 0.75rem 1.25rem;
-		color: var(--char-soft);
-	}
-
-	.unsupported .sign {
-		display: grid;
 		gap: 0.75rem;
-		padding: 1.25rem 1.5rem;
+		padding: 2rem;
+		background: var(--wood);
 		text-align: center;
 	}
 
