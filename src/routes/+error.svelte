@@ -25,6 +25,6 @@
 
 	p {
 		margin: 0 0 1.5rem;
-		color: var(--char-soft);
+		color: var(--muted);
 	}
 </style>

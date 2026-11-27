@@ -9,7 +9,7 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Mascot from '$lib/brand/Mascot.svelte';
+	import BeeIcon from '$lib/brand/BeeIcon.svelte';
 	import { forage } from './state.svelte';
 	import { createFlight, FLIGHT, isHovering, step, type Point } from './flight';
 	import { m } from '$lib/paraglide/messages';
@@ -81,8 +81,7 @@
 </script>
 
 <a class="bee" href={localizeHref('/world')} aria-label={m.enter_world()} bind:this={element} hidden>
-	<Mascot pose="top" class="bee-body" />
-	<Mascot pose="wings" class="bee-wings" />
+	<BeeIcon />
 </a>
 
 <style>
@@ -111,35 +110,23 @@
 	}
 
 	.bee:focus-visible {
-		outline: 4px solid var(--char);
+		outline: 4px solid var(--brand-ink);
 		outline-offset: 2px;
 		border-radius: 50%;
 	}
 
-	/* 体の上に、同じ枠で撮った羽の絵を重ねる */
-	.bee :global(.bee-body),
-	.bee :global(.bee-wings) {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-	}
-
-	/* 羽ばたき。羽の絵だけを速く小さく振る (/world の蜂と同じく、残像の扇がちらついて見える) */
-	@media (prefers-reduced-motion: no-preference) {
-		.bee :global(.bee-wings) {
-			animation: buzz var(--flutter) infinite alternate;
-		}
+	/* 羽ばたき。速く小さく振る */
+	.bee :global(.wings) {
+		transform-origin: 18px 14px;
+		animation: buzz 70ms linear infinite alternate;
 	}
 
 	@keyframes buzz {
 		from {
-			scale: 1 1;
-			opacity: 1;
+			transform: scaleY(1);
 		}
 		to {
-			scale: 0.82 1;
-			opacity: 0.7;
+			transform: scaleY(0.55);
 		}
 	}
 </style>

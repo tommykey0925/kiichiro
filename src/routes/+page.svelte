@@ -17,7 +17,7 @@
 	import { localizeHref } from '$lib/paraglide/runtime';
 
 	// ヒーローの下の野原には、作品ごとにその作品の色の花を植える
-	const meadow = [...showcase, ...others].map((w) => ({ id: w.id, color: w.spot?.color ?? 'var(--petal)' }));
+	const meadow = [...showcase, ...others].map((w) => ({ id: w.id, color: w.spot?.color ?? 'var(--brand-petal)' }));
 </script>
 
 <svelte:head>
@@ -66,7 +66,7 @@
 							<a class="dads-link" href={work.repo} rel="noreferrer">GitHub</a>
 						</p>
 					</div>
-					<span class="pick-bloom"><Bloom id={work.id} color={work.spot?.color ?? 'var(--petal)'} size="8rem" /></span>
+					<span class="pick-bloom"><Bloom id={work.id} color={work.spot?.color ?? 'var(--brand-petal)'} size="8rem" /></span>
 				</li>
 			{/each}
 		</ol>
@@ -107,7 +107,7 @@
 		/* 下の野原 (最大 11rem) まで最初の画面に収める */
 		min-height: calc(100svh - var(--header-height) - 11rem);
 		padding: 3rem clamp(1.25rem, 6vw, 6rem);
-		background-image: radial-gradient(var(--wood-grain) 1.6px, transparent 1.8px);
+		background-image: radial-gradient(var(--line) 1.6px, transparent 1.8px);
 		background-size: 14px 14px;
 		overflow: hidden;
 	}
@@ -134,7 +134,7 @@
 		position: absolute;
 		width: 85%;
 		aspect-ratio: 1 / 1.1547;
-		background: var(--honey);
+		background: var(--brand-honey);
 		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 		rotate: 8deg;
 	}
@@ -144,7 +144,7 @@
 		width: 100%;
 		max-width: 36rem;
 		height: auto;
-		filter: drop-shadow(14px 12px 0 var(--petal)) drop-shadow(10px 8px 0 var(--char));
+		filter: drop-shadow(14px 12px 0 var(--brand-petal)) drop-shadow(10px 8px 0 var(--brand-on-honey));
 	}
 
 	@media (max-width: 48rem) {
@@ -176,7 +176,7 @@
 	}
 
 	.section-heading .ja {
-		color: var(--char-soft);
+		color: var(--muted);
 		font-size: var(--font-size-20);
 	}
 
@@ -196,16 +196,16 @@
 		gap: 1.5rem;
 		align-items: start;
 		padding: 2rem 0;
-		border-top: 2px solid var(--char);
+		border-top: 2px solid var(--brand-ink);
 	}
 
 	.no {
 		color: transparent;
-		font-family: var(--font-sign-title);
+		font-family: var(--font-display);
 		font-size: 4.5rem;
 		font-weight: 700;
 		line-height: 1;
-		-webkit-text-stroke: 1.5px var(--char);
+		-webkit-text-stroke: 1.5px var(--brand-ink);
 	}
 
 	.pick h3 {
@@ -278,10 +278,10 @@
 	.contact {
 		display: inline-flex;
 		padding: 0.75rem;
-		border: 2px solid var(--char);
+		border: 2px solid var(--brand-ink);
 		border-radius: var(--border-radius-8);
-		background: var(--wood-pale);
-		color: var(--char);
+		background: var(--surface);
+		color: var(--ink);
 	}
 
 	.world {

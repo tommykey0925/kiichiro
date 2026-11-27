@@ -132,12 +132,12 @@
 	}
 
 	.far {
-		fill: color-mix(in oklab, var(--leaf) 45%, var(--wood));
+		fill: color-mix(in oklab, var(--brand-leaf) 45%, var(--brand-paper));
 	}
 
 	.near {
-		fill: var(--leaf);
-		stroke: var(--char);
+		fill: var(--brand-leaf);
+		stroke: var(--brand-on-honey);
 		stroke-width: 2;
 		vector-effect: non-scaling-stroke;
 	}
@@ -157,7 +157,7 @@
 
 	.grass path {
 		fill: none;
-		stroke: color-mix(in oklab, var(--leaf) 70%, var(--char));
+		stroke: color-mix(in oklab, var(--brand-leaf) 70%, var(--brand-on-honey));
 		stroke-width: 2;
 		stroke-linecap: round;
 	}
@@ -170,14 +170,14 @@
 
 	.stem {
 		fill: none;
-		stroke: color-mix(in oklab, var(--leaf) 70%, var(--char));
+		stroke: color-mix(in oklab, var(--brand-leaf) 70%, var(--brand-on-honey));
 		stroke-width: 2;
 		stroke-linecap: round;
 	}
 
 	.bud {
-		fill: var(--leaf);
-		stroke: var(--char);
+		fill: var(--brand-leaf);
+		stroke: var(--brand-on-honey);
 		stroke-width: 1.2;
 	}
 
@@ -185,12 +185,12 @@
 		translate: 0 -36px;
 		scale: 0;
 		fill: var(--petal);
-		stroke: var(--char);
+		stroke: var(--brand-on-honey);
 		stroke-width: 1.2;
 	}
 
 	.center {
-		fill: var(--honey);
+		fill: var(--brand-honey);
 	}
 
 	.open .bud {
@@ -213,7 +213,7 @@
 		}
 
 		.ready .head {
-			transition: scale var(--bloom) calc(var(--delay) + 0.15s);
+			transition: scale 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) calc(var(--delay) + 0.15s);
 		}
 	}
 </style>

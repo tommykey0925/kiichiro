@@ -117,8 +117,8 @@
 		margin: 0;
 		padding: 0;
 		border: none;
-		background: var(--char);
-		color: var(--wood);
+		background: var(--brand-ink);
+		color: var(--brand-paper);
 	}
 
 	.menu[open] {
@@ -159,7 +159,7 @@
 	}
 
 	.label {
-		font-family: var(--font-sign-title);
+		font-family: var(--font-display);
 		font-size: clamp(2.5rem, 7vw, 4.5rem);
 		font-weight: 700;
 		line-height: 1.1;
@@ -167,19 +167,19 @@
 	}
 
 	.sub {
-		color: var(--honey);
+		color: var(--brand-honey);
 		font-size: var(--font-size-16);
 	}
 
 	@media (hover: hover) {
 		nav a:hover .label {
-			color: var(--honey);
+			color: var(--brand-honey);
 		}
 	}
 
 	.menu a:focus-visible,
 	.menu button:focus-visible {
-		outline: 4px solid var(--honey);
+		outline: 4px solid var(--brand-honey);
 		outline-offset: 4px;
 		border-radius: var(--border-radius-4);
 	}
@@ -210,8 +210,8 @@
 		position: relative;
 		display: grid;
 		place-items: center;
-		background-color: var(--honey);
-		background-image: radial-gradient(var(--char) 1.2px, transparent 1.4px);
+		background-color: var(--brand-honey);
+		background-image: radial-gradient(var(--brand-on-honey) 1.2px, transparent 1.4px);
 		background-size: 12px 12px;
 		overflow: hidden;
 	}
@@ -220,14 +220,14 @@
 		width: 160%;
 		max-width: none;
 		rotate: -18deg;
-		filter: drop-shadow(10px 10px 0 var(--petal));
+		filter: drop-shadow(10px 10px 0 var(--brand-petal));
 	}
 
 	.close {
 		position: absolute;
 		top: 0.5rem;
 		right: 0.75rem;
-		color: var(--char);
+		color: var(--brand-on-honey);
 	}
 
 	@media (max-width: 40rem) {
@@ -242,7 +242,7 @@
 		}
 
 		.close {
-			color: var(--wood);
+			color: var(--brand-paper);
 		}
 	}
 

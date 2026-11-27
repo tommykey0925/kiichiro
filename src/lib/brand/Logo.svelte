@@ -6,7 +6,7 @@
 
 <style>
 	.logo {
-		font-family: var(--font-sign-title);
+		font-family: var(--font-display);
 		font-weight: 700;
 		letter-spacing: -0.02em;
 		white-space: nowrap;
@@ -17,7 +17,7 @@
 		width: 0.34em;
 		height: 0.38em;
 		margin: 0 0.04em;
-		background: var(--honey);
+		background: var(--brand-honey);
 		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 	}
 

@@ -2,23 +2,13 @@
 
 このサイトは作ったものを見せるのが目的なので、`~/.claude/DESIGN.md` (デジタル庁デザインシステムのトークンだけを使う規約) を適用しない。目標は mq1.dev くらい迫力のある見た目。
 
-## コンセプト
-
-kiichi.ro は一面の野原。作品はそこに咲く花で、訪れた人は蜂になって花を巡り、蜜を巣へ持ち帰る。トップから `/world` まで、すべてのページを同じ野原として描く (目標はヨル https://yolu.jp/ のように、背景・飾り・ボタンまで世界の物でそろえる水準)。
-
-1. 画面にあるものは全部、野原にある物にする。白い地・罫線・四角い箱は使わない
-2. 文字は札に書く。野原の上に直接書かず、読みやすさは札で守る
-3. 動くのは生き物と風と光だけ
-
-色・書体・動きのトークンは `src/lib/theme/brand.css` にあり、名前は野原の物の名前 (`sky` `grass` `soil` `wood` `char` `honey` `wax` `petal` `leaf`、動きは `flutter` `sway` `bloom`) にする。トークンにない値や、野原にない物の名前の値を足さない。足すときは先にコンセプトに照らして名前を決める。
-
-
+## 守るもの
 
 | 項目 | 決まり |
 |---|---|
 | 到達性 | WCAG 2.1 AA。文字のコントラスト比 4.5:1 以上、フォーカス表示を消さない、キーボードだけで操作できる |
 | 動き | `prefers-reduced-motion: reduce` のときはスクロール連動の演出と時間差の登場を止め、最終状態を一度に出す |
-| 色・書体・動き | `src/lib/theme/brand.css` のトークンだけを使う。新しい値を足すときはここに野原の物の名前で足し、文字色ならコントラスト比を計算してコメントに残す |
+| 色・書体 | `src/lib/theme/brand.css` のトークンを使う。新しい色を足すときはここに足し、コントラスト比を計算してコメントに残す |
 | 本文 | 和文は Noto Sans JP、14px 未満にしない、行間 1.5 以上 |
 
 ## 検査
@@ -39,15 +29,16 @@ kiichi.ro は一面の野原。作品はそこに咲く花で、訪れた人は�
 
 ## 絵とロゴ
 
-ページは `src/lib/brand/` の部品だけを参照する。蜂は `/world` の蜂 (`src/lib/world/BeeModel.ts`) 1 種類だけで、静止画もその形から撮る。
+ページは `src/lib/brand/` の部品だけを参照する。当面は 3D の蜂 (`static/bee.glb`) から書き出した静止画、自前の SVG の花、書体で組んだ文字ロゴを使う。描いた絵や依頼した絵に替えるときは、`src/lib/brand/` の画像を替えるだけで済む形を保つ。
 
 | 部品 | 中身 |
 |---|---|
 | `Logo.svelte` | 文字ロゴ。「.」を六角形で見せる |
-| `Mascot.svelte` | 蜂の静止画。`pose` で向きを選ぶ (`hero` / `side` / `top`、`wings` は `top` に重ねる羽だけの絵) |
+| `Mascot.svelte` | 蜂の静止画。`pose` で向きを選ぶ (`hero` / `side` / `top`) |
 | `Bloom.svelte` | 作品の花 (SVG)。蕾から咲き、蜂が訪れると真ん中に蜜がたまる。色は作品の `spot.color` |
+| `BeeIcon.svelte` | `/world` への入口に使う Twemoji の蜂 |
 
-静止画を撮り直すときは `CHROMIUM_PATH=/usr/bin/chromium node --experimental-strip-types scripts/render-brand.ts` を実行する。角度と羽の形は同じファイルの `shots` で決める。
+静止画を撮り直すときは `CHROMIUM_PATH=/usr/bin/chromium node --experimental-strip-types scripts/render-brand.ts` を実行する。角度と色は同じファイルの `shots` で決める。
 
 ## デジタル庁デザインシステムの残り
 
