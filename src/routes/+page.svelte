@@ -5,6 +5,7 @@
 	import Bloom from '$lib/brand/Bloom.svelte';
 	import Bee from '$lib/forage/Bee.svelte';
 	import Sky from '$lib/brand/Sky.svelte';
+	import Blossoms from '$lib/forage/Blossoms.svelte';
 	import { detour } from '$lib/forage/state.svelte';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
@@ -41,6 +42,7 @@
 
 <div class="wrap">
 	<section id="works" aria-labelledby="works-heading">
+		<Blossoms works={meadow} />
 		<h2 id="works-heading" class="section-heading sign sign-post">
 			<span class="en">Works</span>
 			<span class="ja">{m.showcase_heading()}</span>
@@ -49,7 +51,7 @@
 		<ol class="picks">
 			{#each showcase as work, i (work.id)}
 				<li class="pick" use:detour={work.id}>
-					<div class="pick-sign sign sign-post">
+					<div class="pick-sign sign sign-post sign-swing">
 					<span class="no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
 					<div class="pick-body">
 						<h3><a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a></h3>
@@ -80,7 +82,7 @@
 			<span class="en">{m.contact_heading()}</span>
 			<span class="ja">{m.nav_contact()}</span>
 		</h2>
-		<div class="contact-sign sign sign-post">
+		<div class="contact-sign sign sign-post sign-swing">
 		<div class="contacts">
 			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
 				<GithubLogoIcon size="1.5em" aria-hidden="true" />
@@ -156,7 +158,13 @@
 	}
 
 	#works {
+		position: relative;
 		padding-top: 3rem;
+	}
+
+	/* 飛ぶ蜂 (Bee.svelte) がこの場所を引き継いだら、静止画は隠す */
+	:global(:root[data-bee]) .hero-art :global(.hero-bee) {
+		visibility: hidden;
 	}
 
 	/* 見出しの札: 大きな英字と小さな和文 */

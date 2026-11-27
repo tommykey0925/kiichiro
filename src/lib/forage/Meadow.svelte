@@ -13,6 +13,7 @@
 	import { onMount } from 'svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import { forage } from './state.svelte';
+	import Flower from './Flower.svelte';
 
 	let { works }: { works: { id: string; color: string }[] } = $props();
 
@@ -29,10 +30,10 @@
 		};
 	}
 
-	type Flower = { id: string; color: string; left: number; depth: number; turn: number };
+	type Planted = { id: string; color: string; left: number; depth: number; turn: number };
 
 	// 作品の花を横いっぱいに混ぜて散らす。左右の位置は等間隔に揺らぎを足し、作品の並びは乱数で混ぜる
-	const flowers: Flower[] = $derived.by(() => {
+	const flowers: Planted[] = $derived.by(() => {
 		const random = seeded(7);
 		const slots = works.flatMap((w) => Array.from({ length: PER }, () => w));
 		for (let i = slots.length - 1; i > 0; i--) {
@@ -90,32 +91,21 @@
 			style:left="{g.left}%"
 			style:bottom="{8 + g.depth * 30}%"
 			style:scale={(g.flip ? -1 : 1) * (0.7 + (1 - g.depth) * 0.6) + ' ' + (0.7 + (1 - g.depth) * 0.6)}
+			style:--i={i}
 		>
 			<path d="M-5 0 Q -6 -12 -9 -20 M0 0 Q 1 -14 -1 -24 M5 0 Q 6 -11 9 -18" />
 		</svg>
 	{/each}
 	{#each flowers as f, i (i)}
-		{@const open = shown.has(f.id)}
-		<svg
-			class="flower"
-			class:open
-			viewBox="-14 -46 28 46"
-			style:left="{f.left}%"
-			style:bottom="{2 + f.depth * 34}%"
-			style:--petal={f.color}
-			style:--size={0.75 + (1 - f.depth) * 0.5}
-			style:--turn="{f.turn}deg"
-			style:--delay="{(shown.get(f.id) ?? 0) * 0.45 + (i % PER) * 0.07}s"
-		>
-			<path class="stem" d="M0 0 Q 2 -18 0 -34" />
-			<ellipse class="bud" cx="0" cy="-36" rx="3.6" ry="5.5" />
-			<g class="head">
-				{#each [0, 72, 144, 216, 288] as angle (angle)}
-					<ellipse cx="0" cy="-6.5" rx="4.2" ry="6.5" transform="rotate({angle})" />
-				{/each}
-				<circle class="center" r="3" />
-			</g>
-		</svg>
+		<Flower
+			open={shown.has(f.id)}
+			color={f.color}
+			left="{f.left}%"
+			bottom="{2 + f.depth * 34}%"
+			size={0.75 + (1 - f.depth) * 0.5}
+			turn={f.turn}
+			delay={(shown.get(f.id) ?? 0) * 0.45 + (i % PER) * 0.07}
+		/>
 	{/each}
 </div>
 
@@ -148,8 +138,7 @@
 		vector-effect: non-scaling-stroke;
 	}
 
-	.grass,
-	.flower {
+	.grass {
 		position: absolute;
 		overflow: visible;
 		translate: -50% 0;
@@ -161,6 +150,23 @@
 		height: 1.8rem;
 	}
 
+	/* 風が左から右へ渡っていくよう、株ごとに揺れ始めをずらす */
+	@media (prefers-reduced-motion: no-preference) {
+		.grass {
+			animation: sway var(--sway) infinite alternate;
+			animation-delay: calc(var(--i) * -0.17s);
+		}
+	}
+
+	@keyframes sway {
+		from {
+			rotate: -5deg;
+		}
+		to {
+			rotate: 5deg;
+		}
+	}
+
 	.grass path {
 		fill: none;
 		stroke: var(--grass-deep);
@@ -168,59 +174,4 @@
 		stroke-linecap: round;
 	}
 
-	.flower {
-		width: calc(2.4rem * var(--size));
-		height: calc(3.9rem * var(--size));
-		rotate: var(--turn);
-	}
-
-	.stem {
-		fill: none;
-		stroke: var(--grass-deep);
-		stroke-width: 2;
-		stroke-linecap: round;
-	}
-
-	.bud {
-		fill: var(--leaf);
-		stroke: var(--char);
-		stroke-width: 1.2;
-	}
-
-	.head {
-		translate: 0 -36px;
-		scale: 0;
-		fill: var(--petal);
-		stroke: var(--char);
-		stroke-width: 1.2;
-	}
-
-	.center {
-		fill: var(--honey);
-	}
-
-	.open .bud {
-		scale: 0;
-	}
-
-	.open .head {
-		scale: 1;
-	}
-
-	.bud {
-		transform-box: fill-box;
-		transform-origin: 50% 100%;
-	}
-
-	/* 読み込んだ直後 (ready の前) は動かさない。前に訪れた分は咲いた状態で出す */
-	@media (prefers-reduced-motion: no-preference) {
-		.ready .bud {
-			/* 蕾は咲く瞬間に花と入れ替わる */
-			transition: scale 0s var(--delay);
-		}
-
-		.ready .head {
-			transition: scale var(--bloom) calc(var(--delay) + 0.15s);
-		}
-	}
 </style>

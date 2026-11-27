@@ -4,6 +4,7 @@
  *
  *   空 sky-*   草 grass-*   小道の土 soil   札の木 wood-*   札の焼き文字 char-*
  *   蜜 honey   巣の蝋 wax   花びら petal   葉と茎 leaf   札の杭 bark   札が草に落とす影 shade
+ *   雲 cloud   蛍の光 glow (昼は透明で見えない)
  *
  * 文字は札 (wood) の上にだけ置く。焼き文字の組み合わせは WCAG 2.1 AA (4.5:1) を計算で確かめてある。
  *
@@ -31,18 +32,24 @@
 	--leaf: #4f7a3a;
 	--bark: #8a6440;
 	--shade: rgb(31 26 20 / 0.22);
+	--cloud: rgb(255 253 247 / 0.92);
+	--glow: transparent;
 
 	/* 書体: 札の見出しと本文 */
 	--font-sign-title: 'Jost', 'Noto Sans JP', sans-serif;
 	--font-sign-text: var(--font-family-sans);
 
-	/* 動き: 動くのは生き物と風と光だけ。速さと緩急はこの 3 組に限る */
+	/* 動き: 野原の理屈で動かす。速さと緩急はこの 5 組に限る */
 	/* flutter 蜂の羽ばたき */
 	--flutter: 60ms linear;
-	/* sway 風に揺れる草花 */
+	/* sway 風に揺れる草花・札・蛍の明滅 */
 	--sway: 2.4s ease-in-out;
 	/* bloom 蕾が開く・蜜がたまる */
 	--bloom: 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+	/* settle 札が起き上がり、揺れが収まる。ページが移るときの入れ替わり */
+	--settle: 0.9s cubic-bezier(0.2, 0.8, 0.3, 1);
+	/* drift 雲が流れる */
+	--drift: 120s linear;
 }
 
 /* 夜 (ダーク)。同じ名前で値だけ替える */
@@ -62,6 +69,8 @@
 	--leaf: #8fbf6a;
 	--bark: #6b5236;
 	--shade: rgb(0 0 0 / 0.4);
+	--cloud: rgb(44 48 78 / 0.85);
+	--glow: #eaf79b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -81,5 +90,7 @@
 		--leaf: #8fbf6a;
 		--bark: #6b5236;
 		--shade: rgb(0 0 0 / 0.4);
+	--cloud: rgb(44 48 78 / 0.85);
+	--glow: #eaf79b;
 	}
 }
