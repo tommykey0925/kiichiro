@@ -9,11 +9,11 @@
 
 <header class="site-header">
 	<div class="inner">
-		<div class="start">
+		<div class="start sign">
 			<a class="home" href={localizeHref('/')}><Logo /></a>
 			<Comb />
 		</div>
-		<div class="tools">
+		<div class="tools sign">
 			<LocaleSwitch />
 			<ThemeToggle />
 			<SiteMenu />
@@ -22,14 +22,19 @@
 </header>
 
 <style>
-	/* 文字の上に重ならないよう、背景は常に不透明にする */
+	/* ヘッダーは空に浮かぶ小さな札 2 枚。帯と罫線は引かない。札は不透明なので、下の文字と重なっても読める */
 	.site-header {
 		position: sticky;
 		top: 0;
 		z-index: 10;
 		height: var(--header-height);
-		border-bottom: 1px solid var(--wood-grain);
-		background: var(--wood);
+		pointer-events: none;
+	}
+
+	.sign {
+		pointer-events: auto;
+		padding: 0.2rem 0.6rem;
+		box-shadow: none;
 	}
 
 	.inner {
@@ -39,7 +44,7 @@
 		max-width: 80rem;
 		height: 100%;
 		margin: 0 auto;
-		padding: 0 clamp(0.75rem, 3vw, 2rem);
+		padding: 0.4rem clamp(0.75rem, 3vw, 2rem) 0;
 	}
 
 	.home {

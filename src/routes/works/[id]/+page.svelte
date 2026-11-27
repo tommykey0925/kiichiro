@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
+	import Sky from '$lib/brand/Sky.svelte';
 	import { localize } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
@@ -16,7 +17,10 @@
 	<meta property="og:type" content="website" />
 </svelte:head>
 
+<Sky />
+
 <div class="wrap">
+<div class="sheet sign sign-post">
 	<a class="back" href={localizeHref('/')}>{m.back_to_list()}</a>
 
 	<h1>{work.title}</h1>
@@ -50,8 +54,15 @@
 		{/if}
 	</p>
 </div>
+</div>
 
 <style>
+	.sheet {
+		margin-top: 1rem;
+		margin-bottom: 4rem;
+		padding: clamp(1.25rem, 4vw, 2.5rem);
+	}
+
 	.back {
 		display: inline-block;
 		margin-bottom: 2rem;

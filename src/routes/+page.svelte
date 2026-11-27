@@ -4,7 +4,7 @@
 	import Mascot from '$lib/brand/Mascot.svelte';
 	import Bloom from '$lib/brand/Bloom.svelte';
 	import Bee from '$lib/forage/Bee.svelte';
-	import Meadow from '$lib/forage/Meadow.svelte';
+	import Sky from '$lib/brand/Sky.svelte';
 	import { detour } from '$lib/forage/state.svelte';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
@@ -16,7 +16,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
 
-	// ヒーローの下の野原には、作品ごとにその作品の色の花を植える
+	// ヒーローの下の丘の稜線には、作品ごとにその作品の色の花を植える
 	const meadow = [...showcase, ...others].map((w) => ({ id: w.id, color: w.spot?.color ?? 'var(--petal)' }));
 </script>
 
@@ -25,24 +25,23 @@
 	<meta name="description" content={m.bio()} />
 </svelte:head>
 
-<section class="hero">
-	<div class="hero-text">
-		<h1><Logo /></h1>
-		<p class="bio">{m.bio()}</p>
-	</div>
-	<div class="hero-art" aria-hidden="true">
-		<span class="hex"></span>
-		<Mascot pose="hero" class="hero-bee" fetchpriority="high" />
-	</div>
-</section>
-
-<Meadow works={meadow} />
+<Sky works={meadow} height="calc(100svh - 1rem)">
+	<section class="hero">
+		<div class="hero-text sign sign-post">
+			<h1><Logo /></h1>
+			<p class="bio">{m.bio()}</p>
+		</div>
+		<div class="hero-art" aria-hidden="true">
+			<Mascot pose="hero" class="hero-bee" fetchpriority="high" />
+		</div>
+	</section>
+</Sky>
 
 <Bee />
 
 <div class="wrap">
 	<section id="works" aria-labelledby="works-heading">
-		<h2 id="works-heading" class="section-heading">
+		<h2 id="works-heading" class="section-heading sign sign-post">
 			<span class="en">Works</span>
 			<span class="ja">{m.showcase_heading()}</span>
 		</h2>
@@ -50,6 +49,7 @@
 		<ol class="picks">
 			{#each showcase as work, i (work.id)}
 				<li class="pick" use:detour={work.id}>
+					<div class="pick-sign sign sign-post">
 					<span class="no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
 					<div class="pick-body">
 						<h3><a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a></h3>
@@ -66,6 +66,7 @@
 							<a class="dads-link" href={work.repo} rel="noreferrer">GitHub</a>
 						</p>
 					</div>
+					</div>
 					<span class="pick-bloom"><Bloom id={work.id} color={work.spot?.color ?? 'var(--petal)'} size="8rem" /></span>
 				</li>
 			{/each}
@@ -75,10 +76,11 @@
 	</section>
 
 	<section id="contact" aria-labelledby="contact-heading">
-		<h2 id="contact-heading" class="section-heading">
+		<h2 id="contact-heading" class="section-heading sign sign-post">
 			<span class="en">{m.contact_heading()}</span>
 			<span class="ja">{m.nav_contact()}</span>
 		</h2>
+		<div class="contact-sign sign sign-post">
 		<div class="contacts">
 			<a class="contact" href={profile.github} rel="me" aria-label="GitHub">
 				<GithubLogoIcon size="1.5em" aria-hidden="true" />
@@ -93,84 +95,83 @@
 		<p class="world">
 			<a class="pill pill-primary" href={localizeHref('/world')}>{m.enter_world()} →</a>
 		</p>
+		</div>
 	</section>
 </div>
 
 <style>
-	/* ヒーロー: 網点の地に巨大なロゴ、右に蜂 */
+	/* ヒーロー: 空に蜂が飛び、丘の稜線に立てた札にロゴを書く */
 	.hero {
-		position: relative;
 		display: grid;
+		flex: 1;
 		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-		align-items: center;
+		align-items: end;
 		gap: 2rem;
-		/* 下の野原 (最大 11rem) まで最初の画面に収める */
-		min-height: calc(100svh - var(--header-height) - 11rem);
-		padding: 3rem clamp(1.25rem, 6vw, 6rem);
-		background-image: radial-gradient(var(--wood-grain) 1.6px, transparent 1.8px);
-		background-size: 14px 14px;
-		overflow: hidden;
+		padding: 2rem clamp(1.25rem, 6vw, 6rem) 0;
+	}
+
+	.hero-text {
+		justify-self: start;
+		/* 杭の先が稜線の草に隠れるところまで下げる */
+		margin-bottom: -1rem;
+		padding: 1.5rem clamp(1.25rem, 3vw, 2.5rem);
+		--post-height: 3rem;
 	}
 
 	h1 {
 		margin: 0;
-		font-size: clamp(4rem, 13vw, 11rem);
+		font-size: clamp(3.5rem, 11vw, 9.5rem);
 		line-height: 0.95;
 	}
 
 	.bio {
-		margin: 1.5rem 0 0;
+		margin: 1rem 0 0;
 		font-size: var(--font-size-20);
 		font-weight: 700;
 	}
 
 	.hero-art {
-		position: relative;
+		align-self: center;
 		display: grid;
 		place-items: center;
 	}
 
-	.hex {
-		position: absolute;
-		width: 85%;
-		aspect-ratio: 1 / 1.1547;
-		background: var(--honey);
-		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-		rotate: 8deg;
-	}
-
 	.hero-art :global(.hero-bee) {
-		position: relative;
 		width: 100%;
-		max-width: 36rem;
+		max-width: 32rem;
 		height: auto;
-		filter: drop-shadow(14px 12px 0 var(--petal)) drop-shadow(10px 8px 0 var(--char));
 	}
 
 	@media (max-width: 48rem) {
 		.hero {
 			grid-template-columns: 1fr;
-			min-height: auto;
-			padding-top: 2rem;
+			align-content: end;
 		}
 
 		.hero-art {
-			width: min(80vw, 24rem);
+			grid-row: 1;
+			width: min(70vw, 20rem);
 			margin: 0 auto;
 		}
 	}
 
-	/* 見出し: 大きな英字と小さな和文 */
+	#works {
+		padding-top: 3rem;
+	}
+
+	/* 見出しの札: 大きな英字と小さな和文 */
 	.section-heading {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 0.5rem 1.25rem;
-		margin: 0 0 2rem;
+		gap: 0.25rem 1rem;
+		width: fit-content;
+		margin: 0 0 3rem;
+		padding: 0.75rem 1.5rem;
 	}
 
 	.section-heading .en {
-		font-size: clamp(3rem, 9vw, 6rem);
+		font-size: clamp(2.5rem, 7vw, 4.5rem);
 		line-height: 1;
 		letter-spacing: -0.02em;
 	}
@@ -181,7 +182,7 @@
 	}
 
 	section + section {
-		margin-top: 6rem;
+		margin-top: 5rem;
 	}
 
 	.picks {
@@ -190,19 +191,26 @@
 		list-style: none;
 	}
 
+	/* 作品: 札と、その脇に咲く作品の花 */
 	.pick {
 		display: grid;
-		grid-template-columns: 6rem minmax(0, 1fr) 10rem;
-		gap: 1.5rem;
-		align-items: start;
-		padding: 2rem 0;
-		border-top: 2px solid var(--char);
+		grid-template-columns: minmax(0, 1fr) 9rem;
+		align-items: end;
+		gap: 1rem;
+		margin-bottom: 3.5rem;
+	}
+
+	.pick-sign {
+		display: grid;
+		grid-template-columns: 5rem minmax(0, 1fr);
+		gap: 1.25rem;
+		padding: 1.5rem;
 	}
 
 	.no {
 		color: transparent;
 		font-family: var(--font-sign-title);
-		font-size: 4.5rem;
+		font-size: 4rem;
 		font-weight: 700;
 		line-height: 1;
 		-webkit-text-stroke: 1.5px var(--char);
@@ -235,39 +243,42 @@
 
 	.pick-bloom {
 		display: grid;
-		place-items: center;
-		padding-top: 1rem;
+		place-items: end center;
+		margin-bottom: 1rem;
 	}
 
 	@media (max-width: 48rem) {
 		.pick {
-			grid-template-columns: 3.5rem minmax(0, 1fr);
-			grid-template-rows: auto 1fr;
+			grid-template-columns: 1fr;
 		}
 
-		.pick-body {
-			grid-column: 2;
-			grid-row: 1 / span 2;
+		/* スマホでは花を札の右上に咲かせる */
+		.pick-bloom {
+			grid-row: 1;
+			justify-self: end;
+			margin: 0 1rem -0.5rem 0;
+			--bloom-size: 4rem;
+		}
+
+		.pick-sign {
+			grid-template-columns: 1fr;
+			gap: 0.25rem;
+			padding: 1.25rem;
 		}
 
 		.no {
-			font-size: 3rem;
+			font-size: 2.5rem;
 		}
 
 		.pick h3 {
 			font-size: var(--font-size-28);
 		}
+	}
 
-		/* スマホでは番号の下に小さく咲かせる */
-		.pick-bloom {
-			grid-column: 1;
-			grid-row: 2;
-			padding-top: 0;
-		}
-
-		.pick-bloom {
-			--bloom-size: 3.5rem;
-		}
+	.contact-sign {
+		width: fit-content;
+		margin-bottom: 4rem;
+		padding: 1.5rem;
 	}
 
 	.contacts {
@@ -285,6 +296,6 @@
 	}
 
 	.world {
-		margin: 2rem 0 0;
+		margin: 1.5rem 0 0;
 	}
 </style>
