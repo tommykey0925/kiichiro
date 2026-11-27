@@ -4,6 +4,7 @@
 	import Mascot from '$lib/brand/Mascot.svelte';
 	import Bloom from '$lib/brand/Bloom.svelte';
 	import Bee from '$lib/forage/Bee.svelte';
+	import Meadow from '$lib/forage/Meadow.svelte';
 	import { detour } from '$lib/forage/state.svelte';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
@@ -15,8 +16,8 @@
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
 
-	// 文字帯には作品名を流す。並びは一覧と同じ
-	const band = [...showcase, ...others].map((w) => w.title);
+	// ヒーローの下の野原には、作品ごとにその作品の色の花を植える
+	const meadow = [...showcase, ...others].map((w) => ({ id: w.id, color: w.spot?.color ?? 'var(--brand-petal)' }));
 </script>
 
 <svelte:head>
@@ -33,18 +34,9 @@
 		<span class="hex"></span>
 		<Mascot pose="hero" class="hero-bee" fetchpriority="high" />
 	</div>
-	<p class="vertical" aria-hidden="true">KIICHI.RO</p>
 </section>
 
-<div class="band" aria-hidden="true">
-	<div class="track">
-		{#each [0, 1] as copy (copy)}
-			{#each band as word (word)}
-				<span>{word}</span><span class="cell"></span>
-			{/each}
-		{/each}
-	</div>
-</div>
+<Meadow works={meadow} />
 
 <Bee />
 
@@ -105,14 +97,15 @@
 </div>
 
 <style>
-	/* ヒーロー: 網点の地に巨大なロゴ、右に蜂、端に縦書き */
+	/* ヒーロー: 網点の地に巨大なロゴ、右に蜂 */
 	.hero {
 		position: relative;
 		display: grid;
 		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
 		align-items: center;
 		gap: 2rem;
-		min-height: calc(100svh - var(--header-height) - 4rem);
+		/* 下の野原 (最大 11rem) まで最初の画面に収める */
+		min-height: calc(100svh - var(--header-height) - 11rem);
 		padding: 3rem clamp(1.25rem, 6vw, 6rem);
 		background-image: radial-gradient(var(--line) 1.6px, transparent 1.8px);
 		background-size: 14px 14px;
@@ -154,23 +147,6 @@
 		filter: drop-shadow(14px 12px 0 var(--brand-petal)) drop-shadow(10px 8px 0 var(--brand-on-honey));
 	}
 
-	.vertical {
-		position: absolute;
-		top: 50%;
-		right: 0.5rem;
-		margin: 0;
-		color: transparent;
-		font-family: var(--font-display);
-		font-size: clamp(3rem, 7vw, 6rem);
-		font-weight: 700;
-		line-height: 1;
-		letter-spacing: 0.05em;
-		-webkit-text-stroke: 1.5px var(--muted);
-		writing-mode: vertical-rl;
-		translate: 0 -50%;
-		pointer-events: none;
-	}
-
 	@media (max-width: 48rem) {
 		.hero {
 			grid-template-columns: 1fr;
@@ -181,51 +157,6 @@
 		.hero-art {
 			width: min(80vw, 24rem);
 			margin: 0 auto;
-		}
-
-		.vertical {
-			display: none;
-		}
-	}
-
-	/* 横に流れる文字帯 */
-	.band {
-		overflow: hidden;
-		border-block: 2px solid var(--brand-ink);
-		background: var(--brand-honey);
-		color: var(--brand-on-honey);
-	}
-
-	.track {
-		display: flex;
-		gap: 1.5rem;
-		width: max-content;
-		padding: 0.6rem 0;
-		font-family: var(--font-display);
-		font-size: var(--font-size-20);
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		white-space: nowrap;
-	}
-
-	/* 区切りはロゴの「.」と同じ六角形 */
-	.cell {
-		align-self: center;
-		width: 0.55em;
-		height: 0.62em;
-		background: var(--brand-on-honey);
-		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-	}
-
-	@media (prefers-reduced-motion: no-preference) {
-		.track {
-			animation: band 40s linear infinite;
-		}
-	}
-
-	@keyframes band {
-		to {
-			translate: -50% 0;
 		}
 	}
 
