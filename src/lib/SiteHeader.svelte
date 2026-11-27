@@ -28,8 +28,8 @@
 		top: 0;
 		z-index: 10;
 		height: var(--header-height);
-		border-bottom: 1px solid var(--line);
-		background: var(--bg);
+		border-bottom: 1px solid var(--wood-grain);
+		background: var(--wood);
 	}
 
 	.inner {
@@ -43,13 +43,13 @@
 	}
 
 	.home {
-		color: var(--ink);
+		color: var(--char);
 		font-size: var(--font-size-20);
 		text-decoration: none;
 	}
 
 	.home:focus-visible {
-		outline: 4px solid var(--brand-ink);
+		outline: 4px solid var(--char);
 		outline-offset: 2px;
 		border-radius: var(--border-radius-4);
 	}

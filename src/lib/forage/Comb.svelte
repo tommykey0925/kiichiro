@@ -30,7 +30,7 @@
 		width: 0.85rem;
 		height: 0.98rem;
 		margin-left: -0.06rem;
-		background: var(--brand-on-honey);
+		background: var(--char);
 		clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 	}
 
@@ -43,22 +43,22 @@
 		display: block;
 		width: 100%;
 		height: 100%;
-		background: var(--brand-paper);
+		background: var(--wood);
 		clip-path: polygon(50% 12%, 88% 32%, 88% 68%, 50% 88%, 12% 68%, 12% 32%);
-		transition: background-color 0.4s ease;
+		transition: background-color var(--bloom);
 	}
 
 	.cell.full::after {
-		background: var(--brand-honey);
+		background: var(--honey);
 	}
 
 	:global(:root[data-theme='dark']) .cell {
-		background: var(--brand-muted);
+		background: var(--char-soft);
 	}
 
 	@media (prefers-color-scheme: dark) {
 		:global(:root:not([data-theme='light'])) .cell {
-			background: var(--brand-muted);
+			background: var(--char-soft);
 		}
 	}
 </style>

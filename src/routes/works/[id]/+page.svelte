@@ -55,7 +55,7 @@
 	.back {
 		display: inline-block;
 		margin-bottom: 2rem;
-		color: var(--muted);
+		color: var(--char-soft);
 		font-size: var(--font-size-14);
 		text-decoration: none;
 	}
@@ -83,10 +83,10 @@
 	.credits {
 		margin-bottom: 2rem;
 		padding: 1rem 1.2rem;
-		border: 1px solid var(--line);
+		border: 1px solid var(--wood-grain);
 		border-radius: var(--border-radius-12);
-		background: var(--surface);
-		color: var(--muted);
+		background: var(--wood-pale);
+		color: var(--char-soft);
 		font-size: var(--font-size-14);
 	}
 

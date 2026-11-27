@@ -68,14 +68,14 @@
 
 	.stem {
 		fill: none;
-		stroke: var(--brand-leaf);
+		stroke: var(--leaf);
 		stroke-width: 3;
 		stroke-linecap: round;
 	}
 
 	.petal {
 		fill: var(--petal);
-		stroke: var(--brand-on-honey);
+		stroke: var(--char);
 		stroke-width: 1.5;
 		transform: rotate(var(--angle)) scale(0.25);
 		transform-origin: 0 0;
@@ -86,19 +86,19 @@
 	}
 
 	.cell {
-		fill: var(--brand-paper);
-		stroke: var(--brand-on-honey);
+		fill: var(--wood);
+		stroke: var(--char);
 		stroke-width: 1.5;
 	}
 
 	.visited .cell {
-		fill: var(--brand-honey);
+		fill: var(--honey);
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
 		.petal {
 			transform: rotate(calc(var(--angle) - 50deg)) scale(0.25);
-			transition: transform 0.7s cubic-bezier(0.3, 1.5, 0.5, 1);
+			transition: transform var(--bloom);
 			transition-delay: calc(var(--i) * 60ms);
 		}
 
@@ -107,7 +107,7 @@
 		}
 
 		.cell {
-			transition: fill 0.4s ease;
+			transition: fill var(--bloom);
 		}
 	}
 </style>

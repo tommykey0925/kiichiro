@@ -181,10 +181,10 @@
 		position: fixed;
 		z-index: 1;
 		padding: 0.45rem 0.9rem;
-		border: 2px solid var(--brand-ink);
+		border: 2px solid var(--char);
 		border-radius: var(--border-radius-8);
-		background: var(--brand-paper);
-		font-family: var(--font-display);
+		background: var(--wood);
+		font-family: var(--font-sign-title);
 		font-size: var(--font-size-14);
 		font-weight: 700;
 		text-decoration: none;
@@ -193,14 +193,14 @@
 	.exit {
 		top: calc(var(--header-height) + 1rem);
 		left: 1rem;
-		color: var(--ink);
+		color: var(--char);
 	}
 
 	.hint {
 		top: calc(var(--header-height) + 1rem);
 		right: 1rem;
 		margin: 0;
-		color: var(--muted);
+		color: var(--char-soft);
 	}
 
 	.panel {
@@ -212,12 +212,12 @@
 		max-width: 30rem;
 		margin: 0 auto;
 		padding: 1.1rem 1.3rem;
-		border: 2px solid var(--brand-ink);
-		border-top: 0.5rem solid var(--spot, var(--brand-honey));
+		border: 2px solid var(--char);
+		border-top: 0.5rem solid var(--spot, var(--honey));
 		border-radius: var(--border-radius-12);
-		background: var(--brand-paper);
+		background: var(--wood);
 		/* トップの蜂と同じ、ずらした塗りの影 */
-		box-shadow: 8px 8px 0 var(--brand-ink);
+		box-shadow: 8px 8px 0 var(--char);
 	}
 
 	.head {
@@ -232,10 +232,10 @@
 		place-items: center;
 		width: 2.75rem;
 		height: 2.75rem;
-		border: 2px solid var(--brand-ink);
+		border: 2px solid var(--char);
 		border-radius: 50%;
-		background: var(--brand-surface);
-		color: var(--ink);
+		background: var(--wood-pale);
+		color: var(--char);
 		transition: rotate 0.2s ease;
 	}
 
@@ -251,7 +251,7 @@
 
 	.panel p {
 		margin: 0 0 0.7rem;
-		color: var(--ink);
+		color: var(--char);
 		font-size: var(--font-size-16);
 		line-height: var(--line-height-160);
 	}
@@ -282,8 +282,8 @@
 		display: grid;
 		place-content: center;
 		margin: 0;
-		background: var(--bg);
-		color: var(--muted);
+		background: var(--wood);
+		color: var(--char-soft);
 	}
 
 	.unsupported {
@@ -293,13 +293,13 @@
 		place-content: center;
 		gap: 0.75rem;
 		padding: 2rem;
-		background: var(--bg);
+		background: var(--wood);
 		text-align: center;
 	}
 
 	.unsupported p {
 		margin: 0;
-		color: var(--muted);
+		color: var(--char-soft);
 	}
 
 	.pad {
@@ -311,18 +311,18 @@
 		place-items: center;
 		width: 7rem;
 		height: 7rem;
-		border: 2px solid var(--brand-ink);
+		border: 2px solid var(--char);
 		border-radius: 50%;
-		background: rgb(from var(--brand-paper) r g b / 0.6);
+		background: rgb(from var(--wood) r g b / 0.6);
 		touch-action: none;
 	}
 
 	.knob {
 		width: 2.6rem;
 		height: 2.6rem;
-		border: 2px solid var(--brand-ink);
+		border: 2px solid var(--char);
 		border-radius: 50%;
-		background: var(--brand-honey);
+		background: var(--honey);
 	}
 
 	@media (pointer: coarse) {
