@@ -4,11 +4,11 @@
 //
 // 検査すること
 //   - PC とスマホ、ライトとダークの全組み合わせで、横スクロールが出ない・ページのエラーが出ない
-//   - ヘッダーの背景が不透明で、スクロールしても下の文字が透けて重ならない
-//   - メニューが開き、Esc で閉じ、フォーカスが開いたボタンに戻る
-//   - 作品一覧まで読み進めると花が咲き、蜂が訪れてヘッダーの蜂の巣に蜜がたまる
+//   - ヘッダーは透明のまま、下へ読むと上へ隠れ、上へ戻ると出てくる (見出しの上に文字が重なったままにならない)
+//   - メニューが開き、本文が操作できなくなり、Esc で閉じ、フォーカスが開いたボタンに戻る
+//   - 作品一覧まで読み進めると作品の部屋が開き、3D の蜂が訪れてヘッダーの蜂の巣に蜜がたまる
 //   - トップでたまった蜜が /world に引き継がれ、ヘッダーの蜂の巣に出る
-//   - 動きを減らす設定では、文字帯と飛ぶ蜂が止まり、読む位置に来た花はすぐ咲いて訪れた扱いになる
+//   - 動きを減らす設定では、出てくる動きがなく、読む位置に来た部屋はすぐ蜜がたまった扱いになる
 
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -42,14 +42,6 @@ const browser = await chromium.launch({
 	args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']
 });
 
-// rgb(1, 2, 3) / rgba(1, 2, 3, 0.5) / rgb(1 2 3 / 0.5) / color(srgb 0.1 0.2 0.3 / 0.5) のどれからも不透明度を取り出す
-function alphaOf(color: string) {
-	const slash = color.match(/\/\s*([\d.]+)(%?)\s*\)/);
-	if (slash) return Number(slash[1]) / (slash[2] ? 100 : 1);
-	const parts = color.match(/\(([^)]*)\)/)?.[1].split(',') ?? [];
-	return parts.length === 4 ? Number(parts[3]) : 1;
-}
-
 function watchErrors(page: Page, label: string) {
 	page.on('pageerror', (error) => fail(`${label}: ページのエラー ${error.message}`));
 	page.on('console', (message) => message.type() === 'error' && fail(`${label}: console.error ${message.text()}`));
@@ -66,17 +58,12 @@ try {
 				const response = await page.goto(base + path, { waitUntil: 'networkidle' });
 				if (response?.status() !== 200) fail(`${label}: 応答 ${response?.status()}`);
 
-				const layout = await page.evaluate(() => {
-					const header = document.querySelector<HTMLElement>('.site-header');
-					return {
-						overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-						headerBackground: header ? getComputedStyle(header).backgroundColor : null
-					};
-				});
+				const layout = await page.evaluate(() => ({
+					overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+					header: !!document.querySelector('.site-header')
+				}));
 				if (layout.overflow > 0) fail(`${label}: 横スクロールが ${layout.overflow}px 出る`);
-				if (!layout.headerBackground || alphaOf(layout.headerBackground) < 1) {
-					fail(`${label}: ヘッダーの背景が不透明でない (${layout.headerBackground})`);
-				}
+				if (!layout.header) fail(`${label}: ヘッダーがない`);
 				page.removeAllListeners('pageerror');
 				page.removeAllListeners('console');
 			}
@@ -84,24 +71,53 @@ try {
 		}
 	}
 
-	// メニュー: 開く → Esc で閉じる → フォーカスが戻る
+	// ヘッダー: 下へ読むと上へ隠れ、上へ戻ると出てくる
+	for (const [name, options] of Object.entries(viewports)) {
+		const context = await browser.newContext(options);
+		const page = await context.newPage();
+		watchErrors(page, `${name} ヘッダー`);
+		await page.goto(base + '/', { waitUntil: 'networkidle' });
+		const bottom = () => page.evaluate(() => document.querySelector('.site-header')!.getBoundingClientRect().bottom);
+		for (let i = 0; i < 6; i++) {
+			await page.evaluate(() => scrollBy(0, 150));
+			await page.waitForTimeout(50);
+		}
+		await page.waitForTimeout(800);
+		if ((await bottom()) > 0) fail(`${name}: 下へ読んでもヘッダーが隠れない (下端 ${await bottom()}px)`);
+		for (let i = 0; i < 4; i++) {
+			await page.evaluate(() => scrollBy(0, -40));
+			await page.waitForTimeout(50);
+		}
+		await page.waitForTimeout(800);
+		const header = await page.evaluate(() => document.querySelector('.site-header')!.getBoundingClientRect().top);
+		if (header < 0) fail(`${name}: 上へ戻ってもヘッダーが出てこない (上端 ${header}px)`);
+		await context.close();
+	}
+
+	// メニュー: 開く → 本文が操作できない → Esc で閉じる → フォーカスが戻る
 	for (const [name, options] of Object.entries(viewports)) {
 		const context = await browser.newContext(options);
 		const page = await context.newPage();
 		watchErrors(page, `${name} メニュー`);
 		await page.goto(base + '/', { waitUntil: 'networkidle' });
-		const opener = page.getByRole('button', { name: 'メニューを開く' });
+		const opener = page.locator('#menu-button');
 		await opener.click();
 		if (!(await page.locator('dialog.menu').evaluate((d: HTMLDialogElement) => d.open))) fail(`${name}: メニューが開かない`);
 		if ((await opener.getAttribute('aria-expanded')) !== 'true') fail(`${name}: aria-expanded が true にならない`);
+		if (!(await page.locator('.page').evaluate((el) => (el as HTMLElement).inert))) fail(`${name}: メニューを開いても本文が操作できる`);
+		await page.waitForTimeout(1500);
 		await page.keyboard.press('Escape');
-		if (await page.locator('dialog.menu').evaluate((d: HTMLDialogElement) => d.open)) fail(`${name}: Esc でメニューが閉じない`);
-		const focused = await page.evaluate(() => document.activeElement?.getAttribute('aria-label'));
-		if (focused !== 'メニューを開く') fail(`${name}: 閉じた後のフォーカスが開いたボタンに戻らない (${focused})`);
+		try {
+			await page.waitForFunction(() => !document.querySelector<HTMLDialogElement>('dialog.menu')!.open, null, { timeout: 3000 });
+		} catch {
+			fail(`${name}: Esc でメニューが閉じない`);
+		}
+		const focused = await page.evaluate(() => document.activeElement?.id);
+		if (focused !== 'menu-button') fail(`${name}: 閉じた後のフォーカスが開いたボタンに戻らない (${focused})`);
 		await context.close();
 	}
 
-	// 蜂の演出: 作品一覧まで読み進めると、蜂が最初の花を訪れて蜜が 1 部屋たまる
+	// 蜂の演出: 作品一覧まで読み進めると、蜂が最初の作品の部屋を訪れて蜜が 1 部屋たまる
 	for (const [name, options] of Object.entries(viewports)) {
 		const context = await browser.newContext(options);
 		const page = await context.newPage();
@@ -111,9 +127,9 @@ try {
 		if ((await comb.getAttribute('aria-label')) !== '0 / 7 作品に蜂が立ち寄った') fail(`${name}: 蜂の巣の初期表示が想定外 (${await comb.getAttribute('aria-label')})`);
 		await page.evaluate(() => document.getElementById('works')!.scrollIntoView());
 		try {
-			await page.waitForFunction(() => document.querySelector('.bloom')?.classList.contains('visited'), null, { timeout: 6000 });
+			await page.waitForFunction(() => document.querySelector('#works .cell')?.classList.contains('visited'), null, { timeout: 10000 });
 		} catch {
-			fail(`${name}: 6 秒以内に蜂が最初の花を訪れない`);
+			fail(`${name}: 10 秒以内に蜂が最初の作品の部屋を訪れない`);
 		}
 		const label = await comb.getAttribute('aria-label');
 		if (!label?.startsWith('1 / 7') && !label?.startsWith('2 / 7')) fail(`${name}: 蜂の巣に蜜がたまらない (${label})`);
@@ -131,16 +147,12 @@ try {
 		watchErrors(page, '動きを減らす設定');
 		await page.goto(base + '/', { waitUntil: 'networkidle' });
 		await page.waitForTimeout(300);
-		const state = await page.evaluate(() => ({
-			band: getComputedStyle(document.querySelector('.track')!).animationName,
-			bee: document.querySelector<HTMLElement>('.bee')?.hidden
-		}));
-		if (state.band !== 'none') fail(`動きを減らす設定: 文字帯が流れている (${state.band})`);
-		if (!state.bee) fail('動きを減らす設定: 飛ぶ蜂が出ている');
+		const hidden = await page.evaluate(() => document.querySelectorAll('.reveal').length);
+		if (hidden > 0) fail(`動きを減らす設定: 下から出てくる動きが ${hidden} か所に残っている`);
 		await page.evaluate(() => document.getElementById('works')!.scrollIntoView());
 		await page.waitForTimeout(300);
-		const first = await page.locator('.bloom').first().getAttribute('class');
-		if (!first?.includes('open') || !first.includes('visited')) fail(`動きを減らす設定: 最初の花が咲いて訪れた扱いにならない (${first})`);
+		const first = await page.locator('#works .cell').first().getAttribute('class');
+		if (!first?.includes('open') || !first.includes('visited')) fail(`動きを減らす設定: 最初の作品の部屋に蜜がたまった扱いにならない (${first})`);
 		await context.close();
 	}
 } finally {
@@ -152,4 +164,4 @@ if (failures.length > 0) {
 	console.error(failures.map((f) => `NG ${f}`).join('\n'));
 	process.exit(1);
 }
-console.log(`visual ok: ${Object.keys(viewports).length * 2 * paths.length} pages, menu, bee, reduced motion`);
+console.log(`visual ok: ${Object.keys(viewports).length * 2 * paths.length} pages, header, menu, bee, reduced motion`);

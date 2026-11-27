@@ -1,115 +1,177 @@
 <!--
-	全画面メニュー。開くと右の帯が滑り込み、項目 → 大きなロゴ → 連絡先の順に時間差で出る。
-	<dialog> の showModal を使うので、Esc で閉じる・フォーカスの閉じ込め・開いたボタンへの復帰はブラウザに任せる。
-	動きを減らす設定では時間差をなくし、一度に出す。
+	全画面メニュー。開閉はヘッダーのボタンが menu.open を切り替えて行う。
+	  開く   ボタンのある右上から、墨 (ダークでは蜜) の六角形が順に敷き詰まって画面を覆い、項目が下から上がる (1.1 秒)
+	  閉じる 項目が先に下へ沈み、遠い部屋から六角形が畳まれる
+	蜂がメニューの上を飛べるよう、<dialog> は show() で開く (showModal の最前面には他の要素を重ねられない)。
+	その代わり、開いている間は本文を inert にし (+layout)、Esc で閉じ、閉じたら開いたボタンへ焦点を戻す。
+	動きを減らす設定では、敷き詰めと時間差をなくして一度に出す。
 -->
 <script lang="ts">
+	import { onMount, tick } from 'svelte';
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
 	import XLogoIcon from 'phosphor-svelte/lib/XLogoIcon';
 	import EnvelopeSimpleIcon from 'phosphor-svelte/lib/EnvelopeSimpleIcon';
-	import Logo from './brand/Logo.svelte';
-	import Mascot from './brand/Mascot.svelte';
+	import { menu } from './menu.svelte';
+	import LocaleSwitch from './i18n/LocaleSwitch.svelte';
 	import { profile } from './profile';
 	import { m } from './paraglide/messages';
 	import { localizeHref } from './paraglide/runtime';
 
 	let dialog: HTMLDialogElement;
-	let open = $state(false);
+	let sheet: HTMLCanvasElement;
+	/** 項目を出している (CSS の時間差の動きの切り替え) */
+	let shown = $state(false);
 
 	const items = $derived([
 		{ label: 'Works', sub: m.nav_works(), href: localizeHref('/') + '#works' },
-		{ label: 'World', sub: m.nav_world(), href: localizeHref('/world') },
-		{ label: 'Contact', sub: m.nav_contact(), href: localizeHref('/') + '#contact' }
+		{ label: 'World', sub: m.nav_world(), href: localizeHref('/world') }
 	]);
 
-	function show() {
-		dialog.showModal();
-		open = true;
+	type Hex = { x: number; y: number; r: number; d: number };
+	let cells: Hex[] = [];
+	let context: CanvasRenderingContext2D | null = null;
+	let reduced = false;
+
+	function layout() {
+		if (!context) return;
+		const dpr = Math.min(devicePixelRatio, 2);
+		sheet.width = innerWidth * dpr;
+		sheet.height = innerHeight * dpr;
+		context.setTransform(dpr, 0, 0, dpr, 0, 0);
+		const r = Math.max(46, innerWidth / 22);
+		const w = Math.sqrt(3) * r;
+		const h = 1.5 * r;
+		const far = Math.hypot(innerWidth, innerHeight);
+		cells = [];
+		for (let row = -1; row * h < innerHeight + r; row++) {
+			for (let col = -1; col * w < innerWidth + w; col++) {
+				const x = col * w + (row % 2 ? w / 2 : 0);
+				const y = row * h;
+				// 右上 (ボタンのある角) からの距離で開く順を決める
+				cells.push({ x, y, r, d: Math.hypot(x - innerWidth, y) / far });
+			}
+		}
 	}
 
-	function hide() {
-		dialog.close();
+	const ease = (x: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 4);
+
+	function draw(progress: number, opening: boolean) {
+		if (!context) return;
+		context.clearRect(0, 0, innerWidth, innerHeight);
+		context.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--brand-menu').trim();
+		for (const c of cells) {
+			// 開くときは近い部屋から、閉じるときは遠い部屋から。開き終わりは少し大きく重ねて隙間を消す
+			const k = opening ? ease((progress - c.d * 0.55) / 0.45) : ease((progress - (1 - c.d) * 0.55) / 0.45);
+			const s = opening ? k : 1 - k;
+			if (s <= 0) continue;
+			context.beginPath();
+			for (let i = 0; i < 6; i++) {
+				const a = (Math.PI / 3) * i + Math.PI / 6;
+				context.lineTo(c.x + c.r * 1.04 * s * Math.cos(a), c.y + c.r * 1.04 * s * Math.sin(a));
+			}
+			context.fill();
+		}
 	}
+
+	function animate(opening: boolean) {
+		return new Promise<void>((resolve) => {
+			if (reduced) {
+				draw(1, opening);
+				return resolve();
+			}
+			const start = performance.now();
+			const length = opening ? 1100 : 950;
+			// 閉じるときは項目が沈みきるのを待ってから畳む
+			const wait = opening ? 0 : 380;
+			const frame = (now: number) => {
+				const progress = Math.max(0, (now - start - wait) / length);
+				draw(progress, opening);
+				if (progress < 1) requestAnimationFrame(frame);
+				else resolve();
+			};
+			requestAnimationFrame(frame);
+		});
+	}
+
+	let isOpen = false;
+	async function sync(open: boolean) {
+		if (open === isOpen) return;
+		isOpen = open;
+		menu.moving = true;
+		if (open) {
+			dialog.show();
+			// 表示した直後の同じフレームで動きを始めると、ブラウザが動きを飛ばすので 2 フレーム待つ
+			await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+			shown = true;
+			const done = animate(true);
+			await tick();
+			dialog.querySelector('a')?.focus({ preventScroll: true });
+			await done;
+		} else {
+			shown = false;
+			await animate(false);
+			dialog.close();
+			document.getElementById('menu-button')?.focus({ preventScroll: true });
+		}
+		menu.moving = false;
+		// 動きの途中で切り替えられていたら、最後の状態に合わせ直す
+		if (menu.open !== isOpen) sync(menu.open);
+	}
+
+	$effect(() => {
+		const open = menu.open;
+		if (dialog) sync(open);
+	});
+
+	onMount(() => {
+		reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		context = sheet.getContext('2d');
+		layout();
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && menu.open) menu.open = false;
+		};
+		addEventListener('resize', layout);
+		addEventListener('keydown', onKey);
+		return () => {
+			removeEventListener('resize', layout);
+			removeEventListener('keydown', onKey);
+		};
+	});
 </script>
 
-<button class="header-button opener" type="button" onclick={show} aria-label={m.menu_open()} aria-haspopup="dialog" aria-expanded={open}>
-	<span class="bars" aria-hidden="true"></span>
-</button>
-
-<dialog class="menu" bind:this={dialog} onclose={() => (open = false)} aria-label={m.menu_open()}>
-	<div class="body">
-		<nav>
-			<ul>
-				{#each items as item, i (item.label)}
-					<li style:--i={i}>
-						<a href={item.href} onclick={hide}>
-							<span class="label">{item.label}</span>
-							<span class="sub">{item.sub}</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
-		</nav>
-
-		<p class="contacts" style:--i={items.length + 2}>
+<dialog id="site-menu" class="menu" class:shown bind:this={dialog} aria-label={m.menu_open()}>
+	<canvas class="sheet" bind:this={sheet} aria-hidden="true"></canvas>
+	<nav class="nav">
+		<ul>
+			{#each items as item, i (item.label)}
+				<li style:--i={i}>
+					<a href={item.href} onclick={() => (menu.open = false)}>
+						<span class="label">{item.label}</span>
+						<span class="sub">{item.sub}</span>
+					</a>
+				</li>
+			{/each}
+		</ul>
+		<p class="contacts" style:--i={items.length}>
 			<a href={profile.github} rel="me" aria-label="GitHub"><GithubLogoIcon size="1.5em" aria-hidden="true" /></a>
 			<a href={profile.x} rel="me" aria-label="X (@grdevtom2gramp1)"><XLogoIcon size="1.5em" aria-hidden="true" /></a>
 			<a href="mailto:{profile.email}" aria-label={m.contact_mail({ email: profile.email })}>
 				<EnvelopeSimpleIcon size="1.5em" aria-hidden="true" />
 			</a>
 		</p>
-
-		<p class="watermark" aria-hidden="true" style:--i={items.length}><Logo /></p>
-	</div>
-
-	<div class="strip" aria-hidden="true">
-		<Mascot pose="side" class="strip-bee" />
-	</div>
-
-	<button class="header-button close" type="button" onclick={hide} aria-label={m.menu_close()}>
-		<span class="bars" aria-hidden="true"></span>
-	</button>
+		<div class="locale" style:--i={items.length + 1}><LocaleSwitch /></div>
+	</nav>
 </dialog>
 
 <style>
-	.bars {
-		position: relative;
-		display: block;
-		width: 1.5rem;
-		height: 0.75rem;
-		border-top: 2px solid currentColor;
-		border-bottom: 2px solid currentColor;
-		transition: border-color 0.2s ease;
-	}
-
-	.close .bars {
-		border-color: transparent;
-	}
-
-	.close .bars::before,
-	.close .bars::after {
-		content: '';
-		position: absolute;
-		top: 50%;
-		left: 0;
-		width: 100%;
-		border-top: 2px solid currentColor;
-		translate: 0 -50%;
-	}
-
-	.close .bars::before {
-		rotate: 45deg;
-	}
-
-	.close .bars::after {
-		rotate: -45deg;
-	}
-
 	:global(:root:has(dialog.menu[open])) {
 		overflow: hidden;
 	}
 
 	.menu {
+		position: fixed;
+		inset: 0;
+		z-index: 20;
 		width: 100%;
 		max-width: none;
 		height: 100%;
@@ -117,27 +179,29 @@
 		margin: 0;
 		padding: 0;
 		border: none;
-		background: var(--brand-ink);
-		color: var(--brand-paper);
+		background: transparent;
+		color: var(--brand-on-menu);
 	}
 
 	.menu[open] {
-		display: grid;
-		grid-template-columns: 1fr minmax(8rem, 24vw);
+		display: block;
 	}
 
-	.menu::backdrop {
-		background: transparent;
+	.sheet {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
 	}
 
-	.body {
+	.nav {
 		position: relative;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		gap: 3rem;
-		padding: 5rem clamp(1.25rem, 8vw, 7rem);
-		overflow: hidden;
+		height: 100%;
+		padding: 0 max(1.5rem, 8vw);
 	}
 
 	ul {
@@ -147,140 +211,99 @@
 	}
 
 	li + li {
-		margin-top: 1rem;
+		margin-top: 0.5rem;
 	}
 
-	nav a {
+	/* 項目は行の中に隠しておき、下から上がる。閉じるときは加速しながら沈む */
+	li,
+	.contacts {
+		/* 焦点の枠が切れないよう、隠す範囲を少し広げておく */
+		margin-inline: -0.5rem;
+		padding: 0.5rem;
+		overflow: hidden;
+	}
+
+	.nav li a,
+	.contacts a {
 		display: inline-flex;
+		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 1rem;
+		gap: 0 1.25rem;
 		color: inherit;
 		text-decoration: none;
+		transform: translateY(110%);
+		transition: transform 0.5s cubic-bezier(0.7, 0, 0.84, 0);
+	}
+
+	.shown .nav li a,
+	.shown .contacts a {
+		transform: none;
+		transition: transform var(--duration-mid) var(--ease-out) calc(0.45s + var(--i) * 0.09s);
 	}
 
 	.label {
 		font-family: var(--font-display);
-		font-size: clamp(2.5rem, 7vw, 4.5rem);
+		font-size: clamp(3rem, 10vw, 7rem);
 		font-weight: 700;
-		line-height: 1.1;
-		letter-spacing: -0.01em;
+		line-height: 1.05;
+		letter-spacing: -0.04em;
 	}
 
 	.sub {
-		color: var(--brand-honey);
+		color: var(--brand-menu-accent);
 		font-size: var(--font-size-16);
 	}
 
 	@media (hover: hover) {
-		nav a:hover .label {
-			color: var(--brand-honey);
+		.nav li a:hover .label {
+			color: var(--brand-menu-accent);
 		}
-	}
-
-	.menu a:focus-visible,
-	.menu button:focus-visible {
-		outline: 4px solid var(--brand-honey);
-		outline-offset: 4px;
-		border-radius: var(--border-radius-4);
 	}
 
 	.contacts {
 		display: flex;
-		gap: 1.25rem;
-		margin: 0;
+		gap: 1.75rem;
+		margin-block: 0;
 	}
 
-	.contacts a {
-		display: inline-flex;
-		color: inherit;
-	}
-
-	.watermark {
-		position: absolute;
-		right: -0.05em;
-		bottom: -0.2em;
-		margin: 0;
-		font-size: clamp(5rem, 18vw, 15rem);
-		line-height: 1;
-		opacity: 0.08;
-		pointer-events: none;
-	}
-
-	.strip {
-		position: relative;
-		display: grid;
-		place-items: center;
-		background-color: var(--brand-honey);
-		background-image: radial-gradient(var(--brand-on-honey) 1.2px, transparent 1.4px);
-		background-size: 12px 12px;
+	/* 日英の切り替えは、ヘッダーに置けないスマホのときだけメニューに出す */
+	.locale {
+		display: none;
+		margin: -2rem -0.5rem 0;
+		padding: 0.5rem;
 		overflow: hidden;
 	}
 
-	.strip :global(.strip-bee) {
-		width: 160%;
-		max-width: none;
-		rotate: -18deg;
-		filter: drop-shadow(10px 10px 0 var(--brand-petal));
-	}
-
-	.close {
-		position: absolute;
-		top: 0.5rem;
-		right: 0.75rem;
-		color: var(--brand-on-honey);
-	}
-
 	@media (max-width: 40rem) {
-		.menu[open] {
-			grid-template-columns: 1fr;
-			grid-template-rows: 1fr 7rem;
-		}
-
-		.strip :global(.strip-bee) {
-			width: 9rem;
-			rotate: -8deg;
-		}
-
-		.close {
-			color: var(--brand-paper);
+		.locale {
+			display: block;
 		}
 	}
 
-	/* 時間差で出す。右の帯 → 項目を 1 つずつ → ロゴ → 連絡先 */
-	@media (prefers-reduced-motion: no-preference) {
-		.menu[open] .strip {
-			animation: slide-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-		}
-
-		.menu[open] li,
-		.menu[open] .watermark,
-		.menu[open] .contacts {
-			animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-			animation-delay: calc(0.25s + var(--i) * 0.1s);
-		}
-
-		.menu[open] .watermark {
-			animation-name: rise-faint;
-		}
+	.locale :global(.locales) {
+		transform: translateY(110%);
+		transition: transform 0.5s cubic-bezier(0.7, 0, 0.84, 0);
 	}
 
-	@keyframes slide-in {
-		from {
-			translate: 100% 0;
-		}
+	.shown .locale :global(.locales) {
+		transform: none;
+		transition: transform var(--duration-mid) var(--ease-out) calc(0.45s + var(--i) * 0.09s);
 	}
 
-	@keyframes rise {
-		from {
-			opacity: 0;
-			translate: 0 1.5rem;
-		}
+	.nav a:focus-visible {
+		outline: 0.1875rem solid currentColor;
+		outline-offset: 0.25rem;
+		border-radius: var(--border-radius-4);
 	}
 
-	@keyframes rise-faint {
-		from {
-			opacity: 0;
-			translate: 0 3rem;
+	@media (prefers-reduced-motion: reduce) {
+		.nav li a,
+		.contacts a,
+		.shown .nav li a,
+		.shown .contacts a,
+		.locale :global(.locales),
+		.shown .locale :global(.locales) {
+			transition: none;
 		}
 	}
 </style>
