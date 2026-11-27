@@ -45,43 +45,58 @@ a {
 	padding: 3rem 1.25rem 6rem;
 }
 
+/* 技術名は札に貼った葉。向かい合う 2 つの角だけを丸めて葉の形にする */
 .tag {
 	display: inline-block;
-	padding: 0.1rem 0.55rem;
-	border: 1px solid var(--wood-grain);
-	border-radius: var(--border-radius-4);
-	background: var(--wood-pale);
-	color: var(--char-soft);
+	padding: 0.1rem 0.7rem;
+	border: 1.5px solid var(--leaf);
+	border-radius: 0 1em 0 1em;
+	background: color-mix(in oklab, var(--leaf) 14%, var(--wood));
+	color: var(--char);
 	font-size: var(--font-size-14);
 	line-height: var(--line-height-160);
 	white-space: nowrap;
 }
 
+/* ボタンは小さな札。押せる札には光が当たる (hover で明るくなる) */
 .pill {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.45rem;
 	padding: 0.5rem 1.1rem;
-	border: 1px solid var(--wood-grain);
+	border: 2px solid var(--char);
 	border-radius: var(--border-radius-8);
-	background: var(--wood-pale);
-	color: inherit;
+	background: var(--wood);
+	box-shadow: 0.2rem 0.2rem 0 var(--shade);
+	color: var(--char);
 	font-size: var(--font-size-16);
 	text-decoration: none;
 }
 
-.pill-primary {
-	border-color: var(--honey);
-	background: var(--honey);
-	color: var(--char);
+@media (hover: hover) {
+	.pill:hover {
+		background: var(--wood-pale);
+	}
 }
 
+/* 主ボタンは蜜を塗った札 (char/honey 9.50) */
+.pill-primary {
+	background: var(--honey);
+}
+
+@media (hover: hover) {
+	.pill-primary:hover {
+		background: color-mix(in oklab, var(--honey) 75%, var(--wood-pale));
+	}
+}
+
+/* 公開中の印は、灯りがともる巣の 1 部屋 (光なので動いてよい) */
 .beacon {
-	width: 0.45rem;
-	height: 0.45rem;
-	border-radius: 50%;
+	width: 0.6rem;
+	height: 0.7rem;
+	clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 	background: currentColor;
-	animation: beacon 1.4s ease-in-out infinite;
+	animation: beacon var(--sway) infinite;
 }
 
 @keyframes beacon {
@@ -121,6 +136,6 @@ a {
 
 @media (hover: hover) {
 	.header-button:hover {
-		background: var(--color-neutral-opacity-gray-100);
+		background: var(--wood-grain);
 	}
 }

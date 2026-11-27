@@ -80,7 +80,6 @@
 		height: 0.75rem;
 		border-top: 2px solid currentColor;
 		border-bottom: 2px solid currentColor;
-		transition: border-color 0.2s ease;
 	}
 
 	.close .bars {
