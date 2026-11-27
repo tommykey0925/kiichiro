@@ -1,10 +1,4 @@
 :root {
-	--bg: var(--brand-paper);
-	--surface: var(--brand-surface);
-	--ink: var(--brand-ink);
-	--muted: var(--brand-muted);
-	--line: var(--brand-line);
-	--on-key: var(--brand-on-honey);
 	--header-height: 3.5rem;
 	color-scheme: light;
 	scroll-padding-top: var(--header-height);
@@ -26,9 +20,9 @@
 
 body {
 	margin: 0;
-	background: var(--bg);
-	color: var(--ink);
-	font-family: var(--font-family-sans);
+	background: var(--wood);
+	color: var(--char);
+	font-family: var(--font-sign-text);
 	font-size: var(--font-size-16);
 	line-height: var(--line-height-175);
 	-webkit-font-smoothing: antialiased;
@@ -37,12 +31,12 @@ body {
 h1,
 h2,
 h3 {
-	font-family: var(--font-display);
+	font-family: var(--font-sign-title);
 	font-weight: 700;
 }
 
 a {
-	color: var(--brand-petal);
+	color: var(--petal);
 }
 
 .wrap {
@@ -54,10 +48,10 @@ a {
 .tag {
 	display: inline-block;
 	padding: 0.1rem 0.55rem;
-	border: 1px solid var(--line);
+	border: 1px solid var(--wood-grain);
 	border-radius: var(--border-radius-4);
-	background: var(--surface);
-	color: var(--muted);
+	background: var(--wood-pale);
+	color: var(--char-soft);
 	font-size: var(--font-size-14);
 	line-height: var(--line-height-160);
 	white-space: nowrap;
@@ -68,18 +62,18 @@ a {
 	align-items: center;
 	gap: 0.45rem;
 	padding: 0.5rem 1.1rem;
-	border: 1px solid var(--line);
+	border: 1px solid var(--wood-grain);
 	border-radius: var(--border-radius-8);
-	background: var(--surface);
+	background: var(--wood-pale);
 	color: inherit;
 	font-size: var(--font-size-16);
 	text-decoration: none;
 }
 
 .pill-primary {
-	border-color: var(--brand-honey);
-	background: var(--brand-honey);
-	color: var(--on-key);
+	border-color: var(--honey);
+	background: var(--honey);
+	color: var(--char);
 }
 
 .beacon {
@@ -115,13 +109,13 @@ a {
 	border: none;
 	border-radius: var(--border-radius-8);
 	background: none;
-	color: var(--ink);
+	color: var(--char);
 	font-size: var(--font-size-16);
 	cursor: pointer;
 }
 
 .header-button:focus-visible {
-	outline: calc(4 / 16 * 1rem) solid var(--brand-ink);
+	outline: calc(4 / 16 * 1rem) solid var(--char);
 	outline-offset: calc(-4 / 16 * 1rem);
 }
 

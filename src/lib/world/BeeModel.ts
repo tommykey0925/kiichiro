@@ -1,4 +1,4 @@
-// /world の蜂の見た目。Three.js の形を組み合わせて作る (bee.glb は使わない)。動き方は flight.ts が決める。
+// /world の蜂の見た目。Three.js の形を組み合わせて作る (サイトの蜂の絵もこの形から撮る。scripts/render-brand.ts)。動き方は flight.ts が決める。
 //
 //   横から見た形 (前は +z、原点は足の先)
 //

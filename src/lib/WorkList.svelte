@@ -14,7 +14,7 @@
 		<li class="item" use:detour={work.id}>
 			<span class="no">
 				<span aria-hidden="true">{String(start + i).padStart(2, '0')}</span>
-				<Bloom id={work.id} color={work.spot?.color ?? 'var(--brand-petal)'} size="2.5rem" />
+				<Bloom id={work.id} color={work.spot?.color ?? 'var(--petal)'} size="2.5rem" />
 			</span>
 			<p class="name">
 				<a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a>
@@ -30,7 +30,7 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-		border-top: 1px solid var(--line);
+		border-top: 1px solid var(--wood-grain);
 	}
 
 	.item {
@@ -38,7 +38,7 @@
 		grid-template-columns: 3rem 11rem 1fr;
 		column-gap: 1.5rem;
 		padding: 1rem 0;
-		border-bottom: 1px solid var(--line);
+		border-bottom: 1px solid var(--wood-grain);
 	}
 
 	p {
@@ -51,8 +51,8 @@
 		align-items: flex-start;
 		gap: 0.25rem;
 		grid-row: span 2;
-		color: var(--muted);
-		font-family: var(--font-display);
+		color: var(--char-soft);
+		font-family: var(--font-sign-title);
 		font-size: var(--font-size-20);
 		font-weight: 700;
 		line-height: var(--line-height-150);
@@ -60,7 +60,7 @@
 
 	.name {
 		grid-row: span 2;
-		font-family: var(--font-display);
+		font-family: var(--font-sign-title);
 		font-size: var(--font-size-20);
 		font-weight: 700;
 		line-height: var(--line-height-150);
@@ -69,7 +69,7 @@
 
 	.tech {
 		grid-column: 3;
-		color: var(--muted);
+		color: var(--char-soft);
 		font-size: var(--font-size-14);
 		line-height: var(--line-height-150);
 	}

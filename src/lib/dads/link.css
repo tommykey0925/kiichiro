@@ -1,34 +1,34 @@
 .dads-link:any-link {
-  color: var(--brand-ink);
+  color: var(--char);
   text-decoration: underline;
-  text-decoration-color: var(--brand-petal);
+  text-decoration-color: var(--petal);
   text-decoration-thickness: calc(1 / 16 * 1rem);
   text-underline-offset: calc(3 / 16 * 1rem);
 }
 
 .dads-link:visited {
-  color: var(--brand-ink);
+  color: var(--char);
 }
 
 @media (hover: hover) {
   .dads-link:hover {
-    color: var(--brand-petal);
+    color: var(--petal);
     text-decoration-thickness: calc(3 / 16 * 1rem);
   }
 }
 
 .dads-link:active {
-  color: var(--brand-petal);
+  color: var(--petal);
   text-decoration-thickness: calc(1 / 16 * 1rem);
 }
 
 .dads-link:focus-visible {
-  outline: calc(4 / 16 * 1rem) solid var(--brand-ink);
+  outline: calc(4 / 16 * 1rem) solid var(--char);
   outline-offset: calc(2 / 16 * 1rem);
   border-radius: calc(4 / 16 * 1rem);
-  color: var(--brand-on-honey);
-  background-color: var(--brand-honey);
-  box-shadow: 0 0 0 calc(2 / 16 * 1rem) var(--brand-honey);
+  color: var(--char);
+  background-color: var(--honey);
+  box-shadow: 0 0 0 calc(2 / 16 * 1rem) var(--honey);
 }
 
 .dads-link__icon {
