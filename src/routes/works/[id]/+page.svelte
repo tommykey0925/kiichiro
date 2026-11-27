@@ -1,6 +1,5 @@
 <script lang="ts">
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
-	import Sky from '$lib/brand/Sky.svelte';
 	import { localize } from '$lib/i18n/localize';
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
@@ -17,10 +16,7 @@
 	<meta property="og:type" content="website" />
 </svelte:head>
 
-<Sky />
-
 <div class="wrap">
-<div class="sheet sign sign-post">
 	<a class="back" href={localizeHref('/')}>{m.back_to_list()}</a>
 
 	<h1>{work.title}</h1>
@@ -54,19 +50,12 @@
 		{/if}
 	</p>
 </div>
-</div>
 
 <style>
-	.sheet {
-		margin-top: 1rem;
-		margin-bottom: 4rem;
-		padding: clamp(1.25rem, 4vw, 2.5rem);
-	}
-
 	.back {
 		display: inline-block;
 		margin-bottom: 2rem;
-		color: var(--char-soft);
+		color: var(--muted);
 		font-size: var(--font-size-14);
 		text-decoration: none;
 	}
@@ -91,15 +80,13 @@
 		list-style: none;
 	}
 
-	/* 謝辞は大きな札に打ち付けた小さな板 */
 	.credits {
 		margin-bottom: 2rem;
 		padding: 1rem 1.2rem;
-		border: 2px solid var(--char);
-		border-radius: var(--border-radius-4);
-		background: var(--wood-pale);
-		box-shadow: 0.2rem 0.2rem 0 var(--shade);
-		color: var(--char-soft);
+		border: 1px solid var(--line);
+		border-radius: var(--border-radius-12);
+		background: var(--surface);
+		color: var(--muted);
 		font-size: var(--font-size-14);
 	}
 

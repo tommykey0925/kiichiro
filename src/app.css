@@ -1,4 +1,10 @@
 :root {
+	--bg: var(--brand-paper);
+	--surface: var(--brand-surface);
+	--ink: var(--brand-ink);
+	--muted: var(--brand-muted);
+	--line: var(--brand-line);
+	--on-key: var(--brand-on-honey);
 	--header-height: 3.5rem;
 	color-scheme: light;
 	scroll-padding-top: var(--header-height);
@@ -20,9 +26,9 @@
 
 body {
 	margin: 0;
-	background: var(--wood);
-	color: var(--char);
-	font-family: var(--font-sign-text);
+	background: var(--bg);
+	color: var(--ink);
+	font-family: var(--font-family-sans);
 	font-size: var(--font-size-16);
 	line-height: var(--line-height-175);
 	-webkit-font-smoothing: antialiased;
@@ -31,12 +37,12 @@ body {
 h1,
 h2,
 h3 {
-	font-family: var(--font-sign-title);
+	font-family: var(--font-display);
 	font-weight: 700;
 }
 
 a {
-	color: var(--petal);
+	color: var(--brand-petal);
 }
 
 .wrap {
@@ -45,58 +51,43 @@ a {
 	padding: 3rem 1.25rem 6rem;
 }
 
-/* 技術名は札に貼った葉。向かい合う 2 つの角だけを丸めて葉の形にする */
 .tag {
 	display: inline-block;
-	padding: 0.1rem 0.7rem;
-	border: 1.5px solid var(--leaf);
-	border-radius: 0 1em 0 1em;
-	background: color-mix(in oklab, var(--leaf) 14%, var(--wood));
-	color: var(--char);
+	padding: 0.1rem 0.55rem;
+	border: 1px solid var(--line);
+	border-radius: var(--border-radius-4);
+	background: var(--surface);
+	color: var(--muted);
 	font-size: var(--font-size-14);
 	line-height: var(--line-height-160);
 	white-space: nowrap;
 }
 
-/* ボタンは小さな札。押せる札には光が当たる (hover で明るくなる) */
 .pill {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.45rem;
 	padding: 0.5rem 1.1rem;
-	border: 2px solid var(--char);
+	border: 1px solid var(--line);
 	border-radius: var(--border-radius-8);
-	background: var(--wood);
-	box-shadow: 0.2rem 0.2rem 0 var(--shade);
-	color: var(--char);
+	background: var(--surface);
+	color: inherit;
 	font-size: var(--font-size-16);
 	text-decoration: none;
 }
 
-@media (hover: hover) {
-	.pill:hover {
-		background: var(--wood-pale);
-	}
-}
-
-/* 主ボタンは蜜を塗った札 (char/honey 9.50) */
 .pill-primary {
-	background: var(--honey);
+	border-color: var(--brand-honey);
+	background: var(--brand-honey);
+	color: var(--on-key);
 }
 
-@media (hover: hover) {
-	.pill-primary:hover {
-		background: color-mix(in oklab, var(--honey) 75%, var(--wood-pale));
-	}
-}
-
-/* 公開中の印は、灯りがともる巣の 1 部屋 (光なので動いてよい) */
 .beacon {
-	width: 0.6rem;
-	height: 0.7rem;
-	clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+	width: 0.45rem;
+	height: 0.45rem;
+	border-radius: 50%;
 	background: currentColor;
-	animation: beacon var(--sway) infinite;
+	animation: beacon 1.4s ease-in-out infinite;
 }
 
 @keyframes beacon {
@@ -124,41 +115,18 @@ a {
 	border: none;
 	border-radius: var(--border-radius-8);
 	background: none;
-	color: var(--char);
+	color: var(--ink);
 	font-size: var(--font-size-16);
 	cursor: pointer;
 }
 
 .header-button:focus-visible {
-	outline: calc(4 / 16 * 1rem) solid var(--char);
+	outline: calc(4 / 16 * 1rem) solid var(--brand-ink);
 	outline-offset: calc(-4 / 16 * 1rem);
 }
 
 @media (hover: hover) {
 	.header-button:hover {
-		background: var(--wood-grain);
-	}
-}
-
-/* ページの移り変わり。ヘッダーの札は残し、野原は入れ替える (新しいページの札はそのあと起き上がる) */
-@media (prefers-reduced-motion: no-preference) {
-	::view-transition-old(root) {
-		animation: fade-away var(--settle) both;
-	}
-
-	::view-transition-new(root) {
-		animation: fade-in var(--settle) both;
-	}
-}
-
-@keyframes fade-away {
-	to {
-		opacity: 0;
-	}
-}
-
-@keyframes fade-in {
-	from {
-		opacity: 0;
+		background: var(--color-neutral-opacity-gray-100);
 	}
 }

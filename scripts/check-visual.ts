@@ -4,7 +4,7 @@
 //
 // 検査すること
 //   - PC とスマホ、ライトとダークの全組み合わせで、横スクロールが出ない・ページのエラーが出ない
-//   - ヘッダーの札 (空に浮かぶ小さな札 2 枚) が不透明で、スクロールしても下の文字が透けて重ならない
+//   - ヘッダーの背景が不透明で、スクロールしても下の文字が透けて重ならない
 //   - メニューが開き、Esc で閉じ、フォーカスが開いたボタンに戻る
 //   - 作品一覧まで読み進めると花が咲き、蜂が訪れてヘッダーの蜂の巣に蜜がたまる
 //   - トップでたまった蜜が /world に引き継がれ、ヘッダーの蜂の巣に出る
@@ -67,15 +67,15 @@ try {
 				if (response?.status() !== 200) fail(`${label}: 応答 ${response?.status()}`);
 
 				const layout = await page.evaluate(() => {
-					const signs = [...document.querySelectorAll<HTMLElement>('.site-header .inner > .sign')];
+					const header = document.querySelector<HTMLElement>('.site-header');
 					return {
 						overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-						signBackgrounds: signs.map((sign) => getComputedStyle(sign).backgroundColor)
+						headerBackground: header ? getComputedStyle(header).backgroundColor : null
 					};
 				});
 				if (layout.overflow > 0) fail(`${label}: 横スクロールが ${layout.overflow}px 出る`);
-				if (layout.signBackgrounds.length !== 2 || layout.signBackgrounds.some((b) => alphaOf(b) < 1)) {
-					fail(`${label}: ヘッダーの札が 2 枚そろって不透明になっていない (${layout.signBackgrounds.join(', ')})`);
+				if (!layout.headerBackground || alphaOf(layout.headerBackground) < 1) {
+					fail(`${label}: ヘッダーの背景が不透明でない (${layout.headerBackground})`);
 				}
 				page.removeAllListeners('pageerror');
 				page.removeAllListeners('console');
@@ -117,13 +117,6 @@ try {
 		}
 		const label = await comb.getAttribute('aria-label');
 		if (!label?.startsWith('1 / 7') && !label?.startsWith('2 / 7')) fail(`${name}: 蜂の巣に蜜がたまらない (${label})`);
-		// ヒーローの下の野原へ戻ると、訪れた作品の色の花が咲いている
-		await page.evaluate(() => window.scrollTo(0, 0));
-		try {
-			await page.waitForFunction(() => document.querySelectorAll('.meadow .flower.open').length > 0, null, { timeout: 3000 });
-		} catch {
-			fail(`${name}: 蜜がたまっても野原に花が咲かない`);
-		}
 		// 同じタブで /world へ移っても、たまった蜜はそのまま
 		await page.goto(base + '/world', { waitUntil: 'networkidle' });
 		const carried = await page.locator('.comb').getAttribute('aria-label').catch(() => null);
@@ -139,10 +132,10 @@ try {
 		await page.goto(base + '/', { waitUntil: 'networkidle' });
 		await page.waitForTimeout(300);
 		const state = await page.evaluate(() => ({
-			meadow: getComputedStyle(document.querySelector('.meadow .head')!).transitionDuration,
+			band: getComputedStyle(document.querySelector('.track')!).animationName,
 			bee: document.querySelector<HTMLElement>('.bee')?.hidden
 		}));
-		if (state.meadow !== '0s') fail(`動きを減らす設定: 野原の花が動いて咲く (${state.meadow})`);
+		if (state.band !== 'none') fail(`動きを減らす設定: 文字帯が流れている (${state.band})`);
 		if (!state.bee) fail('動きを減らす設定: 飛ぶ蜂が出ている');
 		await page.evaluate(() => document.getElementById('works')!.scrollIntoView());
 		await page.waitForTimeout(300);
