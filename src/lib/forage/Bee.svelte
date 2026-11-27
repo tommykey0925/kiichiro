@@ -27,6 +27,9 @@
 
 	let element: HTMLAnchorElement;
 
+	/** 遠いときの蜂の大きさ (px)。草地を見下ろす場面の、小さく真上から見た姿 */
+	const farSize = () => parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth <= 768 ? 2.75 : 3.5);
+
 	/** ヒーローの蜂の居場所 (+page.svelte の .hero-art)。無いページでは null */
 	const perch = () => document.querySelector<HTMLElement>('.hero-art')?.getBoundingClientRect() ?? null;
 
@@ -80,8 +83,10 @@
 			// 行き先が無く、ヒーローが見えているあいだだけ近くに来る。寄るのも離れるのも時間で少しずつ
 			const near = !target && heroInView(box) ? 1 : 0;
 			depth += (near - depth) * Math.min(1, dt * 2.4);
-			const grown = box ? box.width / element.offsetWidth : 1;
-			const scale = 1 + depth * (grown - 1);
+			// 要素は近い姿の大きさで持ち、遠いときは縮める (小さい絵を引き伸ばすとぼやける)
+			const size = element.offsetWidth;
+			const far = farSize() / size;
+			const scale = far + depth * ((box ? box.width : size) / size - far);
 
 			if (id && target && isHovering(flight, target)) {
 				dwell += dt;
@@ -94,6 +99,7 @@
 			// 近いときは斜め前の姿なので進む向きには回さず、速さに応じて少し傾けるだけにする
 			element.style.rotate = `${flight.angle * (1 - depth) + depth * Math.max(-0.2, Math.min(0.2, flight.vx * 0.0006))}rad`;
 			element.style.scale = String(scale);
+			element.style.setProperty('--scale', scale.toFixed(3));
 			element.style.setProperty('--depth', depth.toFixed(3));
 			element.dataset.state = target ? (isHovering(flight, target) ? 'hovering' : 'flying') : 'patrol';
 			frame = requestAnimationFrame(tick);
@@ -118,24 +124,24 @@
 </a>
 
 <style>
+	/* 近い姿の大きさで置き、遠いときは scale で縮める (Bee の farSize) */
 	.bee {
 		position: fixed;
 		top: 0;
 		left: 0;
 		z-index: 5;
 		display: block;
-		width: 3.5rem;
-		height: 3.5rem;
-		margin: -1.75rem 0 0 -1.75rem;
-		will-change: translate, rotate;
+		width: 32rem;
+		height: 32rem;
+		margin: -16rem 0 0 -16rem;
+		scale: 0.11;
+		pointer-events: none;
+		will-change: translate, rotate, scale;
 	}
 
-	@media (max-width: 48rem) {
-		.bee {
-			width: 2.75rem;
-			height: 2.75rem;
-			margin: -1.375rem 0 0 -1.375rem;
-		}
+	.far,
+	.near {
+		pointer-events: auto;
 	}
 
 	.bee[hidden] {
@@ -143,8 +149,9 @@
 	}
 
 	.bee:focus-visible {
-		outline: 4px solid var(--char);
-		outline-offset: 2px;
+		/* 縮めても枠の太さが変わらないよう、縮めた分だけ太くする */
+		outline: calc(4px / var(--scale, 1)) solid var(--char);
+		outline-offset: calc(2px / var(--scale, 1));
 		border-radius: 50%;
 	}
 
@@ -155,12 +162,13 @@
 		inset: 0;
 	}
 
+	/* 半透明で重なる時間を短くし、2 匹に見えないようにする */
 	.far {
-		opacity: calc(1 - var(--depth, 0));
+		opacity: clamp(0, (0.6 - var(--depth, 0)) * 5, 1);
 	}
 
 	.near {
-		opacity: var(--depth, 0);
+		opacity: clamp(0, (var(--depth, 0) - 0.4) * 5, 1);
 	}
 
 	.near :global(.bee-near) {

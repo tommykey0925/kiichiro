@@ -169,9 +169,11 @@
 </div>
 
 <style>
+	/* 3D は野原の部品 (草の模様・夜の蛍) より手前に置く。蛍は 3D の中に別にいる */
 	canvas {
 		position: fixed;
 		inset: 0;
+		z-index: 2;
 		display: block;
 		width: 100%;
 		height: 100%;
@@ -181,7 +183,7 @@
 	.exit,
 	.hint {
 		position: fixed;
-		z-index: 1;
+		z-index: 3;
 		padding: 0.45rem 0.9rem;
 		box-shadow: 0.2rem 0.2rem 0 var(--shade);
 		font-family: var(--font-sign-title);
@@ -208,7 +210,7 @@
 		right: 1rem;
 		bottom: 1rem;
 		left: 1rem;
-		z-index: 1;
+		z-index: 3;
 		max-width: 30rem;
 		margin: 0 auto;
 		padding: 1.1rem 1.3rem;
@@ -288,6 +290,7 @@
 	.unsupported {
 		position: fixed;
 		inset: 0;
+		z-index: 5;
 		display: grid;
 		place-content: center;
 		padding: 2rem;
@@ -316,7 +319,7 @@
 		position: fixed;
 		bottom: 1.5rem;
 		left: 1.5rem;
-		z-index: 2;
+		z-index: 4;
 		display: none;
 		place-items: center;
 		width: 7rem;

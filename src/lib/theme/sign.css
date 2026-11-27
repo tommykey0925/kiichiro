@@ -42,7 +42,8 @@
 }
 
 /*
- * 札は草に寝ていて、画面に入ると起き上がり、揺れが収まって止まる (杭の先を軸に回す)。
+ * 札は奥へ倒れて草に寝ていて、画面に入ると起き上がり、揺れが収まって止まる (杭の先を軸に回す)。
+ * 手前へは倒さない。縦に長い札 (スマホの一覧) は手前に倒すと上の端が視点を越え、巨大に映ってページの高さまで伸ばす。
  * :root.stage は app.html の先頭で付ける (JS が動かない環境では札は最初から立っている)。
  * .sign-swing の札は、触れると風を受けたように少し揺れる。
  */
@@ -53,7 +54,7 @@
 
 	:root.stage .sign-post:not(.stood) {
 		opacity: 0;
-		transform: perspective(60rem) rotateX(-75deg);
+		transform: perspective(60rem) rotateX(75deg);
 	}
 
 	:root.stage .sign-post.stood {
@@ -73,14 +74,14 @@
 @keyframes stand {
 	0% {
 		opacity: 0;
-		transform: perspective(60rem) rotateX(-75deg);
+		transform: perspective(60rem) rotateX(75deg);
 	}
 	55% {
 		opacity: 1;
-		transform: perspective(60rem) rotateX(9deg);
+		transform: perspective(60rem) rotateX(-4deg);
 	}
 	78% {
-		transform: perspective(60rem) rotateX(-3deg);
+		transform: perspective(60rem) rotateX(1.5deg);
 	}
 	100% {
 		opacity: 1;

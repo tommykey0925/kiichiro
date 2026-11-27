@@ -5,6 +5,7 @@
 // 検査すること
 //   - PC とスマホ、ライトとダークの全組み合わせで、横スクロールが出ない・ページのエラーが出ない
 //   - ヘッダーの札 (空に浮かぶ小さな札 2 枚) が不透明で、スクロールしても下の文字が透けて重ならない
+//   - 下まで読み進めても、ページが野原より長く伸びない (札の動きでページの高さが変わらない)
 //   - メニューが開き、Esc で閉じ、フォーカスが開いたボタンに戻る
 //   - 作品一覧まで読み進めると花が咲き、蜂が訪れてヘッダーの蜂の巣に蜜がたまる
 //   - トップでたまった蜜が /world に引き継がれ、ヘッダーの蜂の巣に出る
@@ -77,6 +78,20 @@ try {
 				if (layout.signBackgrounds.length !== 2 || layout.signBackgrounds.some((b) => alphaOf(b) < 1)) {
 					fail(`${label}: ヘッダーの札が 2 枚そろって不透明になっていない (${layout.signBackgrounds.join(', ')})`);
 				}
+
+				// 下まで読み進めても、ページが野原 (.field) より長く伸びない。札が起き上がる途中の形でページの高さが変わらないか
+				const stretched = await page.evaluate(async () => {
+					const field = document.querySelector<HTMLElement>('.field');
+					let longest = 0;
+					for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight / 2) {
+						scrollTo(0, y);
+						await new Promise((resolve) => setTimeout(resolve, 80));
+						longest = Math.max(longest, document.documentElement.scrollHeight);
+					}
+					scrollTo(0, 0);
+					return longest - (field?.offsetHeight ?? longest);
+				});
+				if (stretched > 1) fail(`${label}: 読み進めるとページが野原より ${stretched}px 長く伸びる`);
 				page.removeAllListeners('pageerror');
 				page.removeAllListeners('console');
 			}
