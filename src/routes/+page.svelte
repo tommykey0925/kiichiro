@@ -16,8 +16,7 @@
 	import { m } from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
 
-	// ヒーローの下の野原には、作品ごとにその作品の色の花を植える
-	const meadow = [...showcase, ...others].map((w) => ({ id: w.id, color: w.spot?.color ?? 'var(--brand-petal)' }));
+	const colorOf = (w: { spot?: { color: string } }) => w.spot?.color ?? 'var(--brand-petal)';
 </script>
 
 <svelte:head>
@@ -35,8 +34,6 @@
 		<Mascot pose="hero" class="hero-bee" fetchpriority="high" />
 	</div>
 </section>
-
-<Meadow works={meadow} />
 
 <Bee />
 
@@ -66,7 +63,8 @@
 							<a class="dads-link" href={work.repo} rel="noreferrer">GitHub</a>
 						</p>
 					</div>
-					<span class="pick-bloom"><Bloom id={work.id} color={work.spot?.color ?? 'var(--brand-petal)'} size="8rem" /></span>
+					<span class="pick-bloom"><Bloom id={work.id} color={colorOf(work)} size="8rem" /></span>
+					<div class="pick-ground"><Meadow works={[{ id: work.id, color: colorOf(work) }]} per={9} seed={i + 1} /></div>
 				</li>
 			{/each}
 		</ol>
@@ -104,8 +102,7 @@
 		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
 		align-items: center;
 		gap: 2rem;
-		/* 下の野原 (最大 11rem) まで最初の画面に収める */
-		min-height: calc(100svh - var(--header-height) - 11rem);
+		min-height: calc(100svh - var(--header-height) - 4rem);
 		padding: 3rem clamp(1.25rem, 6vw, 6rem);
 		background-image: radial-gradient(var(--line) 1.6px, transparent 1.8px);
 		background-size: 14px 14px;
@@ -190,13 +187,24 @@
 		list-style: none;
 	}
 
+	/* 作品の行: 文字は地面より上に置き、作品の花の茎が行の下の地面まで伸びる */
 	.pick {
 		display: grid;
 		grid-template-columns: 6rem minmax(0, 1fr) 10rem;
-		gap: 1.5rem;
+		grid-template-rows: auto auto;
+		column-gap: 1.5rem;
 		align-items: start;
-		padding: 2rem 0;
-		border-top: 2px solid var(--brand-ink);
+		padding-top: 2rem;
+		--meadow-height: 7rem;
+	}
+
+	.pick-body {
+		padding-bottom: 1rem;
+	}
+
+	.pick-ground {
+		grid-column: 1 / -1;
+		grid-row: 2;
 	}
 
 	.no {
@@ -234,15 +242,38 @@
 	}
 
 	.pick-bloom {
-		display: grid;
-		place-items: center;
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		align-self: stretch;
+		grid-row: 1;
+		grid-column: 3;
 		padding-top: 1rem;
+		/* 茎を地面 (下の行の中ほど) まで伸ばす */
+		margin-bottom: calc(var(--meadow-height) * -0.45);
+	}
+
+	.pick-bloom::after {
+		content: '';
+		flex: 1;
+		width: 3px;
+		margin-top: -0.6rem;
+		border-radius: 2px;
+		background: color-mix(in oklab, var(--brand-leaf) 75%, var(--brand-ink));
 	}
 
 	@media (max-width: 48rem) {
 		.pick {
 			grid-template-columns: 3.5rem minmax(0, 1fr);
-			grid-template-rows: auto 1fr;
+			grid-template-rows: auto 1fr auto;
+			column-gap: 1rem;
+			--meadow-height: 5rem;
+		}
+
+		.pick-ground {
+			grid-row: 3;
 		}
 
 		.pick-body {
@@ -262,7 +293,7 @@
 		.pick-bloom {
 			grid-column: 1;
 			grid-row: 2;
-			padding-top: 0;
+			padding-top: 0.5rem;
 		}
 
 		.pick-bloom {

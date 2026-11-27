@@ -117,8 +117,7 @@ try {
 		}
 		const label = await comb.getAttribute('aria-label');
 		if (!label?.startsWith('1 / 7') && !label?.startsWith('2 / 7')) fail(`${name}: 蜂の巣に蜜がたまらない (${label})`);
-		// ヒーローの下の野原へ戻ると、訪れた作品の色の花が咲いている
-		await page.evaluate(() => window.scrollTo(0, 0));
+		// 訪れた作品の行の地面に、その作品の色の小花が咲く
 		try {
 			await page.waitForFunction(() => document.querySelectorAll('.meadow .flower.open').length > 0, null, { timeout: 3000 });
 		} catch {

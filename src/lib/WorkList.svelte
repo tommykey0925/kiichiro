@@ -5,6 +5,7 @@
 	import { localizeHref } from './paraglide/runtime';
 	import Bloom from './brand/Bloom.svelte';
 	import { detour } from './forage/state.svelte';
+	import Meadow from './forage/Meadow.svelte';
 
 	let { works, start = 1 }: { works: Work[]; start?: number } = $props();
 </script>
@@ -24,8 +25,14 @@
 		</li>
 	{/each}
 </ol>
+<!-- 小さな作品の列の下に、まとめて 1 本の地面を敷く -->
+<div class="ground"><Meadow works={works.map((w) => ({ id: w.id, color: w.spot?.color ?? 'var(--brand-petal)' }))} per={6} seed={20} /></div>
 
 <style>
+	.ground {
+		--meadow-height: 6rem;
+	}
+
 	.list {
 		margin: 0;
 		padding: 0;
