@@ -7,6 +7,8 @@
 	  └──────────────────────────────────┘
 -->
 <script lang="ts">
+	import Fireflies from './Fireflies.svelte';
+
 	let { children } = $props();
 </script>
 
@@ -34,6 +36,7 @@
 		</defs>
 		<rect width="100%" height="100%" fill="url(#field-tuft)" />
 	</svg>
+	<Fireflies />
 	{@render children()}
 </div>
 
