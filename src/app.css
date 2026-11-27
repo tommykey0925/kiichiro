@@ -139,26 +139,3 @@ a {
 		background: var(--wood-grain);
 	}
 }
-
-/* ページの移り変わり。ヘッダーの札は残し、野原は入れ替える (新しいページの札はそのあと起き上がる) */
-@media (prefers-reduced-motion: no-preference) {
-	::view-transition-old(root) {
-		animation: fade-away var(--settle) both;
-	}
-
-	::view-transition-new(root) {
-		animation: fade-in var(--settle) both;
-	}
-}
-
-@keyframes fade-away {
-	to {
-		opacity: 0;
-	}
-}
-
-@keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-}

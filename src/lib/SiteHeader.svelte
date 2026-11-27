@@ -28,7 +28,6 @@
 		top: 0;
 		z-index: 10;
 		height: var(--header-height);
-		view-transition-name: header;
 		pointer-events: none;
 	}
 

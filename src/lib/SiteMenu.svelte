@@ -1,7 +1,7 @@
 <!--
 	全画面メニュー。野原に立てた大きな札に行き先を書き、空には蜂が飛ぶ。
 	<dialog> の showModal を使うので、Esc で閉じる・フォーカスの閉じ込め・開いたボタンへの復帰はブラウザに任せる。
-	開くたびに札が起き上がる (sign.css の stand。表示し直すたびに最初から動く)。連絡先は下のアイコンにあるので、行き先に Contact は置かない。
+	動くのは生き物と風と光だけ (CLAUDE.md「コンセプト」) なので、項目を時間差で出す動きは付けない。
 -->
 <script lang="ts">
 	import GithubLogoIcon from 'phosphor-svelte/lib/GithubLogoIcon';
@@ -17,7 +17,8 @@
 
 	const items = $derived([
 		{ label: 'Works', sub: m.nav_works(), href: localizeHref('/') + '#works' },
-		{ label: 'World', sub: m.nav_world(), href: localizeHref('/world') }
+		{ label: 'World', sub: m.nav_world(), href: localizeHref('/world') },
+		{ label: 'Contact', sub: m.nav_contact(), href: localizeHref('/') + '#contact' }
 	]);
 
 	function show() {
@@ -43,7 +44,7 @@
 		<path class="crest" d="M0 30 C 220 8, 420 34, 640 20 S 1020 6, 1200 22" />
 	</svg>
 
-	<div class="board sign sign-post stood">
+	<div class="board sign sign-post">
 		<nav>
 			<ul>
 				{#each items as item (item.label)}
@@ -130,24 +131,6 @@
 
 	.menu::backdrop {
 		background: transparent;
-	}
-
-	/* 開くと夜明けのように空が明るくなり、蜂が飛んでくる */
-	@media (prefers-reduced-motion: no-preference) {
-		.menu[open] {
-			animation: fade-in var(--settle) both;
-		}
-
-		.menu[open] .sky {
-			animation: fly-in var(--settle) both;
-		}
-	}
-
-	@keyframes fly-in {
-		from {
-			translate: 40vw -10vh;
-			scale: 0.4;
-		}
 	}
 
 	.sky {
