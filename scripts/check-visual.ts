@@ -106,6 +106,9 @@ try {
 		if ((await opener.getAttribute('aria-expanded')) !== 'true') fail(`${name}: aria-expanded が true にならない`);
 		if (!(await page.locator('.page').evaluate((el) => (el as HTMLElement).inert))) fail(`${name}: メニューを開いても本文が操作できる`);
 		await page.waitForTimeout(1500);
+		// 焦点を移しても項目の行の中身がずれない (ずれると文字が見切れる)
+		const shifted = await page.evaluate(() => [...document.querySelectorAll('#site-menu li, #site-menu .contacts, #site-menu .locale')].some((e) => e.scrollTop !== 0));
+		if (shifted) fail(`${name}: メニューの項目の行がスクロールされ、文字が見切れる`);
 		await page.keyboard.press('Escape');
 		try {
 			await page.waitForFunction(() => !document.querySelector<HTMLDialogElement>('dialog.menu')!.open, null, { timeout: 3000 });
