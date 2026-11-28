@@ -71,7 +71,11 @@
 
 			type Pick = { x: number; y: number; z: number; wander: number; speed: number; cell?: string };
 			function pick(): Pick {
-				if (menu.open) return { x: innerWidth * 0.74, y: innerHeight * 0.5, z: 2.2, wander: 1, speed: 4 };
+				// メニューの上: 広い画面では項目の右の空き、狭い画面では項目に重ならないよう下の空き
+				if (menu.open)
+					return innerWidth < 640
+						? { x: innerWidth * 0.66, y: innerHeight * 0.84, z: 2.2, wander: 0.6, speed: 4 }
+						: { x: innerWidth * 0.74, y: innerHeight * 0.5, z: 2.2, wander: 1, speed: 4 };
 				const showingHero = heroVisible();
 				if (showingHero && pointer && performance.now() - pointer.at < 2500) return { x: pointer.x + 70, y: pointer.y - 50, z: 1.4, wander: 0.3, speed: 4.5 };
 				const detour = forage.detour ? forage.flowers.get(forage.detour) : undefined;

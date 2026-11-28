@@ -131,13 +131,14 @@ body {
 	border: none;
 	border-radius: var(--border-radius-8);
 	background: none;
-	color: var(--ink);
+	/* ヘッダーの文字色に従う (メニューの地の上でも見える) */
+	color: inherit;
 	font-size: var(--font-size-16);
 	cursor: pointer;
 }
 
 .header-button:focus-visible {
-	outline: calc(4 / 16 * 1rem) solid var(--brand-ink);
+	outline: calc(4 / 16 * 1rem) solid currentColor;
 	outline-offset: calc(-4 / 16 * 1rem);
 }
 

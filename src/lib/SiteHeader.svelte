@@ -129,6 +129,19 @@
 		background: var(--brand-menu-accent);
 	}
 
+	/* 蜂の巣もメニューの地に合わせる。縁は文字色、空き部屋は地の色、蜜のたまった部屋は差し色 */
+	.over-menu :global(.comb .cell) {
+		background: currentColor;
+	}
+
+	.over-menu :global(.comb .cell::after) {
+		background: var(--brand-menu);
+	}
+
+	.over-menu :global(.comb .cell.full::after) {
+		background: var(--brand-menu-accent);
+	}
+
 	.home {
 		color: inherit;
 		font-size: var(--font-size-20);
