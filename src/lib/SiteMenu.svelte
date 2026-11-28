@@ -220,7 +220,9 @@
 		/* 焦点の枠が切れないよう、隠す範囲を少し広げておく */
 		margin-inline: -0.5rem;
 		padding: 0.5rem;
-		overflow: hidden;
+		/* hidden だと、開いた直後に項目へ焦点を移したとき行の中身がスクロールされて文字が見切れる。
+		   clip はスクロールできない切り抜きなので、焦点が来ても中身は動かない */
+		overflow: clip;
 	}
 
 	.nav li a,
@@ -271,7 +273,7 @@
 		display: none;
 		margin: -2rem -0.5rem 0;
 		padding: 0.5rem;
-		overflow: hidden;
+		overflow: clip;
 	}
 
 	@media (max-width: 40rem) {
