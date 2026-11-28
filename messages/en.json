@@ -30,5 +30,6 @@
 	"nav_contact": "Say hi",
 	"forage_progress": "The bee has visited {visited} of {total} works",
 	"world_more": "Show details",
-	"world_less": "Hide details"
+	"world_less": "Hide details",
+	"to_works": "To works"
 }

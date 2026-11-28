@@ -1,132 +1,146 @@
 <!--
-	画面を飛ぶ蜂。行き先は次の順で決める。
-	  1. 触れている作品の花 (寄り道)
-	  2. 画面に見えていて、咲いているのにまだ訪れていない花のうち、いちばん上のもの
-	  3. 最後に咲いた花 (訪れ終わったら、その上で待つ)
-	  4. どれもなければ画面の右上あたりを巡回
-	花の上にしばらく留まると訪れたことにする。押すと /world に入る。
-	動きを減らす設定では出さない (入口は連絡先の「3D で見る」が担う)。
+	画面を飛ぶ 3D の蜂。行き先 (画面の点と奥行き) は次の順で決め、飛び方は flight.ts、描画は stage.ts に任せる。
+	  1. メニューが開いている           → メニューの右寄り (手前で大きく)
+	  2. ヒーローでマウスが動いた        → マウスの少し右上 (手前)
+	  3. 触れている作品の部屋 (寄り道)
+	  4. 読む位置にまだ蜜のない作品の部屋 → 画面の真ん中にいちばん近いもの (奥で小さく)
+	  5. ヒーローが見えている            → ヒーローの決まった場所 (いちばん手前で大きく)
+	  6. それ以外                        → 画面の右上を漂う (奥)
+	部屋の上に 0.8 秒留まると訪れたことにする。three.js はページが出た後に読み込み、文字の表示を遅らせない。
+	動きを減らす設定では、ヒーローの決まった場所に 1 枚だけ描いて止める。
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import BeeIcon from '$lib/brand/BeeIcon.svelte';
 	import { forage } from './state.svelte';
-	import { createFlight, FLIGHT, isHovering, step, type Point } from './flight';
-	import { m } from '$lib/paraglide/messages';
-	import { localizeHref } from '$lib/paraglide/runtime';
+	import { menu } from '$lib/menu.svelte';
+	import { createFlight, step, type Goal } from './flight';
 
-	/** 花の上にこれだけ留まったら訪れたことにする (秒) */
+	let { hero }: { hero?: HTMLElement } = $props();
+
+	/** 部屋の上にこれだけ留まったら訪れたことにする (秒) */
 	const DWELL = 0.8;
 
-	let element: HTMLAnchorElement;
+	let canvas: HTMLCanvasElement;
 
 	onMount(() => {
-		if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		let frame = 0;
+		let disposed = false;
+		let cleanup = () => {};
 
-		const home = (): Point => ({ x: innerWidth * 0.78, y: innerHeight * 0.3 });
-		let flight = createFlight({ x: innerWidth + 60, y: innerHeight * 0.2 });
-		let dwell = 0;
-		let last = performance.now();
-		let frame = requestAnimationFrame(tick);
+		let pointer: { x: number; y: number; at: number } | null = null;
+		const onPointer = (e: PointerEvent) => {
+			if (e.pointerType === 'mouse') pointer = { x: e.clientX, y: e.clientY, at: performance.now() };
+		};
+		addEventListener('pointermove', onPointer);
 
-		function pickTarget(): [string, Point] | null {
-			const candidates = [
-				forage.detour,
-				[...forage.flowers.keys()].find((id) => forage.bloomed.has(id) && !forage.visited.has(id) && centerOf(id)),
-				forage.current
-			];
-			for (const id of candidates) {
-				if (!id || !forage.bloomed.has(id)) continue;
-				const point = centerOf(id);
-				if (point) return [id, point];
+		import('./stage').then(({ createStage }) => {
+			if (disposed) return;
+			let stage: ReturnType<typeof createStage>;
+			try {
+				stage = createStage(canvas, { scale: 1.7, still });
+			} catch {
+				// WebGL が使えない環境では蜂を出さない (部屋は読む位置に来たら蜜がたまる)
+				return;
 			}
-			return null;
-		}
+			const narrow = () => innerWidth < 720;
+			const heroAnchor = () => ({ x: innerWidth * (narrow() ? 0.62 : 0.7), y: innerHeight * (narrow() ? 0.34 : 0.4) });
+			const heroVisible = () => !!hero && hero.getBoundingClientRect().bottom > innerHeight * 0.45;
+			const spot = (el: HTMLElement) => {
+				const r = el.getBoundingClientRect();
+				return { x: r.left + r.width / 2, y: r.top + r.height * 0.4 };
+			};
+			const onScreen = (el: HTMLElement) => {
+				const r = el.getBoundingClientRect();
+				return r.bottom > 0 && r.top < innerHeight;
+			};
 
-		function centerOf(id: string | null): Point | null {
-			const flower = id ? forage.flowers.get(id) : undefined;
-			if (!flower) return null;
-			const box = flower.getBoundingClientRect();
-			if (box.bottom < 0 || box.top > innerHeight) return null;
-			// 花の真ん中より少し上に留まり、花が蜂に隠れきらないようにする
-			return { x: box.left + box.width / 2, y: box.top + box.height * 0.22 };
-		}
-
-		function tick(now: number) {
-			const [id, target] = pickTarget() ?? [null, null];
-			const dt = Math.min((now - last) / 1000, 0.1);
-			// 1 回で進める時間には上限があるので、画面の更新が遅い端末でも同じ速さで飛ぶよう分けて進める
-			const goal = home();
-			for (let left = dt; left > 1e-6; left -= FLIGHT.maxStep) {
-				flight = step(flight, target, goal, Math.min(left, FLIGHT.maxStep));
-			}
-			last = now;
-
-			if (id && target && isHovering(flight, target)) {
-				dwell += dt;
-				if (dwell >= DWELL) forage.visit(id);
-			} else {
-				dwell = 0;
+			function readingCell(): string | null {
+				const middle = innerHeight * 0.5;
+				let best: string | null = null;
+				let bestDistance = Infinity;
+				for (const [id, el] of forage.flowers) {
+					if (forage.visited.has(id) || !forage.bloomed.has(id)) continue;
+					const r = el.getBoundingClientRect();
+					if (r.bottom < innerHeight * 0.2 || r.top > innerHeight * 0.75) continue;
+					const distance = Math.abs(r.top + r.height / 2 - middle);
+					if (distance < bestDistance) [best, bestDistance] = [id, distance];
+				}
+				return best;
 			}
 
-			element.style.translate = `${flight.x}px ${flight.y}px`;
-			element.style.rotate = `${flight.angle}rad`;
-			element.dataset.state = target ? (isHovering(flight, target) ? 'hovering' : 'flying') : 'patrol';
+			type Pick = { x: number; y: number; z: number; wander: number; speed: number; cell?: string };
+			function pick(): Pick {
+				if (menu.open) return { x: innerWidth * 0.74, y: innerHeight * 0.5, z: 2.2, wander: 1, speed: 4 };
+				const showingHero = heroVisible();
+				if (showingHero && pointer && performance.now() - pointer.at < 2500) return { x: pointer.x + 70, y: pointer.y - 50, z: 1.4, wander: 0.3, speed: 4.5 };
+				const detour = forage.detour ? forage.flowers.get(forage.detour) : undefined;
+				if (forage.detour && detour && onScreen(detour)) return { ...spot(detour), z: -7, wander: 0.12, speed: 5, cell: forage.detour };
+				const reading = readingCell();
+				if (reading) return { ...spot(forage.flowers.get(reading)!), z: -7, wander: 0.12, speed: 5, cell: reading };
+				if (showingHero) return { ...heroAnchor(), z: 2.4, wander: 1, speed: 4 };
+				return { x: innerWidth * 0.86, y: innerHeight * 0.3, z: -6, wander: 1.4, speed: 4 };
+			}
+
+			// 動きを減らす設定ではヒーローの場所から、ふだんは画面の右外の少し奥から飛んでくる
+			const at = still ? heroAnchor() : { x: innerWidth * 1.15, y: innerHeight * 0.2 };
+			let flight = createFlight(stage.toWorld(at.x, at.y, still ? 2.4 : 0), still ? undefined : { x: -2.5, y: 0, z: 0 });
+			let dwell = 0;
+			let last = performance.now();
+
+			function tick(now: number) {
+				const dt = Math.min((now - last) / 1000, 0.1);
+				last = now;
+				const target = pick();
+				const goal: Goal = { at: stage.toWorld(target.x, target.y, target.z), wander: target.wander, speed: target.speed };
+				flight = step(flight, goal, dt);
+				stage.render(flight, dt);
+
+				const screen = stage.toScreen(flight.p);
+				forage.bee.x = screen.x;
+				forage.bee.y = screen.y;
+				forage.bee.flying = true;
+				if (target.cell && Math.hypot(screen.x - target.x, screen.y - target.y) < 40) {
+					dwell += dt;
+					if (dwell >= DWELL) {
+						forage.visit(target.cell);
+						dwell = 0;
+					}
+				} else {
+					dwell = 0;
+				}
+				if (!still) frame = requestAnimationFrame(tick);
+			}
+
+			const onResize = () => stage.resize();
+			addEventListener('resize', onResize);
 			frame = requestAnimationFrame(tick);
-		}
+			cleanup = () => {
+				removeEventListener('resize', onResize);
+				stage.dispose();
+			};
+		});
 
-		element.hidden = false;
-		return () => cancelAnimationFrame(frame);
+		return () => {
+			disposed = true;
+			cancelAnimationFrame(frame);
+			removeEventListener('pointermove', onPointer);
+			forage.bee.flying = false;
+			cleanup();
+		};
 	});
 </script>
 
-<a class="bee" href={localizeHref('/world')} aria-label={m.enter_world()} bind:this={element} hidden>
-	<BeeIcon />
-</a>
+<canvas class="bee" bind:this={canvas} aria-hidden="true"></canvas>
 
 <style>
+	/* ページ全体に重ねる透明なキャンバス。押したり選んだりは下の文字に通す。メニューより手前に出す */
 	.bee {
 		position: fixed;
-		top: 0;
-		left: 0;
-		z-index: 5;
-		display: block;
-		width: 3.5rem;
-		height: 3.5rem;
-		margin: -1.75rem 0 0 -1.75rem;
-		will-change: translate, rotate;
-	}
-
-	@media (max-width: 48rem) {
-		.bee {
-			width: 2.75rem;
-			height: 2.75rem;
-			margin: -1.375rem 0 0 -1.375rem;
-		}
-	}
-
-	.bee[hidden] {
-		display: none;
-	}
-
-	.bee:focus-visible {
-		outline: 4px solid var(--brand-ink);
-		outline-offset: 2px;
-		border-radius: 50%;
-	}
-
-	/* 羽ばたき。速く小さく振る */
-	.bee :global(.wings) {
-		transform-origin: 18px 14px;
-		animation: buzz 70ms linear infinite alternate;
-	}
-
-	@keyframes buzz {
-		from {
-			transform: scaleY(1);
-		}
-		to {
-			transform: scaleY(0.55);
-		}
+		inset: 0;
+		z-index: 30;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
 	}
 </style>

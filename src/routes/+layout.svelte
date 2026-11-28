@@ -8,6 +8,7 @@
 	import '$lib/theme/brand.css';
 	import '../app.css';
 	import SiteHeader from '$lib/SiteHeader.svelte';
+	import { menu } from '$lib/menu.svelte';
 	import { page } from '$app/state';
 	import { profile } from '$lib/profile';
 	import { deLocalizeHref, locales, localizeHref } from '$lib/paraglide/runtime';
@@ -25,4 +26,7 @@
 
 <SiteHeader />
 
-{@render children()}
+<!-- メニューを開いている間、本文は操作も読み上げもできないようにする (メニューは showModal を使わないため) -->
+<div class="page" inert={menu.open}>
+	{@render children()}
+</div>

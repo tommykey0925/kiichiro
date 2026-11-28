@@ -1,45 +1,68 @@
 /*
- * kiichi.ro 独自の色と書体。デジタル庁デザインシステムのトークンは使わない (CLAUDE.md 参照)。
+ * kiichi.ro 独自の色・書体・動き。デジタル庁デザインシステムのトークンは使わない (CLAUDE.md 参照)。
+ * 生成りの紙 (paper) に墨 (ink) と蜜 (honey)。六角形を全体の決まりにする。
  * 文字色の組み合わせは WCAG 2.1 AA (4.5:1) を計算で確かめてある。
  *
- *   ライト  ink/paper 16.00  muted/paper 6.08  petal/paper 5.34  ink/honey 9.50
- *   ダーク  ink/paper 15.84  muted/paper 8.24  petal/paper 7.96  honey/paper 10.26
+ *   ライト  ink/paper 15.38  ink/paper-2 13.79  muted/paper 6.02  muted/paper-2 5.40  petal/paper 4.99
+ *           メニュー (墨の地): paper/ink 15.38  honey/ink 9.78
+ *   ダーク  ink/paper 15.71  ink/paper-2 14.57  muted/paper 8.09  muted/paper-2 7.50  petal/paper 8.02  honey/paper 10.34
+ *           メニュー (蜜の地): on-honey/honey 9.78
  *
- * honey はライトでは背景に対して 1.68 しかないので、文字色には使わず塗りだけに使う。
+ * honey はライトでは背景に対して 1.57 しかないので、文字色には使わず塗りだけに使う。
  */
 
 :root {
-	--brand-paper: #fbf6e9;
-	--brand-surface: #fffdf7;
-	--brand-ink: #1f1a14;
-	--brand-muted: #665c4d;
-	--brand-line: #e6dcc5;
+	--brand-paper: #f5eedd;
+	/* 巣の部屋の中など、紙より一段濃い面 */
+	--brand-paper-2: #ece2c8;
+	--brand-surface: #fffaf0;
+	--brand-ink: #1c1712;
+	--brand-muted: #62584a;
+	--brand-line: #e0d5bb;
 	--brand-honey: #f2b705;
-	--brand-on-honey: #1f1a14;
+	--brand-on-honey: #1c1712;
 	--brand-petal: #b8325a;
 	--brand-leaf: #4f7a3a;
+	/* 全画面メニューの地と文字。ライトは墨の地、ダークは蜜の地 */
+	--brand-menu: #1c1712;
+	--brand-on-menu: #f5eedd;
+	--brand-menu-accent: #f2b705;
 
 	--font-display: 'Jost', 'Noto Sans JP', sans-serif;
+
+	/* 動き: 遅めの減速 (expo-out) にそろえる。弾むのは六角形の印だけ */
+	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+	--duration-slow: 1.4s;
+	--duration-mid: 0.9s;
 }
 
 :root[data-theme="dark"] {
-	--brand-paper: #16120c;
-	--brand-surface: #1f1a12;
-	--brand-ink: #f4ecd8;
-	--brand-muted: #b8ab92;
+	--brand-paper: #15110b;
+	--brand-paper-2: #1f1910;
+	--brand-surface: #211a10;
+	--brand-ink: #f3ead6;
+	--brand-muted: #b5a98f;
 	--brand-line: #3a3226;
 	--brand-petal: #f28aa6;
 	--brand-leaf: #8fbf6a;
+	--brand-menu: #f2b705;
+	--brand-on-menu: #1c1712;
+	--brand-menu-accent: #1c1712;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
-		--brand-paper: #16120c;
-		--brand-surface: #1f1a12;
-		--brand-ink: #f4ecd8;
-		--brand-muted: #b8ab92;
+		--brand-paper: #15110b;
+		--brand-paper-2: #1f1910;
+		--brand-surface: #211a10;
+		--brand-ink: #f3ead6;
+		--brand-muted: #b5a98f;
 		--brand-line: #3a3226;
 		--brand-petal: #f28aa6;
 		--brand-leaf: #8fbf6a;
+		--brand-menu: #f2b705;
+		--brand-on-menu: #1c1712;
+		--brand-menu-accent: #1c1712;
 	}
 }

@@ -1,43 +1,44 @@
+<!--
+	主な作品の下に並べる、ほかの作品の一覧。1 行に番号・名前・説明と、右端に小さな作品の部屋。
+-->
 <script lang="ts">
 	import type { Work } from './works';
-	import './dads/link.css';
 	import { localize } from './i18n/localize';
 	import { localizeHref } from './paraglide/runtime';
-	import Bloom from './brand/Bloom.svelte';
+	import Cell from './brand/Cell.svelte';
 	import { detour } from './forage/state.svelte';
+	import { reveal } from './motion/reveal';
 
 	let { works, start = 1 }: { works: Work[]; start?: number } = $props();
 </script>
 
 <ol class="list" {start}>
 	{#each works as work, i (work.id)}
-		<li class="item" use:detour={work.id}>
-			<span class="no">
-				<span aria-hidden="true">{String(start + i).padStart(2, '0')}</span>
-				<Bloom id={work.id} color={work.spot?.color ?? 'var(--brand-petal)'} size="2.5rem" />
-			</span>
-			<p class="name">
-				<a class="dads-link" href={localizeHref(`/works/${work.id}`)}>{work.title}</a>
-			</p>
-			<p class="summary">{localize(work.summary)}</p>
-			<p class="tech">{work.tech.map(localize).join(' / ')}</p>
+		<li class="row" use:detour={work.id} use:reveal>
+			<span class="no" aria-hidden="true">{String(start + i).padStart(2, '0')}</span>
+			<p class="name"><a href={localizeHref(`/works/${work.id}`)}>{work.title}</a></p>
+			<div class="text">
+				<p>{localize(work.summary)}</p>
+				<p class="tech">{work.tech.map(localize).join(' / ')}</p>
+			</div>
+			<span class="row-cell"><Cell id={work.id} color={work.spot?.color ?? 'var(--brand-petal)'} size="2.6rem" /></span>
 		</li>
 	{/each}
 </ol>
 
 <style>
 	.list {
-		margin: 0;
+		margin: 3rem 0 0;
 		padding: 0;
 		list-style: none;
-		border-top: 1px solid var(--line);
 	}
 
-	.item {
+	.row {
 		display: grid;
-		grid-template-columns: 3rem 11rem 1fr;
-		column-gap: 1.5rem;
-		padding: 1rem 0;
+		grid-template-columns: 3rem 11rem minmax(0, 1fr) 2.6rem;
+		gap: 1.25rem;
+		align-items: center;
+		padding: 1.125rem 0;
 		border-bottom: 1px solid var(--line);
 	}
 
@@ -46,49 +47,59 @@
 	}
 
 	.no {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.25rem;
-		grid-row: span 2;
 		color: var(--muted);
-		font-family: var(--font-display);
-		font-size: var(--font-size-20);
-		font-weight: 700;
-		line-height: var(--line-height-150);
+		font: 500 var(--font-size-16) var(--font-display);
 	}
 
 	.name {
-		grid-row: span 2;
-		font-family: var(--font-display);
-		font-size: var(--font-size-20);
-		font-weight: 700;
-		line-height: var(--line-height-150);
+		font: 700 var(--font-size-18, 1.125rem) / 1.3 var(--font-display);
 		overflow-wrap: anywhere;
 	}
 
-	.tech {
-		grid-column: 3;
-		color: var(--muted);
-		font-size: var(--font-size-14);
-		line-height: var(--line-height-150);
+	.name a {
+		color: inherit;
+		text-decoration: underline 0.125rem transparent;
+		text-underline-offset: 0.3rem;
+		transition: text-decoration-color 0.4s;
 	}
 
-	@media (max-width: 40rem) {
-		.item {
-			grid-template-columns: 2.5rem 1fr;
+	.row:hover .name a,
+	.name a:focus-visible {
+		text-decoration-color: var(--brand-honey);
+	}
+
+	.text {
+		color: var(--muted);
+		font-size: var(--font-size-14);
+		line-height: var(--line-height-160);
+	}
+
+	.tech {
+		margin-top: 0.25rem;
+	}
+
+	@media (max-width: 45rem) {
+		.row {
+			grid-template-columns: 2.2rem minmax(0, 1fr) 2rem;
+			grid-template-areas: 'no name cell' 'text text text';
+			row-gap: 0.5rem;
 		}
 
 		.no {
-			grid-row: span 3;
+			grid-area: no;
 		}
 
 		.name {
-			grid-row: auto;
+			grid-area: name;
 		}
 
-		.tech {
-			grid-column: 2;
+		.text {
+			grid-area: text;
+		}
+
+		.row-cell {
+			--cell-size: 2rem;
+			grid-area: cell;
 		}
 	}
 </style>

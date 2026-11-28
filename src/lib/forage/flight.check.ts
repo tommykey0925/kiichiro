@@ -1,66 +1,95 @@
-// 蜂の飛び方の検査。pnpm test で動かす。
+// 通常ページの蜂の飛び方の検査。pnpm test で動かす。
 import assert from 'node:assert/strict';
-import { FLIGHT, createFlight, isHovering, step, type Flight } from './flight.ts';
+import { FLIGHT, createFlight, speedOf, step, wave, type Flight, type Goal } from './flight.ts';
 
 const fps = 60;
-const run = (flight: Flight, target: { x: number; y: number } | null, seconds: number, onFrame?: (f: Flight) => void) => {
+const run = (flight: Flight, goal: Goal, seconds: number, onFrame?: (f: Flight) => void, yaw: number | null = null) => {
 	let f = flight;
 	for (let i = 0; i < seconds * fps; i++) {
-		f = step(f, target, { x: 0, y: 0 }, 1 / fps);
+		f = step(f, goal, 1 / fps, yaw);
 		onFrame?.(f);
 	}
 	return f;
 };
+const distance = (f: Flight, goal: Goal) => Math.hypot(f.p.x - goal.at.x, f.p.y - goal.at.y, f.p.z - goal.at.z);
+const finite = (f: Flight) => [f.p.x, f.p.y, f.p.z, f.v.x, f.v.y, f.v.z, f.yaw, f.pitch, f.bank, f.smile].every(Number.isFinite);
 
-// 1. 遠くの花に 3 秒以内で着き、そのあと花の上に留まる
+// 1. 遠くの作品 (奥) へ 3 秒以内に着き、そのあと 0.3m より離れない。最高速度を超えない
 {
-	const target = { x: 1200, y: 700 };
+	const goal: Goal = { at: { x: -3, y: -1.5, z: -7 }, wander: 0.12, speed: 5 };
 	let arrivedAt = -1;
 	let frame = 0;
 	let left = false;
-	let maxSpeed = 0;
-	run(createFlight({ x: 0, y: 0 }), target, 6, (f) => {
+	let top = 0;
+	run(createFlight({ x: 4, y: 2, z: 0 }), goal, 7, (f) => {
 		frame++;
-		maxSpeed = Math.max(maxSpeed, Math.hypot(f.vx, f.vy));
-		for (const v of [f.x, f.y, f.vx, f.vy, f.angle]) assert.ok(Number.isFinite(v), '値が有限でない');
-		if (arrivedAt < 0 && isHovering(f, target)) arrivedAt = frame / fps;
-		else if (arrivedAt >= 0 && frame / fps > arrivedAt + 0.5 && Math.hypot(f.x - target.x, f.y - target.y) > FLIGHT.hoverRadius * 1.5) left = true;
+		assert.ok(finite(f), '値が有限でない');
+		top = Math.max(top, speedOf(f));
+		if (arrivedAt < 0 && distance(f, goal) < 0.2) arrivedAt = frame / fps;
+		else if (arrivedAt >= 0 && frame / fps > arrivedAt + 1 && distance(f, goal) > 0.3) left = true;
 	});
-	assert.ok(arrivedAt > 0 && arrivedAt < 3, `花に着くまで ${arrivedAt} 秒かかった`);
-	assert.ok(!left, '着いた後に花から離れた');
-	assert.ok(maxSpeed <= FLIGHT.maxSpeed + 1e-6, `最高速度を超えた (${maxSpeed})`);
+	assert.ok(arrivedAt > 0 && arrivedAt < 3, `着くまで ${arrivedAt} 秒かかった`);
+	assert.ok(!left, '着いた後に離れた');
+	assert.ok(top <= goal.speed * 1.05, `最高速度を超えた (${top.toFixed(2)})`);
 }
 
-// 2. まっすぐ飛ばない (進路が直線から外れる)
+// 2. 飛び始めは急に最高速にならない (慣性)
 {
-	const target = { x: 1500, y: 0 };
-	let maxOff = 0;
-	run(createFlight({ x: 0, y: 0 }), target, 1.2, (f) => (maxOff = Math.max(maxOff, Math.abs(f.y))));
-	assert.ok(maxOff > 3, `進路の揺れが小さすぎる (${maxOff.toFixed(2)}px)`);
-	assert.ok(maxOff < 120, `進路の揺れが大きすぎる (${maxOff.toFixed(2)}px)`);
+	const goal: Goal = { at: { x: 6, y: 0, z: 0 }, wander: 0, speed: 5 };
+	const early = run(createFlight({ x: 0, y: 0, z: 0 }), goal, 0.1);
+	assert.ok(speedOf(early) < 1, `飛び始めから速すぎる (${speedOf(early).toFixed(2)})`);
 }
 
-// 3. 花の上では止まりきらず、細かく揺れる
+// 3. 留まっている間も完全には止まらず、漂う
 {
-	const target = { x: 300, y: 300 };
-	const settled = run(createFlight({ x: 0, y: 0 }), target, 4);
+	const goal: Goal = { at: { x: 0, y: 0, z: 2 }, wander: 1, speed: 4 };
+	const settled = run(createFlight({ x: 0, y: 0, z: 2 }), goal, 4);
 	const xs: number[] = [];
-	run(settled, target, 1, (f) => xs.push(f.x));
+	run(settled, goal, 4, (f) => xs.push(f.p.x));
 	const spread = Math.max(...xs) - Math.min(...xs);
-	assert.ok(spread > 2 && spread < 40, `花の上の揺れ幅が想定外 (${spread.toFixed(2)}px)`);
+	assert.ok(spread > 0.1 && spread < 1.2, `漂う幅が想定外 (${spread.toFixed(2)}m)`);
 }
 
-// 4. 行き先がないときは巡回し、遠くへ行かない
+// 4. 留まっていると、こちらを向いて笑い、手を振る。挨拶は 2.2 秒で終わり、ずっと笑い続けない
 {
-	let far = 0;
-	run(createFlight({ x: 0, y: 0 }), null, 20, (f) => (far = Math.max(far, Math.hypot(f.x, f.y))));
-	assert.ok(far < 260, `巡回で離れすぎた (${far.toFixed(0)}px)`);
+	const goal: Goal = { at: { x: 0, y: 0, z: 2 }, wander: 0.05, speed: 4 };
+	let greeted = -1;
+	let maxWave = 0;
+	let smiling = 0;
+	let frame = 0;
+	run(createFlight({ x: 0, y: 0, z: 2 }), goal, 16, (f) => {
+		frame++;
+		maxWave = Math.max(maxWave, wave(f));
+		if (greeted < 0 && f.greetFor > 0) greeted = frame / fps;
+		if (f.smile > 0.5) smiling++;
+	});
+	assert.ok(greeted >= 0 && greeted < FLIGHT.lookCycle + 1, `挨拶が始まらない (${greeted})`);
+	assert.ok(maxWave > 0.9 && maxWave <= 1, `手を振る度合いが想定外 (${maxWave.toFixed(2)})`);
+	assert.ok(smiling / fps < 16 * 0.5, `笑っている時間が長すぎる (${(smiling / fps).toFixed(1)} 秒)`);
 }
 
-// 5. 大きな dt を渡しても飛びすぎない (タブが裏から戻った直後)
+// 5. 速く飛んでいる間は挨拶しない
 {
-	const f = step(createFlight({ x: 0, y: 0 }), { x: 5000, y: 0 }, { x: 0, y: 0 }, 10);
-	assert.ok(Math.hypot(f.x, f.y) <= FLIGHT.maxSpeed * FLIGHT.maxStep + 1e-6, '一度に進みすぎた');
+	const goal: Goal = { at: { x: 40, y: 0, z: 0 }, wander: 0, speed: 5 };
+	let greeted = false;
+	run(createFlight({ x: -40, y: 0, z: 0 }), goal, 6, (f) => speedOf(f) > 1 && f.greetFor > 0 && (greeted = true));
+	assert.ok(!greeted, '速く飛びながら挨拶した');
 }
 
-console.log('flight ok');
+// 6. 向きを指定すると、その向きへ寄る (標本のように回して見せるとき)
+{
+	const goal: Goal = { at: { x: 0, y: 0, z: 0 }, wander: 0, speed: 4 };
+	const turned = run(createFlight({ x: 0, y: 0, z: 0 }), goal, 2, undefined, Math.PI / 2);
+	assert.ok(Math.abs(turned.yaw - Math.PI / 2) < 0.05, `指定した向きにならない (${turned.yaw.toFixed(2)})`);
+}
+
+// 7. 大きな dt を渡しても飛びすぎない (タブが裏から戻った直後)
+{
+	const goal: Goal = { at: { x: 50, y: 0, z: 0 }, wander: 0, speed: 5 };
+	const start = createFlight({ x: 0, y: 0, z: 0 }, { x: 5, y: 0, z: 0 });
+	const f = step(start, goal, 10);
+	assert.ok(f.p.x <= 5 * FLIGHT.maxStep * 1.5, `一度に進みすぎた (${f.p.x.toFixed(2)}m)`);
+	assert.ok(finite(f), '値が有限でない');
+}
+
+console.log('forage flight ok');
